@@ -10,6 +10,14 @@ Help for dotnet cli
 
 ...
 
+Install packages (must be same as netcore version)
+- open command shell (ctrl+shift+p)
+- Nuget Package Manager: Add Package
+- Add to Project
+- Restore pop-up window
+
+...
+
 Error in packages with 3.0.0 and project template defaulting to netstandard2.0
 For projects Persistence, Application
 
@@ -18,3 +26,22 @@ Solution: Manually change Projects to target netstandard2.1
 <PropertyGroup>
 	<TargetFramework>netstandard2.1</TargetFramework>
 </PropertyGroup>
+
+...
+
+Error running 
+> dotnet ef migrations add InitalCreate -p Persistence/ -s API/
+
+Could not execute because the specified command or file was not found.
+Possible reasons for this include:
+  * You misspelled a built-in dotnet command.
+  * You intended to execute a .NET Core program, but dotnet-ef does not exist.
+
+Solution: https://stackoverflow.com/questions/56862089/cannot-find-command-dotnet-ef
+dotnet tool install --global dotnet-ef
+
+...
+
+Error
+Your startup project 'API' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework 
+Core Tools to work. Ensure your startup project is correct, install the package, and try again.
