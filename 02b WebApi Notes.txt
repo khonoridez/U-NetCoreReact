@@ -22,7 +22,7 @@ Web API Project notes
 ...
 
 Running under VS Code
-1. Under Terminal, using dotnet cli
-2. Spepcify startup project
-3. Run
+- Under Terminal, using dotnet cli
+- Specify startup project
+- Run:
 > dotnet run -p API/

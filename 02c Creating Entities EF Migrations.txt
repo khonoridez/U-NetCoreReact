@@ -63,6 +63,62 @@ dotnet ef migrations add InitialCreate --project Persistence/
 - updates to the latest migration if no migration is specified
 > dotnet ef database update
 
-- Another apporoach, update the database whenver the application starts up
-a. Program.cs > Main()
+- Another apporoach, update the database whenever the application starts up
+a. Under Program.cs > Main()
+- We will add the Run() method later
+From: CreateHostBuilder(args).Build().Run();
+To: var host = CreateHostBuilder(args).Build();
 
+b. set using to inject DbContext
+- We just need to check this once
+...
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Persistence;
+...
+using (var scope = host.Services.CreateScope())
+{
+	var services = scope.ServiceProvider;
+
+	try
+	{
+		var context = services.GetRequiredService<DataContext>();
+		context.Database.Migrate(); 
+		// Applies any pending migrations for the context to the database. Will create if not exist
+	}
+
+!! This check happens everytime the program starts up
+
+Final:
+...
+var host = CreateHostBuilder(args).Build();
+
+using (var scope = host.Services.CreateScope())
+{
+	var services = scope.ServiceProvider;
+
+	try
+	{
+		var context = services.GetRequiredService<DataContext>();
+		context.Database.Migrate();
+	}
+	catch (Exception ex)
+	{
+		var logger = services.GetRequiredService<ILogger<Program>>();
+		logger.LogError(ex, "An error occured during migration");
+	}
+}
+
+host.Run();
+
+c. Run:
+- This should create our database and run our application
+
+- Only works inside the context of the startup project, error in solution level even with -p switch
+> dotnet watch run
+
+d. View database
+- A reactivities.db file will be created under root of API Project
+- View > Command Palette
+- type sqlite / open database
+- Sqlite Explorer show up with the tables under
