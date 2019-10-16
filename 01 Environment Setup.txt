@@ -1,0 +1,40 @@
+
+Install
+1. .Net Core SDK
+2. Node.js
+Note: we have to install NMode.js via NVM (Node VErsion Manager), Not easy to switch node versions without NVM
+https://medium.com/@Joachim8675309/installing-node-js-with-nvm-4dc469c977d9
+
+a. For Windows
+NVM is actually not supported on Windows, but there’s a similar on Windows called NVM-Windows. 
+With Chocolatey package manager solution installed, we install this with compiler support, and a spiffy console by running this in PowerShell:
+https://github.com/coreybutler/nvm-windows
+
+Run nvm-windows installer
+
+b. Install npm via Powershell
+(nvm install <version> [arch])
+> nvm install latest 64
+
+3. Install git
+4. Install VS Code
+ex. Rider from Jetbrains
+
+...
+
+Recommended VS Code Extensions
+1. Auto Close Tag
+2. Auto Rename Tag
+3. Bracket Pair Colorizer 2
+4. C#
+5. C# Extensions
+6. ES7 React/Redux/React-Native/JS snippets
+7. Material Icon Theme
+8. NuGet Package Manager
+9. Prettier Formatter for Visual Studio Code
+10. sqlite
+
+...
+
+GitHub Repository
+https://github.com/TryCatchLearn/Reactivities
