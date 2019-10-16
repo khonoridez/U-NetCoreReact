@@ -7,8 +7,8 @@ Under VS Code
 > dotnet run -p API/
 
 - Only works inside the context of the startup project, error in solution level even with -p switch
+> cd API
 > dotnet watch run
-
 
 Recommend dotnet cli in creating Projects
 
@@ -27,6 +27,21 @@ Install packages (must be same as netcore version)
 - Nuget Package Manager: Add Package
 - Add to Project
 - Restore pop-up window
+
+...
+
+EF Codes
+!specify -p is the persistence project
+!specify -s is the startup project
+> dotnet ef migrations add InitialCreate -p Persistence/ -s API/
+
+!updates to the latest migration if no migration is specified
+> dotnet ef database update <migration>
+
+!create new migration for seed
+-p for datacontext project
+-s startup project
+> dotnet ef migrations add SeedValues -p Persistence/ -s API/
 
 
 ++++++++++++ERRORS++++++++++++++
