@@ -1,0 +1,48 @@
+Creating Entities
+
+Domain
+1. Create Entity
+> Value.cs
+> We will be using EF (Code first)
+> property with name of "Id" will automatically be the primary key
+
+Persistence
+1. Create DbContext class
+> public class DataContext : DbContext
+> Install packages (must be same as netcore version)
+- open command shell (ctrl+shift+p)
+- Nuget Package Manager: Add Package
+- Microsoft.EntityFrameworkCore 3.0.0
+- Microsoft.EntityFrameworkCore.Sqlite 3.0.0
+- Add to Persistence Project
+
+2. Create constructor and 1st DbSet Property
+	public class DataContext : DbContext
+    {
+        public DataContext(DbContextOptions options) : base(options)
+        {
+        }
+
+        public DbSet<Value> Values { get; set; }
+    }
+
+3. Add the context as a Service
+- Inject this to various parts in the application
+API Project > Startup.cs > ConfigureServices()
+
+using Microsoft.EntityFrameworkCore;
+...
+services.AddDbContext<DataContext>(opt =>
+{
+	opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+});
+
+!This will work since we installed Microsoft.EntityFrameworkCore.Sqlite 3.0.0 via npm
+
+4. Specify ConnectionStrings under appsettings.json (using sqlite)
+"ConnectionStrings": {
+    "DefaultConnection": "Data source=reactivities.db"
+  },
+
+...
+

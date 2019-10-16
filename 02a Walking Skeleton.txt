@@ -42,22 +42,28 @@ Creating the Projects
 
 1. Create a solution file
 > dotnet new sln
+
 2. Create Domain project
 > dotnet new classlib -n Domain
+
 3. Create Application project
 - This will contain all business logic, all other projects will be "dumb"
 > dotnet new classlib -n Application
+
 4. Create Persistence project
 - Database logic
 > dotnet new classlib -n Persistence
+
 5. Create API project of type webapi
 > dotnet new webapi -n API
+
 6. Add Projects to solution
 > dotnet sln -h
 > dotnet sln add Domain <hit TAB>
 .. do for all projects
 - Check Projects if added
 > dotnet sln list
+
 7. Add dependencies
 - Add references to projects
 - Domain will be center of application universe, no dependencies
@@ -76,35 +82,3 @@ Creating the Projects
 
 8. Close, Reopen Vs Code to show build pop-ip, this will generate a .vscode folder with json files
 launch.json, tasks.json
-
-...
-
-Web API Project notes
-1. starts at public static void Main(string[] args)
-2. CreateDefaultBuilder()
-- appsettings.json and appsettings.Development.json
-- Development settings overwrites the production appsettings
-- Also uses the Startup.cs
-3. Startup.cs
-- ConfigureServices()
-	Default DI COntainer
-- Configure()
-	Http Request pipeline
-	- UseDeveloperExceptionPage(), detailed error message
-4. Disable https for training purposes
-- Probable issues for self-signed certificates recognized by browsers
-- Comment out UseHttpsRedirection under Startup.cs
-- Under Properties/launchSettings.json, remove https://localhost:5001
-5. API Controllers
-[Route("[controller]")]
-- Attribute based routing
-
-...
-
-Running under VS Code
-1. Under Terminal, using dotnet cli
-2. Spepcify startup project
-> dotnet run -p API/
-
-
-

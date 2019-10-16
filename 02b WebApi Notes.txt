@@ -1,0 +1,28 @@
+Web API Project notes
+
+1. starts at public static void Main(string[] args)
+2. CreateDefaultBuilder()
+- appsettings.json and appsettings.Development.json
+- Development settings overwrites the production appsettings
+- Also uses the Startup.cs
+3. Startup.cs
+- ConfigureServices()
+	Default DI COntainer
+- Configure()
+	Http Request pipeline
+	- UseDeveloperExceptionPage(), detailed error message
+4. Disable https for training purposes
+- Probable issues for self-signed certificates recognized by browsers
+- Comment out UseHttpsRedirection under Startup.cs
+- Under Properties/launchSettings.json, remove https://localhost:5001
+5. API Controllers
+[Route("[controller]")]
+- Attribute based routing
+
+...
+
+Running under VS Code
+1. Under Terminal, using dotnet cli
+2. Spepcify startup project
+3. Run
+> dotnet run -p API/

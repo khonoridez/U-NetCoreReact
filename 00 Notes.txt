@@ -7,3 +7,14 @@ Help for dotnet cli
 > dotnet -h
 > dotnet new -h
 > dotnet new <shortname>
+
+...
+
+Error in packages with 3.0.0 and project template defaulting to netstandard2.0
+For projects Persistence, Application
+
+Solution: Manually change Projects to target netstandard2.1
+
+<PropertyGroup>
+	<TargetFramework>netstandard2.1</TargetFramework>
+</PropertyGroup>

@@ -15,7 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00 Documentation", "00 Docu
 	ProjectSection(SolutionItems) = preProject
 		00 Notes.txt = 00 Notes.txt
 		01 Environment Setup.txt = 01 Environment Setup.txt
-		02 Walking Skeleton.txt = 02 Walking Skeleton.txt
+		02a Walking Skeleton.txt = 02a Walking Skeleton.txt
+		02b WebApi Notes.txt = 02b WebApi Notes.txt
+		02c Creating Entities.txt = 02c Creating Entities.txt
 	EndProjectSection
 EndProject
 Global
