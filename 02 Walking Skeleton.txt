@@ -1,0 +1,110 @@
+
+- tiny implementation of the system that performs a small end-to-end function. It need not use the final architecture, 
+but it should link together the main architectural components. The architecture and the functionality can then evolve in parallel
+- Foundations of the Project
+
+Overview
+1. Intro to Clean Architecture
+2. Usint the dotnet cli
+3. Reviewing the porject templates
+4. Running the app
+5. EF Migrations
+6. Seeding Data
+7. Postman
+8. Using git
+
+...
+
+Domain <-- Application --> Persistence
+	   <------------------
+					   <-- Application
+
+...
+
+Projects
+1. API - Receive and respond to http requests
+2. Application - Process the business logic
+e.g. API needs a list of activities it's going to ask the Application
+- Dependent on Domain (Business Entities)
+3. Domain - Contains the business entities, do not depend on anything else
+4. Persitence - Provide access to the database
+
+...
+
+Creating the Projects
+
+- Recommend to use dotnet cli in creating Projects
+- Not recommended to create projects using templates "Asp.Net Core with React.js, Asp.Net Core with React.js and Redux"
+- these are like creating Asp.Net Core Web App (MVC). The React app will be tightly-coupled with the Web Api, it will be the "View"
+- We want full separation of concerns
+- Api will contain the endpoints from React application, that will be the only connection with each other
+- We want to use React specific tools to create the application
+
+1. Create a solution file
+> dotnet new sln
+2. Create Domain project
+> dotnet new classlib -n Domain
+3. Create Application project
+- This will contain all business logic, all other projects will be "dumb"
+> dotnet new classlib -n Application
+4. Create Persistence project
+- Database logic
+> dotnet new classlib -n Persistence
+5. Create API project of type webapi
+> dotnet new webapi -n API
+6. Add Projects to solution
+> dotnet sln -h
+> dotnet sln add Domain <hit TAB>
+.. do for all projects
+- Check Projects if added
+> dotnet sln list
+7. Add dependencies
+- Add references to projects
+- Domain will be center of application universe, no dependencies
+- Application, dedependency on Domain and Persistence
+> cd Application
+> dotnet add reference ../Domain/
+> dotnet add reference ../Persistence/
+
+- API, dependency on Application
+> cd API
+> dotnet add reference ../Application/
+
+- Persistence, dependency on Domain
+> cd Persistence
+> dotnet add reference ../Domain/
+
+8. Close, Reopen Vs Code to show build pop-ip, this will generate a .vscode folder with json files
+launch.json, tasks.json
+
+...
+
+Web API Project notes
+1. starts at public static void Main(string[] args)
+2. CreateDefaultBuilder()
+- appsettings.json and appsettings.Development.json
+- Development settings overwrites the production appsettings
+- Also uses the Startup.cs
+3. Startup.cs
+- ConfigureServices()
+	Default DI COntainer
+- Configure()
+	Http Request pipeline
+	- UseDeveloperExceptionPage(), detailed error message
+4. Disable https for training purposes
+- Probable issues for self-signed certificates recognized by browsers
+- Comment out UseHttpsRedirection under Startup.cs
+- Under Properties/launchSettings.json, remove https://localhost:5001
+5. API Controllers
+[Route("[controller]")]
+- Attribute based routing
+
+...
+
+Running under VS Code
+1. Under Terminal, using dotnet cli
+2. Spepcify startup project
+> dotnet run -p API/
+
+
+

@@ -1,0 +1,9 @@
+Recommend dotnet cli in creating Projects
+
+Check versions:
+> dotnet --info
+
+Help for dotnet cli
+> dotnet -h
+> dotnet new -h
+> dotnet new <shortname>
