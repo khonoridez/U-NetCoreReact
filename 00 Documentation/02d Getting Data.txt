@@ -1,0 +1,43 @@
+
+
+1. Inject Datacontext in Controller
+private readonly DataContext _context;
+...
+public ValuesController(DataContext context)
+{
+    _context = context;
+}
+
+2. Use in API
+// GET api/values
+[HttpGet]
+public ActionResult<IEnumerable<Value>> Get()
+{
+    var values = _context.Values.ToList();
+    return Ok(values);
+}
+
+3. Refactor Get() to Async
+- Asynchrounous, not blocking threads
+- Whenever you have a method that has potential to be long running, e.g. any call to the database
+
+// GET api/values
+[HttpGet]
+public async Task<ActionResult<IEnumerable<Value>>> Get()
+{
+    var values = await _context.Values.ToListAsync();
+    return Ok(values);
+}
+
+4. Refactor Get(id) to Async
+- FindAsync is the best value
+// GET api/values/5
+[HttpGet("{id}")]
+public async Task<ActionResult<Value>> Get(int id)
+{
+    var value = await _context.Values.FindAsync(id);
+    return Ok(value);
+}
+
+5. Postman settings
+- Drop Reactivities.postman_collection.json on Postman (Import)
