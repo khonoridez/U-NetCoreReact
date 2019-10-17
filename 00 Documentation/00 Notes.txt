@@ -1,5 +1,6 @@
 
-Run Commands
+++++++++++++RUN COMMANDS++++++++++++++
+
 Under VS Code
 - Under Terminal, using dotnet cli
 - Specify startup project
@@ -43,6 +44,17 @@ EF Codes
 -s startup project
 > dotnet ef migrations add SeedValues -p Persistence/ -s API/
 
+++++++++++++RUN COMMANDS CLIENT APP++++++++++++++
+
+Start client
+> cd client-app
+> npm start
+
+Stop
+> ctrl + c 
+
+production build
+> npm run build
 
 ++++++++++++ERRORS++++++++++++++
 
@@ -73,6 +85,22 @@ dotnet tool install --global dotnet-ef
 Error
 Your startup project 'API' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework 
 Core Tools to work. Ensure your startup project is correct, install the package, and try again.
+
+...
+
+Error Node not running
+https://medium.com/appseed-io/how-to-run-multiple-versions-of-node-js-with-nvm-for-windows-ffbe5c7a2b47
+
+- Powershell
+- Check list of node versions
+> nvm list
+12.12.0
+
+> nvm use 12.12.0
+
+- Check if node is running
+> node -v
+v12.12.0
 
 ++++++++++++TODO++++++++++++++
 

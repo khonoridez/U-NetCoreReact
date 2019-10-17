@@ -1,0 +1,25 @@
+
+Client App
+1. create-react-app
+2. Review the app
+3. React and Typesript concepts
+4. React State
+5. Fetching data from Api
+6. CORS
+- Cross Origin Resource Sharing
+- Configure in Api and set back as header
+- Browser security measure
+7. Semantic UI
+
+...
+
+create-react-app
+https://github.com/facebook/create-react-app
+
+1. On the solution folder
+- Use npm switch, Use Typescript switch
+> npx create-react-app client-app --use-npm --typescript
+
+2. Start client
+> cd client-app
+> npm start
