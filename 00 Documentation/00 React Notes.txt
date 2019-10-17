@@ -1,0 +1,103 @@
+
+++++++++++++RUN COMMANDS CLIENT++++++++++++++
+
+Start client
+> cd client-app
+> npm start
+
+Stop
+> ctrl + c 
+
+production build
+> npm run build
+
+App renders at public/index.html
+<div id="root"></div>
+
+- Uses webpack in the background, injects js in the index.html
+
+under src/index.tsx
+- code responsible for bootstrapping application
+- Load App to 'root'
+ReactDOM.render(<App />, document.getElementById('root'));
+
+.tsx file type
+https://reactjs.org/docs/introducing-jsx.html
+- code inside looks like html but it's jsx
+-typescript jsx file
+
+
+- className is used since class is a reserved word in html
+
+package.json
+- typing npm <script>:
+"scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+
+Library, Does not come with
+- Forms
+- Validation
+- HTPP Api Calls
+- State Management
+
+... 
+
+React Components
+
+Props (Properties)
+- Each component can have states (state props)
+- Can receive props (properties) from parent compoenents
+- Can pass props to child components
+- functions, objects, raise etc.
+- provide data to view of the component
+
+One way binding
+- React -> Virtual DOM -> Actual DOM
+- Theoretically, predictable easy to debug
+
+.jsx
+
+ex.
+...
+return (
+    <div className="App">
+        <h1>Reactivities</h1>
+    </div>
+);
+to js:
+...
+return (
+    React.createElement('div', {className: 'app'}),
+    React.createElement('h1', null, 'Reactivities')
+);
+
+...
+
+Typescript advantages
+1. Strong typing
+2. Object Orientated
+3. Better intellisense
+4. Access Modifiers
+5. Future Javascript features
+6. Catches silly mistakes in development
+7. 3rd party libraries
+8. Easy to learn if you know js
+
+Typescript disadvantages
+1. More upfront code
+2. 3rd party libraries, but with workaround
+3. Strict mode is strict
+
+...
+
+- typescript is added under package.json
+- targetting ecmascript is located under tsconfig.json
+
+React and Typescript
+1. PropTypes (legacy)
+2. Flow
+3. Typescript (since 2.1)

@@ -1,7 +1,7 @@
 
 ++++++++++++RUN COMMANDS++++++++++++++
 
-Under VS Code
+RUN API, VS Code
 - Under Terminal, using dotnet cli
 - Specify startup project
 - Run:
@@ -43,18 +43,6 @@ EF Codes
 -p for datacontext project
 -s startup project
 > dotnet ef migrations add SeedValues -p Persistence/ -s API/
-
-++++++++++++RUN COMMANDS CLIENT APP++++++++++++++
-
-Start client
-> cd client-app
-> npm start
-
-Stop
-> ctrl + c 
-
-production build
-> npm run build
 
 ++++++++++++ERRORS++++++++++++++
 
@@ -103,6 +91,10 @@ https://medium.com/appseed-io/how-to-run-multiple-versions-of-node-js-with-nvm-f
 v12.12.0
 
 ++++++++++++TODO++++++++++++++
+
+Create Generic Notes Repository
+1. EF
+2. npm
 
 Apply API Best Practices
 1. Async
