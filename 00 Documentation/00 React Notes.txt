@@ -24,9 +24,7 @@ ReactDOM.render(<App />, document.getElementById('root'));
 .tsx file type
 https://reactjs.org/docs/introducing-jsx.html
 - code inside looks like html but it's jsx
--typescript jsx file
-
-
+- typescript jsx file
 - className is used since class is a reserved word in html
 
 package.json
@@ -38,15 +36,13 @@ package.json
     "eject": "react-scripts eject"
   },
 
-Library, Does not come with
+React is a library not a framework, Does not come with
 - Forms
 - Validation
 - HTPP Api Calls
 - State Management
 
-... 
-
-React Components
+++++++++++++React Components Notes++++++++++++++
 
 Props (Properties)
 - Each component can have states (state props)
@@ -74,7 +70,6 @@ return (
     React.createElement('div', {className: 'app'}),
     React.createElement('h1', null, 'Reactivities')
 );
-
 ...
 
 Typescript advantages
@@ -91,7 +86,6 @@ Typescript disadvantages
 1. More upfront code
 2. 3rd party libraries, but with workaround
 3. Strict mode is strict
-
 ...
 
 - typescript is added under package.json
@@ -101,3 +95,101 @@ React and Typescript
 1. PropTypes (legacy)
 2. Flow
 3. Typescript (since 2.1)
+- anything with a file typeof *.d.ts is a typescript definition file
+
+++++++++++++Creating Components++++++++++++++
+
+- Shortcut to create React template in blank file
+type: rafc
+...
+
+1. Create interface
+- needs export keyword
+export interface ICar {
+  color: string;
+  model: string;
+  topSpeed?: number;
+}
+2. Create class via interface
+const car1: ICar = {
+  color: "blue",
+  model: "bmw"
+};
+const car2: ICar = {
+  color: "red",
+  model: "Mercedes"
+};
+3. export to an array for test
+export const cars = [car1, car2];
+
+4. Basic Usage:
+import { cars } from "./TestClasses";
+...
+const App: React.FC = () => {
+  return (
+    <div className="App">
+      <ul>
+        {cars.map(car => (
+          <li>{car.color}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+5. Using Child Component (React.FC)
+5.a In App.tsx:
+import CarItem from "./CarItem";
+...
+const App: React.FC = () => {
+  return (
+    <div className="App">
+      <ul>
+        {cars.map(car => (
+          <CarItem car={car} />
+        ))}
+      </ul>
+    </div>
+  );
+
+5.b In CarItem.tsx:
+import { ICar } from "./TestClasses";
+
+interface IProps {
+  car: ICar;
+}
+
+const CarItem: React.FC<IProps> = props => {
+  return (
+    <div>
+      <h1>{props.car.color}</h1>
+    </div>
+  );
+};
+
+export default CarItem;
+
+5.c Alternatively
+const CarItem: React.FC<IProps> = ({ car }) => {
+  return (
+    <div>
+      <h1>{car.color}</h1>
+    </div>
+  );
+};
+
+Note: 
+- React.FC where FC is:
+type FC<P = {}> = FunctionComponent<P>;
+
+where P is the type parameter
+
+- we passed in IProps interface (structure of the property object we will be passing) we declared which has a car property
+- we can destructure the parameter to pass in the arrow function
+- const CarItem: React.FC<IProps> = ({ car }) => {
+
+....
+
+- Typescript in the future will be ready for decorators
+- to test, in tsconfig.json:
+"experimentalDecorators": true
