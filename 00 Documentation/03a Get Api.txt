@@ -42,15 +42,20 @@ componentDidMount() {
     });
   }
 
+++++++++++++++Add CORS++++++++++++++
 We will be getting an error:
-Access to XMLHttpRequest at 'http://localhost:5000/api/values' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+Access to XMLHttpRequest at 'http://localhost:5000/api/values' from origin 
+'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' 
+header is present on the requested resource.
 - Under Chrome devtools, Network tab, Preview we can see the Api data
 - However the browser is protecting us from using the data, because in Response Headers there is 
 no Cross Origin Resource Sharing header available
 - We need a Response Header to allow localhost:3000 to receive data from localhost:5000
 - This is because our client is in a different domain from the server
 
-++++++++++++++Add CORS++++++++++++++
+CORS - does not stop our Api from sending the data to our browser, CORS is designed to protect our browser
+from dsiplaying content from an unknown origin.
+
 12. Setup CORS in ConfigureServices() as a service
 - Inside the API project under Startup.cs
 
