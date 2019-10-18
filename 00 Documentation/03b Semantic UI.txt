@@ -1,0 +1,47 @@
+
+https://react.semantic-ui.com/
+- Good documentation
+- Semantic includes a complete port of Font Awesome 5.0.8 designed by the FontAwesome for its standard icon set.
+https://fontawesome.com/
+
+++++++++++++Installation++++++++++++++
+1. cd client-app
+2. npm install semantic-ui-react
+3. install css
+npm add semantic-ui-css
+4. import css to index.tsx
+import 'semantic-ui-css/semantic.min.css'
+
+++++++++++++Usage++++++++++++++
+1. Remove last letter and retype to show option to auto import
+ex. for <List... -> <Lis ...
+
+2. Usage sample
+render() {
+    return (
+      <div>
+        <Header as="h2">
+          <Icon name="folder open outline" />
+          <Header.Content>Reactivities</Header.Content>
+        </Header>
+        <List>
+          {this.state.values.map((value: any) => (
+            <List.Item key={value.id}>
+              <List.Icon name="caret square right outline" />
+              <List.Content>{value.name}</List.Content>
+            </List.Item>
+          ))}
+        </List>
+      </div>
+    );
+  }
+
+3. Verify under react dev tools
+- App
+    - Header
+    - List
+
+
+
+
+

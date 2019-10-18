@@ -3,13 +3,13 @@
 
 RUN API, VS Code
 - Under Terminal, using dotnet cli
-- Specify startup project
-- Run:
-> dotnet run -p API/
-
 - Only works inside the context of the startup project, error in solution level even with -p switch
 > cd API
 > dotnet watch run
+
+- Specify startup project
+- Run:
+> dotnet run -p API/
 
 Recommend dotnet cli in creating Projects
 
@@ -101,4 +101,7 @@ Apply API Best Practices
 2. Naming methods
 3. Attributes
 4. Returning error codes (extension method?)
+
+Front end
+1. Create interfaces/classes for Api objects
 
