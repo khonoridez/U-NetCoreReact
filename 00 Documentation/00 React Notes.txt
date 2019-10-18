@@ -137,6 +137,8 @@ const App: React.FC = () => {
   );
 };
 
+++++++++++++Child Components++++++++++++++
+
 5. Using Child Component (React.FC)
 5.a In App.tsx:
 import CarItem from "./CarItem";
@@ -193,3 +195,29 @@ where P is the type parameter
 - Typescript in the future will be ready for decorators
 - to test, in tsconfig.json:
 "experimentalDecorators": true
+
+++++++++++++React Tools++++++++++++++
+
+1. React DevTools as Chrome Extension
+- on f12 Developer Tools, Tabs "Components", "Profiler"
+
+++++++++++++Component++++++++++++++
+- to use the Api in a traditional way we will use Components instead of FunctionComponent
+
+1. do a named import for Component
+import ...{ Component } from "react";
+
+2. replace App declaration
+from:
+const App: React.FC = () => {
+to:
+class App extends Component {
+  render() {
+    return <div className="App"></div>;
+  }
+}
+
+3. Component has required function render()...
+4. We now have access to lifecycles, but not states
+- componentDidCatch
+- componentDidMount

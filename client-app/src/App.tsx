@@ -1,26 +1,36 @@
-import React from "react";
+import React, { Component } from "react";
 import logo from "./logo.svg";
+import axios from "axios";
 import "./App.css";
-import { cars } from "./TestClasses";
-import CarItem from "./CarItem";
 
-const App: React.FC = () => {
-  return (
-    <div className="App">
-      <ul>
-        {cars.map(car => (
-          <li>{car.color}</li>
-        ))}
-      </ul>
-      <br />
-      <p>Via component: </p>
-      <ul>
-        {cars.map(car => (
-          <CarItem car={car} />
-        ))}
-      </ul>
-    </div>
-  );
-};
+class App extends Component {
+  state = {
+    values: []
+  };
+
+  componentDidMount() {
+    axios.get("http://localhost:5000/api/values").then(response => {
+      console.log(response);
+      this.setState({
+        values: response.data
+      });
+    });
+  }
+
+  render() {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <ul>
+            {this.state.values.map((value: any) => (
+              <li key={value.id}>{value.name}</li>
+            ))}
+          </ul>
+        </header>
+      </div>
+    );
+  }
+}
 
 export default App;

@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00 Documentation", "00 Docu
 		00 Documentation\02c Creating Entities EF Migrations.txt = 00 Documentation\02c Creating Entities EF Migrations.txt
 		00 Documentation\02d Getting Data.txt = 00 Documentation\02d Getting Data.txt
 		00 Documentation\03 Client Skeleton.txt = 00 Documentation\03 Client Skeleton.txt
+		00 Documentation\03a Get Api.txt = 00 Documentation\03a Get Api.txt
+		00 Documentation\03b Semantic UI.txt = 00 Documentation\03b Semantic UI.txt
 	EndProjectSection
 EndProject
 Global

@@ -1,0 +1,88 @@
+++++++++++++++using States to get Api data++++++++++++++
+1. Declare state variable
+state = {
+    values: []
+};
+
+2. declare componentDidmount to set state
+  componentDidMount() {
+    this.setState({
+      values: [{ id: 1, name: "Value 101" }, { id: 2, name: "Value 102" }]
+    });
+  }
+
+3. Loop the data inside render()
+<ul>
+  {this.state.values.map((value: any) => (
+    <li>value.name</li>
+    ))}
+</ul>
+
+++++++++++++++Fetch Api data++++++++++++++
+4. go to Api directory in seprate terminal session
+> cd Api
+5. Run Api
+> dotnet watch run
+6. Install axios
+- React does not have a native way to fetch Api data like Angular (HttpClient service) does
+- Axios is a Promise based HTTP client for the browser and node.js
+
+> new terminal
+> cd client-app
+> npm install axios
+> kill terminal
+
+7. Get Api data in componentDidMount()
+componentDidMount() {
+    axios.get("http://localhost:5000/api/values").then(response => {
+      console.log(response);
+      this.setState({
+        values: response.data
+      });
+    });
+  }
+
+We will be getting an error:
+Access to XMLHttpRequest at 'http://localhost:5000/api/values' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+- Under Chrome devtools, Network tab, Preview we can see the Api data
+- However the browser is protecting us from using the data, because in Response Headers there is 
+no Cross Origin Resource Sharing header available
+- We need a Response Header to allow localhost:3000 to receive data from localhost:5000
+- This is because our client is in a different domain from the server
+
+++++++++++++++Add CORS++++++++++++++
+12. Setup CORS in ConfigureServices() as a service
+- Inside the API project under Startup.cs
+
+public void ConfigureServices(IServiceCollection services) {
+...
+services.AddCors(opt =>
+{
+    opt.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+    });
+});
+
+13. Add as a middlewear in the Configure()
+- We need to modify the httpresponse
+- This will contain the CORS headers
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+...
+app.UseCors("CorsPolicy");
+
+14. Refresh Page
+- Under Network > Headers verify the Response Headers has:
+Access-Control-Allow-Origin: http://localhost:3000
+
+
+15. Fix unrelated error message:
+index.js:1375 Warning: Each child in a list should have a unique "key" prop.
+- this refers to the <li> having no key value
+- Add key in <li>:
+<li key={value.id}>{value.name}</li>
+
+16. Verify left console sidebar to verify output of console.log(response);
+- This contains other properties of the response from Axios
+
