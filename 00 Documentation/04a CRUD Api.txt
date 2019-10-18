@@ -1,0 +1,59 @@
+
+
+- CRUD
+- Thin Api Controllers
+	- Move all logic inside controllers to Application layer
+	- Api controllers are only responsible for receiving and sendign http requests
+- Seeding more data
+- Adding more migrations
+- MediatR
+- The CQRS and MediatR pattern
+
+++++++++++++Create Entity++++++++++++++
+
+1. Create Activity.cs under Domain
+- If we use a Guid we can create the Id from either client or server side
+public Guid Id { get; set; }
+
+2. Create DbSet for Activity
+public DbSet<Activity> Activities { get; set; }
+
+3. Create migration
+in VSCode, solution level
+> dotnet ef migrations add "ActivityEntityAdded" -p Persistence/ -s API/
+
+4. Start Application, migration will take effect since we have setup the migration on Startup
+> cd API
+> dotnet watch run
+
+5. Verify in database (sqlite)
+In VsCode: View > Command Palette > Sqlite: Open Database > Select database
+* issues with sqlite converting Guid to string and not blob as per tutorial
+
+6. Seed Data
+- Create Seed.cs under Persistence
+- Create Method
+public static void SeedData(DataContext context)
+{
+    if (!context.Activities.Any())
+    {
+        var activities = new List<Activity> { _
+		...
+- Under code base, drop reactivities.code-snippets file to the .vscode folder in VsCode
+- inside VsCode type prefix S_3.3 and the file will automatically populate with Activity data
+
+7. Add to context
+context.Activities.AddRange(activities);
+context.SaveChanges();
+
+! Note on async - we do not need to mark this as async since tis only runs once with no user intervention
+
+8. Call SeedData under Program.cs to execute on startup
+...
+var context = services.GetRequiredService<DataContext>();
+context.Database.Migrate();
+Seed.SeedData(context);
+
+9. Run application
+> cd API
+> dotnet watch run

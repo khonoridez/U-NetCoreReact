@@ -29,9 +29,8 @@ Install packages (must be same as netcore version)
 - Add to Project
 - Restore pop-up window
 
-...
-
-EF Codes
+++++++++++++EF Codes ADD MIGRATION++++++++++++++
+!!!IN SOLUTION LEVEL
 !specify -p is the persistence project
 !specify -s is the startup project
 > dotnet ef migrations add InitialCreate -p Persistence/ -s API/
@@ -89,6 +88,20 @@ https://medium.com/appseed-io/how-to-run-multiple-versions-of-node-js-with-nvm-f
 - Check if node is running
 > node -v
 v12.12.0
+
+...
+
+Issues with Sqlite generating Guid as blob
+https://www.connectionstrings.com/sqlite-net-provider/store-guid-as-text/
+https://stackoverflow.com/questions/18821265/proper-way-to-store-guid-in-sqlite
+
+suggested to add value in ConnectionString
+Data Source=c:\mydb.db;Version=3;BinaryGUID=False;
+
+as of Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0" Guid is being migrated to sqlite as string
+
+https://stackoverflow.com/questions/52684458/updating-entity-in-ef-core-application-with-sqlite-gives-dbupdateconcurrencyexce
+
 
 ++++++++++++TODO++++++++++++++
 
