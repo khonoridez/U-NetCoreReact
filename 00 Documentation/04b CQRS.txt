@@ -1,0 +1,61 @@
+
+Command
+- Does something
+- Modifies state (in our database)
+- should not return a value
+
+Query
+- Answer a question
+- not modify state
+- should return a value
+- getting list or details
+
+....
+
+CQRS - Command Query Responsiblity Segregation
+https://docs.microsoft.com/en-us/azure/architecture/patterns/cqrs
+
+Scenarios
+
+1. CQRS Single Database
+!API! -> COMMAND -> Domain -> Persistence -> Database -> Data Access -> QUERY -> !API!
+- Commands use Domain, Queries use database
+
+2. CQRS Read/Write Database
+http://highscalability.com/plentyoffish-architecture
+!API! -> COMMAND -> Domain -> Persistence -> !Write Database! -> !Write Database! -> Data Access -> QUERY -> !API!
+- Specific database for reading can make the application faster
+- Commands use write DB, Queries use read DB
+- Eventual consistency
+https://en.wikipedia.org/wiki/Eventual_consistency
+
+3. CQRS Event Store
+!API! -> COMMAND -> Domain -> Persistence -> !Event Store! -> !Read Database! -> Data Access -> QUERY -> !API!
+- Event Store instead of RDBS
+- Keeps track of historical event sthat make up current state
+- ex. 
+	Opening Balance 200
+	Event: Buy Widget -50
+	Event: Buy Food -50
+
+Pros: Scalability, Flexibility, Event Sourcing
+Cons: More complex than other patterns, Does not modify state, Event sourcing cost
+
+....
+
+Notes on Clean Architecture (Uncle Bob)
+- This represents different areas of software
+- The further in we go, the higher level our software becomes
+- outer circles are mechanisms, inner circles are policies
+- dependency rule: 
+ - source code dependencies can only point inwards
+ - nothing in inner circle can know any in the outer circle
+ - outer circle must not be mentioned in the code in the inner circle
+ - Application project has 0 knowledge in the Api Project, Use cases know nothing on Controllers
+ - But controllers can execute code from use cases, use cases will return objects to Api
+
+1. Entities is Domain Projects
+2. Use Cases is Applcation Project
+3. Controllers / Presenters is our Api Project
+
+

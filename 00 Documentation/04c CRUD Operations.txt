@@ -1,0 +1,108 @@
+
+++++++++++MEDIATR++++++++++
+https://dotnetcoretutorials.com/2019/04/30/the-mediator-pattern-part-2-roll-your-own/
+https://ardalis.com/using-mediatr-in-aspnet-core-apps
+
+- Handler that brings list of objects from db
+- Logic will be installed in the Applcation project
+<Api Controller> ----> (Mediator.Send(object)) ----> Object ----> Handler ----> Object ----> <Api Controller> 
+
+1. Install MediatR.Extensions.Microsoft.DependencyInjection in Application project
+- View: Command Palette -> Nuget Package Manager: Add Package
+- MediatR.Extensions.Microsoft.DependencyInjection 7.0
+- Install in Application Project
+- Restore in pop up window
+
+Setup:
+2. Create Handler in Application Project
+- Create Folder Activities
+- Create List.cs (For intial get activities Api)
+- Naming convention reflects what this class will be doing
+
+3. Create Handler class inside List.cs
+public class Handler : IRequestHandler<Query, List<Activity>>
+{
+	private readonly DataContext _context;
+
+	public Handler(DataContext context)
+	{
+		_context = context;
+	}
+
+	// From IRequestHandler interface
+	public async Task<List<Activity>> Handle(Query request, CancellationToken cancellationToken)
+	{
+		var activities = await _context.Activities.ToListAsync();
+		return activities;
+	}
+}
+
+4. Provide MediatR as a service in Startup.cs
+- services.AddMediatR(...
+- Pass in the assmebly that our handlers are located in
+- MediatR will look inside the Assembly for all the other handlers
+
+services.AddMediatR(typeof(Application.Activities.List.Handler).Assembly);
+
+++++++++++API++++++++++
+
+1. Create ActivitiesController.cs
+- derives ControllerBase (No view support unlike MVC that derives Controller, with View support)
+- .Net will only be used as Api
+
+2. Inject IMediator
+private readonly IMediator _mediator;
+
+public ActivitiesController(IMediator mediator)
+{
+    _mediator = mediator;
+}
+
+++++++++++API Operations++++++++++
+- Api Controller is now extremely dumb, only 1 responsibility
+- Extremely thin, absolute minimum code
+- 1 task, receive requests
+- use MediatR to respond to the request
+
+1. List Activities
+[HttpGet]
+public async Task<ActionResult<List<Activity>>> List()
+{
+    return await _mediator.Send(new Application.Activities.List.Query());
+}
+
+2. Details of Activity
+2.a Create Details.cs under Application/Activities
+2.b Set Query with Guid Id property
+public class Query : IRequest<Activity>
+{
+    public Guid Id { get; set; }
+}
+2.c Set Handler for FindAsync(id)
+- Inject dbContext
+public class Handler : IRequestHandler<Query, Activity>
+{
+    private readonly DataContext _context;
+
+    public Handler(DataContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<Activity> Handle(Query request, CancellationToken cancellationToken)
+    {
+        var activity = await _context.Activities.FindAsync(request.Id);
+        return activity;
+    }
+}
+3. Use in Api Controller with id parameter
+[HttpGet("{id}")]
+public async Task<ActionResult<Activity>> Details(Guid id)
+{
+    return await _mediator.Send(new Details.Query { Id = id });
+}
+
+!!! However we still have no proper error handling
+e.g. when we find a Guid that does not exist the FindAsync method will return null
+- We will be fixing this under validation, but most errors are being produced by having the [ApiController] attribute
+

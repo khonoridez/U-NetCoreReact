@@ -1,6 +1,10 @@
 
 ++++++++++++RUN COMMANDS++++++++++++++
 
+Start client
+> cd client-app
+> npm start
+
 RUN API, VS Code
 - Under Terminal, using dotnet cli
 - Only works inside the context of the startup project, error in solution level even with -p switch
@@ -42,6 +46,14 @@ Install packages (must be same as netcore version)
 -p for datacontext project
 -s startup project
 > dotnet ef migrations add SeedValues -p Persistence/ -s API/
+
+++++++++++++POSTMAN FEATURES++++++++++++++
+1. Variables
+- under collections > edit
+- rightmost tab "Parameters"
+- set value for parameter "url"
+- usage: {{url}}/api/activities
+
 
 ++++++++++++ERRORS++++++++++++++
 

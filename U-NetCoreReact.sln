@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00 Documentation", "00 Docu
 		00 Documentation\03a Get Api.txt = 00 Documentation\03a Get Api.txt
 		00 Documentation\03b Semantic UI.txt = 00 Documentation\03b Semantic UI.txt
 		00 Documentation\04a CRUD Api.txt = 00 Documentation\04a CRUD Api.txt
+		00 Documentation\04b CQRS.txt = 00 Documentation\04b CQRS.txt
+		00 Documentation\04c CRUD Operations.txt = 00 Documentation\04c CRUD Operations.txt
 	EndProjectSection
 EndProject
 Global
