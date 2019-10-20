@@ -108,8 +108,8 @@ e.g. when we find a Guid that does not exist the FindAsync method will return nu
 - In cases of user cancelling midway, we could utilize CancellationTokens (see notes), however for simplicity this will not be used in the course
 
 3. Create Command
-3.a Create.cs under Application/Activites
-3.b Copy all properties from Activity.cs from Domain, and paste to class Command : IRequest
+3.1 Create.cs under Application/Activites
+3.2 Copy all properties from Activity.cs from Domain, and paste to class Command : IRequest
 public class Create
 {
     public class Command : IRequest
@@ -123,7 +123,7 @@ public class Create
         public string Venue { get; set; }
     }
 }
-3.c Create Handler class
+3.3 Create Handler class
 - Take note that implementing IRequestHandler produces a method that returns Task<Unit>
 - MediatR.Unit is just an empty object
 public class Handler : IRequestHandler<Command>
@@ -133,14 +133,14 @@ public class Handler : IRequestHandler<Command>
         throw new NotImplementedException();
     }
 }
-3.d Create constructor for this handler
+3.4 Create constructor for this handler
 private readonly DataContext _context;
 
 public Handler(DataContext context)
 {
     _context = context;
 }
-3.e Implement Handle method
+3.5 Implement Handle method
 - change to async
 
 Note regarding .AddAsync for _context.Activities.Add(activity);
@@ -169,14 +169,14 @@ public async Task<Unit> Handle(Command request, CancellationToken cancellationTo
     throw new Exception("Problem saving changes");
 }
 
-3.f Use in Api Controller
+3.6 Use in Api Controller
 [HttpPost]
 public async Task<ActionResult<Unit>> Create(Create.Command command)
 {
     return await _mediator.Send(command);
 }
 
-3.g Test in Postman
+3.7 Test in Postman
 under Body:
 {
 	"id": "{{$guid}}",
@@ -195,4 +195,35 @@ under: Pre-requisite script tab
 var moment = require("moment");
 pm.environment.set('activityDate', moment().add(14, 'days').toISOString());
 
+4. Edit
+4.1 Create as per Create.cs
+4.2 Setup Handle()
+- We do not have a mapping facility as of the moment
+public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+{
+    var activity = await _context.Activities.FindAsync(request.Id);
 
+    if (activity == null)
+        throw new Exception("Could not find activity");
+
+    activity.Title = request.Title ?? activity.Title;
+    activity.Description = request.Description ?? activity.Description;
+    activity.Category = request.Category ?? activity.Category;
+    activity.Date = request.Date ?? activity.Date;
+    activity.City = request.City ?? activity.City;
+    activity.Venue = request.Venue ?? activity.Venue;
+
+    var success = await _context.SaveChangesAsync() > 0;
+
+    if (success) return Unit.Value;
+
+    throw new Exception("Problem saving changes");
+}
+4.3 Configure Api
+[HttpPut("{id}")]
+public async Task<ActionResult<Unit>> Edit(Guid id, Edit.Command command)
+{
+    command.Id = id;
+    return await _mediator.Send(command);
+}
+4.4 Test in Postman
