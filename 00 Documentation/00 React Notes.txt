@@ -1,4 +1,7 @@
 
+React CheatSheets
+https://github.com/typescript-cheatsheets/react-typescript-cheatsheet
+
 ++++++++++++RUN COMMANDS CLIENT++++++++++++++
 
 Start client
@@ -205,6 +208,48 @@ where P is the type parameter
 - Typescript in the future will be ready for decorators
 - to test, in tsconfig.json:
 "experimentalDecorators": true
+
+++++++++++Passing Values to Components++++++++++
+
+1. Pass activities value to ActivityDashboard.tsx from App.tsx
+In App.tsx:
+  return (
+    <Fragment>
+      <NavBar />
+      <Container style={{ marginTop: "7em" }}>
+        <ActivityDashboard activities={activities} />
+      </Container>
+    </Fragment>
+  );
+
+2. Catch in ActivityDashboard.tsx
+2.1 Create interface
+interface IProps {
+  activities: IActivity[];
+}
+
+2.2 Give FC (Functional Component) type for ActivityDashboard and specify parameter (in thsi example named props)
+const ActivityDashboard: React.FC<IProps> = props => {
+
+2.3 Use props
+return (
+    <Grid>
+      <GridColumn width="10">
+        <List>
+          {props.activities.map(activity => (
+            <List.Item key={activity.id}>{activity.title}</List.Item>
+          ))}
+        </List>
+      </GridColumn>
+    </Grid>
+  );
+
+2.4 We can destructure the property so we do not need to specify props and just access activities directly
+const ActivityDashboard: React.FC<IProps> = ({ activities }) => {
+...
+{activities.map(activity => (
+	<List.Item key={activity.id}>{activity.title}</List.Item>
+))}
 
 ++++++++++++React Tools++++++++++++++
 
