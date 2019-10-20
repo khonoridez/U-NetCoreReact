@@ -32,3 +32,4 @@ public async Task<ActionResult<List<Activity>>> List(CancellationToken cancellat
 {
     return await _mediator.Send(new List.Query(), cancellationToken);
 }
+

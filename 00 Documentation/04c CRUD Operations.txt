@@ -105,4 +105,95 @@ public async Task<ActionResult<Activity>> Details(Guid id)
 !!! However we still have no proper error handling
 e.g. when we find a Guid that does not exist the FindAsync method will return null
 - We will be fixing this under validation, but most errors are being produced by having the [ApiController] attribute
+- In cases of user cancelling midway, we could utilize CancellationTokens (see notes), however for simplicity this will not be used in the course
+
+3. Create Command
+3.a Create.cs under Application/Activites
+3.b Copy all properties from Activity.cs from Domain, and paste to class Command : IRequest
+public class Create
+{
+    public class Command : IRequest
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string Category { get; set; }
+        public DateTime Date { get; set; }
+        public string City { get; set; }
+        public string Venue { get; set; }
+    }
+}
+3.c Create Handler class
+- Take note that implementing IRequestHandler produces a method that returns Task<Unit>
+- MediatR.Unit is just an empty object
+public class Handler : IRequestHandler<Command>
+{
+    public Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+}
+3.d Create constructor for this handler
+private readonly DataContext _context;
+
+public Handler(DataContext context)
+{
+    _context = context;
+}
+3.e Implement Handle method
+- change to async
+
+Note regarding .AddAsync for _context.Activities.Add(activity);
+- !this method is async only to allow special value generators, otherwise use non async
+- we will be using non async as we do not need special value generators
+
+public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+{
+    var activity = new Activity
+    {
+        Id = request.Id,
+        Title = request.Title,
+        Description = request.Description,
+        Category = request.Category,
+        Date = request.Date,
+        City = request.City,
+        Venue = request.Venue
+
+    };
+
+    _context.Activities.Add(activity);
+    var success = await _context.SaveChangesAsync() > 0;
+
+    if (success) return Unit.Value;
+
+    throw new Exception("Problem saving changes");
+}
+
+3.f Use in Api Controller
+[HttpPost]
+public async Task<ActionResult<Unit>> Create(Create.Command command)
+{
+    return await _mediator.Send(command);
+}
+
+3.g Test in Postman
+under Body:
+{
+	"id": "{{$guid}}",
+	"title": "Test Create Activity",
+	"description": "Description of the test event",
+	"category": "Culture",
+	"date": "{{activityDate}}",
+	"city": "London",
+	"venue": "Tower of London"
+}
+
+"id": "{{$guid}}", // special Postman object, will create Guid for Id
+"date": "{{activityDate}}", // variable declared under pre-request script
+
+under: Pre-requisite script tab
+var moment = require("moment");
+pm.environment.set('activityDate', moment().add(14, 'days').toISOString());
+
+!!!! Maybe we can refactor this to a Repository
 
