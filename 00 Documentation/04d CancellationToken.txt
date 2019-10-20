@@ -1,0 +1,34 @@
+
+++++++++++Cancellation Tokens++++++++++
+
+- If a request has been aborted (user refreshes the page etc.), ToListAsync for example can receive a cancellationToken to cancel the request
+
+usage code:
+
+// We will be using logging temporarily to verify Task being cancelled
+public async Task<List<Activity>> Handle(Query request, CancellationToken cancellationToken)
+{
+    try
+    {
+        for (var i = 0; i < 10; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await Task.Delay(1000, cancellationToken);
+            _logger.LogInformation($"Task {i} has completed");
+        }
+    }
+    catch (Exception ex) when (ex is TaskCanceledException)
+    {
+        _logger.LogInformation($"Task was cancelled");
+    }
+
+    return await _context.Activities.ToListAsync();
+}
+
+...
+// add CancellationToken as parameter in Api
+[HttpGet]
+public async Task<ActionResult<List<Activity>>> List(CancellationToken cancellationToken)
+{
+    return await _mediator.Send(new List.Query(), cancellationToken);
+}
