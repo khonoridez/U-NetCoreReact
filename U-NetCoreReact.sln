@@ -49,6 +49,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05 CRUD Client", "05 CRUD Client", "{D0972319-B84D-4F7E-BF5F-83B4284D249A}"
 	ProjectSection(SolutionItems) = preProject
 		00 Documentation\05 CRUD Client.txt = 00 Documentation\05 CRUD Client.txt
+		00 Documentation\05b GUI.txt = 00 Documentation\05b GUI.txt
 		00 Documentation\05a Refactor to Hooks.txt = 00 Documentation\05a Refactor to Hooks.txt
 	EndProjectSection
 EndProject
