@@ -59,3 +59,10 @@ Seed.SeedData(context);
 > dotnet watch run
 
 
+++++++Conclusion++++++
+1. CRUD
+2. Thin Api Controllers
+3. Seeding more data
+4. Adding more migrations
+5. MediatR
+6. CQRS + MediatR Pattern
