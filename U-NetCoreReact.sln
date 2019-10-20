@@ -46,6 +46,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04 CRUD Api", "04 CRUD Api"
 		00 Documentation\04e VS Code Snippet.txt = 00 Documentation\04e VS Code Snippet.txt
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05 CRUD Client", "05 CRUD Client", "{D0972319-B84D-4F7E-BF5F-83B4284D249A}"
+	ProjectSection(SolutionItems) = preProject
+		00 Documentation\05 CRUD Client.txt = 00 Documentation\05 CRUD Client.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -113,6 +118,7 @@ Global
 		{39D13FA5-0CAE-4665-8D97-DFDF622839B5} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
 		{D2AF3D6A-0504-4B03-8727-BAFACB387C08} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
 		{531196A2-7285-4AD5-B019-C17E4462AD25} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
+		{D0972319-B84D-4F7E-BF5F-83B4284D249A} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9B8D82CC-C900-4D99-A71E-62125EB3182B}

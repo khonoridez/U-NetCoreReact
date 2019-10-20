@@ -1,0 +1,83 @@
+
++++++++++Outline+++++++++
+- Folder Structure
+- Building the CRUD App
+- React Hooks
+- Forms in React (purely React, later we will have forms template)
+- Semantic UI
+
++++++++++Folder Structure+++++++++
+
+https://reactjs.org/docs/faq-structure.html
+
+By preference, for this course "group by feature"
+
+- src
+	- app
+		- layout
+		 App.tsx
+		 styles.css
+- features
+index.tsx
+
++++++++++Get Api Values+++++++++
+
+state = {
+    activities: []
+  };
+
+componentDidMount() {
+axios.get("http://localhost:5000/api/activities").then(response => {
+    this.setState({
+    activities: response.data
+    });
+});
+}
+
++++++++++Create Strong typing (Typescript)+++++++++
+1. Create new folder models
+/app/models
+2. Create interface
+- describe the structure of the Activity object
+- why not class? structure for typechecking only
+- class will get transpiled to av ascript while interface is not, it will be shorter
+activity.ts
+export interface IActivity {
+  id: string;
+  title: string;
+  description: string;
+  date: Date;
+  city: string;
+  venue: string;
+}
+3. Define "State" object in App.tsx
+interface IState {
+  activities: IActivity[];
+}
+
+Note on Component:
+class Component<P, S> {
+- can accept a type parameter
+- P for Properties (Props)
+- S for State
+
+4. Pass empty for Props and IState for State
+class App extends Component<{}, IState> {
+
+5. Set state inside Component to inherit interface and set to readonly
+readonly state: IState = {
+    activities: []
+  };
+- not good practice to mutate state inside Component
+- set state using this.setState
+- this.state = ... //not good practice
+
+6. Set axios return type to IActivity, pass on get<>
+componentDidMount() {
+    axios.get<IActivity[]>(....
+  }
+7. Use in render(), remove :any in the map parameter "activity"
+- type will now be inferred as IActivity with intellisense on the members
+...
+{this.state.activities.map(activity) => (
+	<List.Item key={activity.id}>

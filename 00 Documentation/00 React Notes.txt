@@ -42,6 +42,15 @@ React is a library not a framework, Does not come with
 - HTPP Api Calls
 - State Management
 
+++++++++++++Hooks++++++++++++++
+
+- React is pushing for Hooks rather than Components, in managing State and Life Cycle components
+
+1. Its hard to reuse stateful logic between components
+2. Complex components become hard to understand
+3. Classes confuse both people and machine
+4. Hooks let you use React features without classes
+
 ++++++++++++React Components Notes++++++++++++++
 
 Props (Properties)
@@ -221,3 +230,29 @@ class App extends Component {
 4. We now have access to lifecycles, but not states
 - componentDidCatch
 - componentDidMount
+
++++++++++History+++++++++
+React 0.3
+May 2013
+
+- class did not exist yet in Javascript
+- To receive props and set states React has .createClass
+
+React 0.13.0
+Jan 2015
+
+- Release of ES6
+- Class declarations inside Javascript
+- React use Javascript classes instead
+- We do this by extending from React.Component
+- invoke, and also pass the props: super(props)
+- we would have to bind them inside the constructor
+constructor(props){
+	...
+	this.delta.bind(this);
+}
+- However there are cases when this does not bind properly, should be:
+this.delta = this.delta.bind(this);
+
+- Class fields proposals , allows to declare state as class property, without needing a constructor, arrow functions were used to bind. 
+However he keyword this still exist. to make React easier to learn, Hooks were developed
