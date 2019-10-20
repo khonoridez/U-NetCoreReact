@@ -50,6 +50,7 @@ React is a library not a framework, Does not come with
 2. Complex components become hard to understand
 3. Classes confuse both people and machine
 4. Hooks let you use React features without classes
+5. Minimize use of this keyword
 
 ++++++++++++React Components Notes++++++++++++++
 

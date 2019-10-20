@@ -1,0 +1,58 @@
+
+https://reactjs.org/docs/hooks-intro.html
+
+- Instead of using components we will bee converting this to use Hooks
+
+1. import ... { useState, useEffect } from "react";
+2. Refactor App to use hooks
+- Convert from class/component to const (function())
+
+const App = () => {
+
+3. useState usage
+++++++++useState Hook++++++++
+- useState is a Hook that lets you add React state to function components.
+https://reactjs.org/docs/hooks-state.html
+
+- useState accepts one parameter and this is the initial state of the 1st array item
+ex: const [fruit, setFruit] = useState('banana');
+
+- brackets are called Array Deconstructing 
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Array_destructuring
+- When we declare a state variable with useState, it returns a pair — an array with two items. 
+The first item is the current value, and the second is a function that lets us update it. 
+Using [0] and [1] to access them is a bit confusing because they have a specific meaning. This is why we use array destructuring instead.
+
+const [activities, setActivities] = useState<IActivity[]>([]);
+
+example without array destructuring:
+var activitiesVariable = useState<IActivity[]>([]); // Returns a pair
+var activities = activitiesVariable[0]; // First item in a pair
+var setActivities = activitiesVariable[1]; // Second item in a pair
+
+usage in code:
+return (
+    <div>
+    ...
+        {activities.map(activity => (
+	...
+  );
+  
+- we will be using 'setActivities in the useEffect hook
+
+++++++++useEffect Hook++++++++
+https://reactjs.org/docs/hooks-effect.html
+- think of useEffect Hook as componentDidMount, componentDidUpdate, and componentWillUnmount combined.
+- second parameter sepcifies when to skip the effect
+- If you want to run an effect and clean it up only once (on mount and unmount), you can pass an empty array ([]) as a second argument.
+- If you pass an empty array ([]), the props and state inside the effect will always have their initial values.
+- While passing [] as the second argument is closer to the familiar componentDidMount and componentWillUnmount mental model, 
+there are usually better solutions to avoid re-running effects too often.
+
+  useEffect(() => {
+    axios
+      .get<IActivity[]>("http://localhost:5000/api/activities")
+      .then(response => {
+        setActivities(response.data);
+      });
+  }, []);
