@@ -15,18 +15,35 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00 Documentation", "00 Docu
 	ProjectSection(SolutionItems) = preProject
 		00 Documentation\00 Notes.txt = 00 Documentation\00 Notes.txt
 		00 Documentation\00 React Notes.txt = 00 Documentation\00 React Notes.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 Environment Setup", "01 Environment Setup", "{5332BE7D-DD35-4113-84A9-D36B037845E5}"
+	ProjectSection(SolutionItems) = preProject
 		00 Documentation\01 Environment Setup.txt = 00 Documentation\01 Environment Setup.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 Api Skeleton", "02 Api Skeleton", "{39D13FA5-0CAE-4665-8D97-DFDF622839B5}"
+	ProjectSection(SolutionItems) = preProject
 		00 Documentation\02a Api Skeleton.txt = 00 Documentation\02a Api Skeleton.txt
 		00 Documentation\02b WebApi Notes.txt = 00 Documentation\02b WebApi Notes.txt
 		00 Documentation\02c Creating Entities EF Migrations.txt = 00 Documentation\02c Creating Entities EF Migrations.txt
 		00 Documentation\02d Getting Data.txt = 00 Documentation\02d Getting Data.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03 Client Skeleton", "03 Client Skeleton", "{D2AF3D6A-0504-4B03-8727-BAFACB387C08}"
+	ProjectSection(SolutionItems) = preProject
 		00 Documentation\03 Client Skeleton.txt = 00 Documentation\03 Client Skeleton.txt
 		00 Documentation\03a Get Api.txt = 00 Documentation\03a Get Api.txt
 		00 Documentation\03b Semantic UI.txt = 00 Documentation\03b Semantic UI.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04 CRUD Api", "04 CRUD Api", "{531196A2-7285-4AD5-B019-C17E4462AD25}"
+	ProjectSection(SolutionItems) = preProject
 		00 Documentation\04a CRUD Api.txt = 00 Documentation\04a CRUD Api.txt
 		00 Documentation\04b CQRS.txt = 00 Documentation\04b CQRS.txt
 		00 Documentation\04c CRUD Operations.txt = 00 Documentation\04c CRUD Operations.txt
 		00 Documentation\04d CancellationToken.txt = 00 Documentation\04d CancellationToken.txt
+		00 Documentation\04e VS Code Snippet.txt = 00 Documentation\04e VS Code Snippet.txt
 	EndProjectSection
 EndProject
 Global
@@ -90,6 +107,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5332BE7D-DD35-4113-84A9-D36B037845E5} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
+		{39D13FA5-0CAE-4665-8D97-DFDF622839B5} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
+		{D2AF3D6A-0504-4B03-8727-BAFACB387C08} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
+		{531196A2-7285-4AD5-B019-C17E4462AD25} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9B8D82CC-C900-4D99-A71E-62125EB3182B}
