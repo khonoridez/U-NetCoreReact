@@ -227,3 +227,26 @@ public async Task<ActionResult<Unit>> Edit(Guid id, Edit.Command command)
     return await _mediator.Send(command);
 }
 4.4 Test in Postman
+
+5. Delete
+5.1 Create Delete.cs
+public class Command : IRequest
+{
+    public Guid Id { get; set; }
+}
+...
+var activity = await _context.Activities.FindAsync(request.Id);
+
+if (activity == null)
+    throw new Exception("Could not find activity");
+
+_context.Remove(activity);
+...
+
+5.2 Use in Api
+[HttpDelete("{id}")]
+public async Task<ActionResult<Unit>> Delete(Guid id)
+{
+    return await _mediator.Send(new Delete.Command { Id = id });
+}
+
