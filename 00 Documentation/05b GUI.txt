@@ -154,21 +154,21 @@ const ActivityDashboard: React.FC<IProps> = ({ activities }) => {
 	<List.Item key={activity.id}>{activity.title}</List.Item>
 ))}
 
+++++++++++ActivityList++++++++++
 
-
-5.5 Create file src/features/activities/ActivityList.tsx
+1. Create file src/features/activities/ActivityList.tsx
 - type rafc for snipopet
 
-5.6 We will use Views>Item from Semantic Ui
+2. We will use Views>Item from Semantic Ui
 https://react.semantic-ui.com/views/item/
 import { Item, Image } from "semantic-ui-react";
 - Fix sample, and wrap in a Segment
 https://react.semantic-ui.com/elements/segment/
 
-5.7 Pass props to ActivityList
+3. Pass props to ActivityList
 <ActivityList activities={activities} />
 
-5.8 Catch props in ActivityList
+4. Catch props in ActivityList
 - Create interface
 interface IProps {
   activities: IActivity[];
@@ -184,3 +184,23 @@ const ActivityList: React.FC<IProps> = ({ activities }) => {
     <Item.Content>
         <Item.Header as="a">{activity.title}</Item.Header>
 ...
+
+++++++++++ActivityDetails++++++++++
+
+1. Create folder src/features/activities/details/ActivityDetails.tsx
+
+2. Copy Card sample from Semantic Ui to return statement
+https://react.semantic-ui.com/views/card/
+import { Card, Image, Icon } from "semantic-ui-react";
+
+3. Add to ActivityDashboard
+<Grid>
+    <GridColumn width="10">
+    <ActivityList activities={activities} />
+    </GridColumn>
+    <GridColumn width="6">
+    <ActivityDetails />
+    </GridColumn>
+</Grid>
+
+4. Adjust Card styles
