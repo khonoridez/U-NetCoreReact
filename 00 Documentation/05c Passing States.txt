@@ -132,3 +132,65 @@ c. In ActivityDashboard we set selecetdActivity in a conditional statement
 </GridColumn>
 ...
 
++++++++++++++++++++++Pass activity data to Form (for edit)+++++++++++++++++++++++
+
+1. Pass activity from ActivityDashboard to ActivityForm
+{editMode && (
+    <ActivityForm setEditMode={setEditMode} activity={selectedActivity} />
+)}
+2. Catch activity in ActivityForm (IProps) and destructure in parameter
+interface IProps {
+  ...
+  activity: IActivity;
+}
+
+const ActivityForm: React.FC<IProps> = ({ ..., activity }) => {
+
+3. Create initializeForm and check if activity has value (Edit) or empty (Create)
+const initializeForm = () => {
+    if (activity) {
+      return activity;
+    } else {
+      return {
+        title: "",
+        ....
+      };
+    }
+  };
+
+ 4. Create useState hook for initial state of activity
+ const [activity, setActivity] = useState(initializeForm);
+ !error: Duplicate identifier 'activity'.ts(2300)
+
+ 5. Upon destrcuturing activity in parameter we can reassign variable name
+ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+ const ActivityForm: React.FC<IProps> = ({
+  ...
+  activity: initialFormState
+}) => {
+
+6. Rename activity to initialFormState in const initializeForm = () => {
+
+7. Error in ... = useState<IActivity>(initializeForm);
+- This is because our else statement does not match IActivity
+- Modify IActivity and else statement temporarily so both match
+export interface IActivity {
+	...
+  date: string;
+  ...
+}
+...
+const initializeForm = () => {
+    ...
+      return {
+        id: "",
+       ...
+  };
+
+8. Set Form items' value
+<Form.Input placeholder="Title" value={activity.title} />
+<Form.TextArea rows={2} placeholder="Description" value={activity.description} />
+
+9. Error! Type 'IActivity | null' is not assignable to type 'IActivity'.
+- Add excalamation on ActivityForm
+<ActivityForm setEditMode={setEditMode} activity={selectedActivity!} />

@@ -124,3 +124,82 @@ const ActivityDetails: React.FC<IProps> = ({
     onClick={() => setSelectedActivity(null)}
     ...
     ></Button>
+
++++++++++++++++++++++Controlled Components+++++++++++++++++++++++
+
+Handle Input Change
+- fields are read-only
+- this is due to value property
+- removing the value property will enable editing of the field
+- we have to tell React the changes of the compoenent states for React to update the Virtual DOM
+
+1. Create Handler for setActivity
+  const handleInputChange = (event: any) => {
+    console.log(event.target.value);
+    setActivity({ ...activity, title: event.target.value });
+  };
+
+- spread the properties of the activity object
+...activity
+
+2. Implement on the onChange of the Form Input
+<Form.Input
+    onChange={handleInputChange}
+    placeholder="Title"
+    value={activity.title}
+/>
+
+3. verify under Components Tab on f12
+under hooks > state: object
+- verify property being changed
+
+4. Add name property on Input, and change parameter on setActivity
+<Form.Input
+    name="title"
+    ...
+/>
+...
+const handleInputChange = (event: any) => {
+	console.log(event.target.value);
+	setActivity({ ...activity, [event.target.name]: event.target.value });
+};
+
+- [] bracket notation sytnax for objects
+
+5. Destructure name and value form event.target
+const handleInputChange = (event: any) => {
+    const { name, value } = event.target;
+    setActivity({ ...activity, [name]: value });
+  };
+
+6. Apply to other input fields
+<Form.TextArea
+    onChange={handleInputChange}
+    name="description"
+	...
+/>
+
+7. Change type for (event:any) for the type that the input passes
+const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+
+!Error- However Textarea's onChange returns React.FormEvent<HTMLTextAreaElement>
+- Change ChangeEvent to FormEvent
+- Add HtmlTextAreaElement as generic parameter
+event: FormEvent<HTMLInputElement | HTMLTextAreaElement>
+
+  const handleInputChange = (
+    event: FormEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = event.currentTarget;
+    setActivity({ ...activity, [name]: value });
+  };
+
++++++++++++++++++++++Handle Submit+++++++++++++++++++++++
+1. Create handler for submit
+const handleSubmit = () => {
+    console.log(activity);
+  };
+
+2. Handle to Form's onSubmit
+<Form onSubmit={handleSubmit}>
+
