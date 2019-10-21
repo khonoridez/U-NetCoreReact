@@ -309,3 +309,32 @@ useEffect(() => {
         setActivities(activites);
       });
   }, []);
+
+
+  +++++++++++++++++++++Delete+++++++++++++++++++++++
+
+1. Create handleDeleteActivity in App.tsx
+  const handleDeleteActivity = (id: string) => {
+    setActivities([...activities.filter(a => a.id !== id)]);
+  };
+
+2. Pass this handler until the ActivityList
+- Pass to child Component, catch via IProps and destructured parameter
+interface IProps {
+  ...
+  deleteActivity: (id: string) => void;
+}
+
+const ActivityList: React.FC<IProps> = ({
+  ...
+  deleteActivity
+}) => {
+
+3. Create Delete button
+<Button
+    onClick={() => deleteActivity(activity.id)}
+    floated="right"
+    content="Delete"
+    color="red"
+/>
+
