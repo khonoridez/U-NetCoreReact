@@ -185,3 +185,19 @@ import { Card, Image, Icon } from "semantic-ui-react";
 4. Fix form input fields for textarea and date picker
 <Form.TextArea rows={2} placeholder="Description" />
 <Form.Input type="date" placeholder="Date" />
+
+
+++++++++++Submit Cancel Button in Form++++++++++
+
+1. Add Submit Cancel Button
+	...
+	<Button floated="right" positive type="submit" content="Submit" />
+    <Button floated="right" type="button" content="Cancel" />
+    </Form>
+</Segment>
+
+2. Add "clearing" inside Segment
+- A segment can clear floated content.
+https://react.semantic-ui.com/elements/segment/#variations-clearing
+<Segment clearing>
+

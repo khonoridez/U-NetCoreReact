@@ -1,0 +1,126 @@
+
++++++++++++++++++++++Route Edit Button to Form+++++++++++++++++++++++
+
+1. Create useState hook for editMode
+- We do not need to set about type useState<boolean> since it will automatically infer the type
+const [editMode, setEditMode] = useState(false);
+
+2. Pass and destructure (via <IProps>) both properties to ActivityDashboard
+interface IProps {
+  ...
+  editMode: boolean;
+  setEditMode: (editMode: boolean) => void;
+}
+const ActivityDashboard: React.FC<IProps> = ({
+  ...
+  editMode,
+  setEditMode
+}) => {
+
+3. Set editMode conditional for ActivityForm
+{selectedActivity && !editMode && (
+    <ActivityDetails activity={selectedActivity} />
+)}
+{editMode && <ActivityForm />}
+
+4. Handle Edit Button in ActivityDetails
+4.1 Pass setEditMode to ActivityDetails
+interface IProps {
+  activity: IActivity;
+  setEditMode: (editMode: boolean) => void;
+}
+
+4.2 Destructure in <IProps>
+const ActivityDetails: React.FC<IProps> = ({ activity, setEditMode }) => {
+
+4.3 Handle onClick event of Edit Button
+
++++++++++++++++++++++Route Create Button to Form+++++++++++++++++++++++
+
+1. Create handler to set null to edit flags
+
+const handleOpenCreateForm = () => {
+    setSelectedActivity(null);
+    setEditMode(true);
+  };
+
+2. Pass handler to NavBar
+<NavBar openCreateForm={handleOpenCreateForm} />
+
+3. Catch in NavBar.tsx
+3.1 Create interface set Function Signature
+interface IProps {
+  openCreateForm: () => void;
+}
+3.2 Deconstruct
+const NavBar: React.FC<IProps> = ({ openCreateForm }) => {
+3.3 Handle in Create Button
+<Button onClick={openCreateForm} positive content="Create Activity" />
+
+
++++++++++++++++++++++Handle Forms Cancel Button+++++++++++++++++++++++
+!!Turn off Edit mode when Cancel Button is clicked
+
+++++++ActivityForm.tsx++++++
+1. From ActivityDashboard pass setEditMode prop to ActivityForm
+{... <ActivityForm setEditMode={setEditMode} />}
+2. Create interface in ActivityForm and deconstruct in parameter
+interface IProps {
+  setEditMode: (editMode: boolean) => void;
+}
+
+const ActivityForm: React.FC<IProps> = ({ setEditMode }) => { ...
+3. Handle onClick of Cancel Button
+ <Button
+    onClick={() => setEditMode(false)}
+    floated="right"
+    type="button"
+    content="Cancel"
+ />
+
+
+++++++ActivityDetails.tsx++++++
+!Set selectedActivity to null for Cancel Button
+1. Pass setSelectedActivity from App to ActivityDashboard 
+
+<ActivityDashboard
+    ...
+    setSelectedActivity={setSelectedActivity}
+    ...
+/>
+
+2. Catch (IProps, Destructure) in ActivityDashboard
+interface IProps {
+  ...
+  setSelectedActivity: (activity: IActivity | null) => void;
+  ...
+}
+
+const ActivityDashboard: React.FC<IProps> = ({
+  ...
+  setSelectedActivity,
+  ...
+}) => {
+
+3. Pass setSelectedActivity from ActivityDashboard to ActivityDetails
+<ActivityDetails
+    ...
+    setSelectedActivity={setSelectedActivity}
+    />
+
+4. Catch (IProps, Destructure) in ActivityDetails
+interface IProps {
+  ...
+  setSelectedActivity: (activity: IActivity | null) => void;
+}
+
+const ActivityDetails: React.FC<IProps> = ({
+  ...
+  setSelectedActivity
+}) => {
+
+5. Handle onChange of Cancel Button and pass null
+<Button
+    onClick={() => setSelectedActivity(null)}
+    ...
+    ></Button>
