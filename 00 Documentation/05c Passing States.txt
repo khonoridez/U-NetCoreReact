@@ -1,0 +1,134 @@
+
+++++++++++Passing Values to Components++++++++++
+
+4. Pass activities value to ActivityDashboard.tsx from App.tsx
+In App.tsx:
+  return (
+    <Fragment>
+      <NavBar />
+      <Container style={{ marginTop: "7em" }}>
+        <ActivityDashboard activities={activities} />
+      </Container>
+    </Fragment>
+  );
+
+5. Catch in ActivityDashboard.tsx
+5.1 Create interface
+interface IProps {
+  activities: IActivity[];
+}
+
+5.2 Give FC (Functional Component) type for ActivityDashboard and specify parameter (in thsi example named props)
+const ActivityDashboard: React.FC<IProps> = props => {
+
+5.3 Use props
+return (
+    <Grid>
+      <GridColumn width="10">
+        <List>
+          {props.activities.map(activity => (
+            <List.Item key={activity.id}>{activity.title}</List.Item>
+          ))}
+        </List>
+      </GridColumn>
+    </Grid>
+  );
+
+5.4 We can destructure the property so we do not need to specify props and just access activities directly
+const ActivityDashboard: React.FC<IProps> = ({ activities }) => {
+...
+{activities.map(activity => (
+	<List.Item key={activity.id}>{activity.title}</List.Item>
+))}
+
+++++++++++Handle View route to and from list to details++++++++++
+
+1. Create anotehr hook in App.tsx (useState)
+const [selectedActivity, setSelectedActivity] = useState<IActivity>();
+! note on parameter
+- we have to supply an intial value so our selectedActivity will not be a union type of undefined (IActivity | undefined)
+- we can assign null to be the union type but we have to set explicitly, and then we can pass the initial state
+const [selectedActivity, setSelectedActivity] = useState<IActivity | null>(null);
+
+2. Create a handler that takes id as parameter
+const handleSelectedAcitvity = (id: string) => {
+	setSelectedActivity(activities.filter(a => a.id === id)[0]);
+};
+
+3. ActivityDashboard will act as the middle man to pass in id from ActivityList to ActivityDetails
+- In App.tsx, supply the handler to Activity Dashboard
+<ActivityDashboard
+    activities={activities}
+    selectActivity={handleSelectedAcitvity}
+/>
+
+4. Define selectActivity in ActivityDashboard.tsx
+interface IProps {
+  activities: IActivity[];
+  selectActivity: (id: string) => void;
+}
+
+const ActivityDashboard: React.FC<IProps> = ({
+  activities,
+  selectActivity
+}) => {
+...
+
+5. Pass the selectActivity to ActivityList.tsx and define inside
+interface IProps {
+  activities: IActivity[];
+  selectActivity: (id: string) => void;
+}
+
+const ActivityList: React.FC<IProps> = ({
+  activities,
+  selectActivity
+}) => {
+...
+
+6. Set Handler on the onClick of Button
+<Button
+    onClick={() => selectActivity(activity.id)}
+    floated="right"
+    content="View"
+    color="blue"
+/>
+
+7. Pass the selected Activity to the details component
+7.1 App.tsx pass to ActivityDashboard
+<ActivityDashboard
+    activities={activities}
+    selectActivity={handleSelectedAcitvity}
+    selectedActivity={selectedActivity}
+/>
+7.2 ActivityDashboard.tsx pass to ActivityDetails.tsx
+<ActivityDetails activity={selectedActivity} />
+7.3 Catch in ActivityDetails with IProp
+interface IProps {
+  activity: IActivity | null;
+}
+...
+const ActivityDetails: React.FC<IProps> = ({ activity }) => { ...
+7.4 Implement and use activity
+<Image
+    src={`/assets/categoryImages/${activity.category}.jpg`}
+    wrapped
+    ui={false}
+    />
+<Card.Header>{activity.title}</Card.Header>
+...
+7.5 Error Type 'IActivity | null' is not assignable to type 'IActivity'.
+a. -In App.tsx, we will override type-safety by placing excalamation mark
+selectedActivity={selectedActivity!}
+
+b. Alternatively we can set selectedActivity's type in ActivityDashboard (more explicit) and remove the exclamation from App.tsx
+selectedActivity: IActivity | null;
+
+c. In ActivityDashboard we set selecetdActivity in a conditional statement
+...
+<GridColumn width="6">
+	{selectedActivity && <ActivityDetails activity={selectedActivity} />}
+	<ActivityForm />
+</GridColumn>
+...
+

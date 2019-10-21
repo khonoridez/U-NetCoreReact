@@ -112,49 +112,7 @@ const ActivityDashboard = () => {
   );
 };
 
-++++++++++Passing Values to Components++++++++++
-
-4. Pass activities value to ActivityDashboard.tsx from App.tsx
-In App.tsx:
-  return (
-    <Fragment>
-      <NavBar />
-      <Container style={{ marginTop: "7em" }}>
-        <ActivityDashboard activities={activities} />
-      </Container>
-    </Fragment>
-  );
-
-5. Catch in ActivityDashboard.tsx
-5.1 Create interface
-interface IProps {
-  activities: IActivity[];
-}
-
-5.2 Give FC (Functional Component) type for ActivityDashboard and specify parameter (in thsi example named props)
-const ActivityDashboard: React.FC<IProps> = props => {
-
-5.3 Use props
-return (
-    <Grid>
-      <GridColumn width="10">
-        <List>
-          {props.activities.map(activity => (
-            <List.Item key={activity.id}>{activity.title}</List.Item>
-          ))}
-        </List>
-      </GridColumn>
-    </Grid>
-  );
-
-5.4 We can destructure the property so we do not need to specify props and just access activities directly
-const ActivityDashboard: React.FC<IProps> = ({ activities }) => {
-...
-{activities.map(activity => (
-	<List.Item key={activity.id}>{activity.title}</List.Item>
-))}
-
-++++++++++ActivityList++++++++++
+++++++++++Activity List++++++++++
 
 1. Create file src/features/activities/ActivityList.tsx
 - type rafc for snipopet
@@ -205,7 +163,7 @@ import { Card, Image, Icon } from "semantic-ui-react";
 
 4. Adjust Card styles
 
-++++++++++Forms++++++++++
+++++++++++Form++++++++++
 
 1. Create file src/features/activities/form/ActivityForm.tsx
 2. Wrap in Segment, Build Form
@@ -227,6 +185,3 @@ import { Card, Image, Icon } from "semantic-ui-react";
 4. Fix form input fields for textarea and date picker
 <Form.TextArea rows={2} placeholder="Description" />
 <Form.Input type="date" placeholder="Date" />
-
-
-

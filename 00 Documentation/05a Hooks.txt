@@ -1,0 +1,149 @@
+
+https://reactjs.org/docs/hooks-intro.html
+
+- Instead of using components we will bee converting this to use Hooks
+
+1. import ... { useState, useEffect } from "react";
+2. Refactor App to use hooks
+- Convert from class/component to const (function())
+
+const App = () => {
+
+3. useState usage
+++++++++useState Hook++++++++
+- useState is a Hook that lets you add React state to function components.
+https://reactjs.org/docs/hooks-state.html
+
+- useState accepts one parameter and this is the initial state of the 1st array item
+ex: const [fruit, setFruit] = useState('banana');
+
+- brackets are called Array Deconstructing 
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Array_destructuring
+- When we declare a state variable with useState, it returns a pair — an array with two items. 
+The first item is the current value, and the second is a function that lets us update it. 
+Using [0] and [1] to access them is a bit confusing because they have a specific meaning. This is why we use array destructuring instead.
+
+const [activities, setActivities] = useState<IActivity[]>([]);
+
+example without array destructuring:
+var activitiesVariable = useState<IActivity[]>([]); // Returns a pair
+var activities = activitiesVariable[0]; // First item in a pair
+var setActivities = activitiesVariable[1]; // Second item in a pair
+
+usage in code:
+return (
+    <div>
+    ...
+        {activities.map(activity => (
+	...
+  );
+  
+- we will be using 'setActivities in the useEffect hook
+
+++++++++useEffect Hook++++++++
+https://reactjs.org/docs/hooks-effect.html
+- think of useEffect Hook as componentDidMount, componentDidUpdate, and componentWillUnmount combined.
+- second parameter sepcifies when to skip the effect
+- If you want to run an effect and clean it up only once (on mount and unmount), you can pass an empty array ([]) as a second argument.
+- If you pass an empty array ([]), the props and state inside the effect will always have their initial values.
+- While passing [] as the second argument is closer to the familiar componentDidMount and componentWillUnmount mental model, 
+there are usually better solutions to avoid re-running effects too often.
+
+  useEffect(() => {
+    axios
+      .get<IActivity[]>("http://localhost:5000/api/activities")
+      .then(response => {
+        setActivities(response.data);
+      });
+  }, []);
+
+++++++++++Handle View route to and from list to details++++++++++
+
+1. Create anotehr hook in App.tsx (useState)
+const [selectedActivity, setSelectedActivity] = useState<IActivity>();
+! note on parameter
+- we have to supply an intial value so our selectedActivity will not be a union type of undefined (IActivity | undefined)
+- we can assign null to be the union type but we have to set explicitly, and then we can pass the initial state
+const [selectedActivity, setSelectedActivity] = useState<IActivity | null>(null);
+
+2. Create a handler that takes id as parameter
+const handleSelectedAcitvity = (id: string) => {
+	setSelectedActivity(activities.filter(a => a.id === id)[0]);
+};
+
+3. ActivityDashboard will act as the middle man to pass in id from ActivityList to ActivityDetails
+- In App.tsx, supply the handler to Activity Dashboard
+<ActivityDashboard
+    activities={activities}
+    selectActivity={handleSelectedAcitvity}
+/>
+
+4. Define selectActivity in ActivityDashboard.tsx
+interface IProps {
+  activities: IActivity[];
+  selectActivity: (id: string) => void;
+}
+
+const ActivityDashboard: React.FC<IProps> = ({
+  activities,
+  selectActivity
+}) => {
+...
+
+5. Pass the selectActivity to ActivityList.tsx and define inside
+interface IProps {
+  activities: IActivity[];
+  selectActivity: (id: string) => void;
+}
+
+const ActivityList: React.FC<IProps> = ({
+  activities,
+  selectActivity
+}) => {
+...
+
+6. Set Handler on the onClick of Button
+<Button
+    onClick={() => selectActivity(activity.id)}
+    floated="right"
+    content="View"
+    color="blue"
+/>
+
+7. Pass the selected Activity to the details component
+7.1 App.tsx pass to ActivityDashboard
+<ActivityDashboard
+    activities={activities}
+    selectActivity={handleSelectedAcitvity}
+    selectedActivity={selectedActivity}
+/>
+7.2 ActivityDashboard.tsx pass to ActivityDetails.tsx
+<ActivityDetails activity={selectedActivity} />
+7.3 Catch in ActivityDetails with IProp
+interface IProps {
+  activity: IActivity | null;
+}
+...
+const ActivityDetails: React.FC<IProps> = ({ activity }) => { ...
+7.4 Implement and use activity
+<Image
+    src={`/assets/categoryImages/${activity.category}.jpg`}
+    wrapped
+    ui={false}
+    />
+<Card.Header>{activity.title}</Card.Header>
+...
+7.5 Error Type 'IActivity | null' is not assignable to type 'IActivity'.
+a. -In App.tsx, we will override type-safety by placing excalamation mark
+selectedActivity={selectedActivity!}
+
+b. Alternatively we can set selectedActivity's type in ActivityDashboard (more explicit) and remove the exclamation from App.tsx
+selectedActivity: IActivity | null;
+
+c. In ActivityDashboard we set selecetdActivity in a conditional statement
+...
+<GridColumn width="6">
+	{selectedActivity && <ActivityDetails activity={selectedActivity} />}
+	<ActivityForm />
+</GridColumn>
+...
