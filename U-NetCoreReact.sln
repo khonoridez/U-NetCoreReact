@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00 Documentation", "00 Documentation", "{4BB81710-F026-11E9-BC77-4BF48B187AB9}"
 	ProjectSection(SolutionItems) = preProject
 		00 Documentation\00 Notes.txt = 00 Documentation\00 Notes.txt
+		00 Documentation\00 packages list.txt = 00 Documentation\00 packages list.txt
 		00 Documentation\00 React Notes.txt = 00 Documentation\00 React Notes.txt
 	EndProjectSection
 EndProject

@@ -195,6 +195,7 @@ event: FormEvent<HTMLInputElement | HTMLTextAreaElement>
   };
 
 +++++++++++++++++++++Handle Submit+++++++++++++++++++++++
+
 1. Create handler for submit
 const handleSubmit = () => {
     console.log(activity);
@@ -203,3 +204,108 @@ const handleSubmit = () => {
 2. Handle to Form's onSubmit
 <Form onSubmit={handleSubmit}>
 
+3. In App.tsx create 2 handlers for Create and Edit
+const handleCreateActivity = (activity: IActivity) => {
+	setActivities([...activities, activity]);
+};
+
+const handleEditActivity = (activity: IActivity) => {
+	setActivities([...activities.filter(a => a.id !== activity.id), activity]);
+};
+
+4. Pass to ActivityDashboard.tsx then from ActivityDashboard to ActivityForm
+interface IProps {
+  ...
+  createActivity: (activity: IActivity) => void;
+  editActivity: (activity: IActivity) => void;
+}
+
+const ActivityForm: React.FC<IProps> = ({
+  ...
+  createActivity,
+  editActivity
+}) => {
+
+5. Modify handleSubmit to use the 2 handlers
+const handleSubmit = () => {
+    if (activity.id.length === 0) {
+      let newActivity = { ...activity, id: "guid" };
+      createActivity(newActivity);
+    } else {
+      editActivity(activity);
+    }
+  };
+
++++++++++++++++++++++Guid generation+++++++++++++++++++++++
+
+1. Install uuid
+> npm install uuid
+
+2. ! Error Could not find a declaration file for module 'uuid'.
+ Try `npm install @types/uuid` if it exists or add a new declaration
+- follow instruction
+> npm install @types/uuid
+
+3. import uuid
+import { v4 as uuid } from "uuid";
+
+4. use in handleSubmit
+const handleSubmit = () => {
+    if (activity.id.length === 0) {
+      let newActivity = { ...activity, id: uuid() };
+      ...
+	};
+
+5. Fix selected Activity upon Save
+const handleCreateActivity = (activity: IActivity) => {
+    ...
+    setSelectedActivity(activity);
+    setEditMode(false);
+  };
+
+const handleEditActivity = (activity: IActivity) => {
+	...
+	setSelectedActivity(activity);
+	setEditMode(false);
+};
+
++++++++++++++++++++++Fix issues+++++++++++++++++++++++
+
+1. When clicking on View while Form is open nothing happens
+- Add setEditMode(false);
+const handleSelectedAcitvity = (id: string) => {
+    ...
+    setEditMode(false);
+  };
+
+2. When clicking on Create Activity while Form is open update the Form to blank state
+- ActivityForm hook states are filled up nothing changes
+- Create activity resets props for 'activity'
+- Give ActivityForm a key
+- ActivityForm reinitialize everytime key changes
+
+<ActivityForm key={(selectedActivity && selectedActivity.id) || 0}
+
+3. Date input
+- Change date input to allow for time
+<Form.Input
+	...
+	type="datetime-local"
+/>
+
+- Reformat the date to take out milliseconds
+- Format date upon getting the data from Api
+- loop through the results (response.data.forEach)
+- split activity.date to get just first part	
+useEffect(() => {
+    axios
+      .get<IActivity[]>("http://localhost:5000/api/activities")
+      .then(response => {
+        let activites: IActivity[] = [];
+        response.data.forEach(activity => {
+          activity.date = activity.date.split(".")[0];
+          activities.push(activity);
+        });
+        setActivities(activites);
+      });
+  }, []);
