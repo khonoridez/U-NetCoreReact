@@ -154,3 +154,33 @@ const ActivityDashboard: React.FC<IProps> = ({ activities }) => {
 	<List.Item key={activity.id}>{activity.title}</List.Item>
 ))}
 
+
+
+5.5 Create file src/features/activities/ActivityList.tsx
+- type rafc for snipopet
+
+5.6 We will use Views>Item from Semantic Ui
+https://react.semantic-ui.com/views/item/
+import { Item, Image } from "semantic-ui-react";
+- Fix sample, and wrap in a Segment
+https://react.semantic-ui.com/elements/segment/
+
+5.7 Pass props to ActivityList
+<ActivityList activities={activities} />
+
+5.8 Catch props in ActivityList
+- Create interface
+interface IProps {
+  activities: IActivity[];
+}
+
+- Catch props and deconstruct ({activities})
+const ActivityList: React.FC<IProps> = ({ activities }) => {
+
+- Usage:
+...
+{activities.map(activity => (
+    <Item key={activity.id}>
+    <Item.Content>
+        <Item.Header as="a">{activity.title}</Item.Header>
+...
