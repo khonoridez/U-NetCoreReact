@@ -217,4 +217,32 @@ const {
 
 ++++++++Delete Activity++++++++
 
-1. Create observable for the loading button feature
+1. Create observable for the loading button feature, and implement deleteActivity
+@observable target = "";
+...
+@action deleteActivity = async (
+    event: SyntheticEvent<HTMLButtonElement>,
+    id: string
+  ) => {
+    this.submitting = true;
+    this.target = event.currentTarget.name;
+    try {
+      await agent.Activities.delete(id);
+      this.activityRegistry.delete(id);
+      this.submitting = false;
+      this.target = "";
+    } catch (error) {
+      console.log(error);
+      this.submitting = false;
+      this.target = "";
+    }
+  };
+
+2. Use in ActivityList
+const ActivityList: React.FC<IProps> = ({ submitting, target }) => {
+  const activityStore = useContext(ActivityStore);
+  const { activitiesByDate, selectActivity, deleteActivity } = activityStore;
+
+!! Clean up unsued variables
+
+
