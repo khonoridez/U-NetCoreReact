@@ -45,6 +45,22 @@ React is a library not a framework, Does not come with
 - HTPP Api Calls
 - State Management
 
+...
+Embedding Expressions in JSX:
+https://reactjs.org/docs/introducing-jsx.html
+- use expressions inside JSX by wrapping it in curly braces. You can put any valid JavaScript expression inside the curly braces.
+
+function formatName(user) {
+  return user.firstName + ' ' + user.lastName;
+}
+
+const element = (
+  <h1>
+    Hello, {formatName(user)}!
+  </h1>
+);
+...
+
 ++++++++++++Hooks++++++++++++++
 
 - React is pushing for Hooks rather than Components, in managing State and Life Cycle components

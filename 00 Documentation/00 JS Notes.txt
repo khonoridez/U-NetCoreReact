@@ -1,0 +1,96 @@
+
+++++++++++TODO Notes on++++++++++
+
+1. Spread Syntax
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
+
+ex:
+var obj1 = { foo: 'bar', x: 42 };
+var obj2 = { foo: 'baz', y: 13 };
+
+var clonedObj = { ...obj1 };
+// Object { foo: "bar", x: 42 }
+
+var mergedObj = { ...obj1, ...obj2 };
+// Object { foo: "baz", x: 42, y: 13 }
+
+2. Destructuring JavaScript Objects
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment\
+
+//basic example:
+var o = {p: 42, q: true};
+var {p, q} = o;
+console.log(p); // 42
+console.log(q); // true 
+
+//assigning new variable names:
+var o = {p: 42, q: true};
+var {p: foo, q: bar} = o;
+console.log(foo); // 42 
+console.log(bar); // true
+
+3. Union Type
+https://www.tutorialspoint.com/typescript/typescript_union.htm
+ex.:
+interface IProps {
+  activity: IActivity | null;
+}
+
+4. Non-null assertion operator
+https://stackoverflow.com/questions/42273853/in-typescript-what-is-the-exclamation-mark-bang-operator-when-dereferenci
+- the operation x! produces a value of the type of x with null and undefined excluded
+- This expression cannot be null or undefined here, so don't complain about the possibility of it being null or undefined
+
+<ActivityForm setEditMode={setEditMode} activity={selectedActivity!} />
+
+++++++++++Promise Resolve Callback++++++++++
+- The Promise object represents the eventual completion (or failure) of an asynchronous operation, and its resulting value.
+- this is a promise resolve callback (used in axios):
+
+then(() => {
+
+Note: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+
+....
+const date = new Promise(function(resolve, reject) {
+  if (weather) {
+    const dateDetails = {
+      name:     'Cubana Restaurant',
+      location: '55th Street',
+      table:    5
+    };
+
+    resolve(dateDetails)
+  } else {
+    reject(new Error('Bad weather, so no Date'))
+  }
+});
+....
+
+// Using a promise that has been created is relatively straightforward; we chain .then() and .catch() to our Promise like so:
+
+const myDate = function() {
+  date
+    .then(function(done) {
+      console.log('We are going on a date!')
+      console.log(done)
+    })
+    .catch(function(error) {
+        console.log(error.message)
+    })
+}
+
+myDate();
+
+.then() receives a function with an argument which is the resolve value of our promise. 
+.catch returns the reject value of our promise.
+....
+
+Output:
+We are going on a date!
+{
+  name: 'Cubana Restaurant',
+  location: '55th Street'
+  table: 5
+}
+

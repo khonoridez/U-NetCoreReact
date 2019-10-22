@@ -192,5 +192,10 @@ const initializeForm = () => {
 <Form.TextArea rows={2} placeholder="Description" value={activity.description} />
 
 9. Error! Type 'IActivity | null' is not assignable to type 'IActivity'.
-- Add excalamation on ActivityForm
-<ActivityForm setEditMode={setEditMode} activity={selectedActivity!} />
+- We can add excalamation on ActivityForm (non-null assertion operator) since we have a null check on key
+
+<ActivityForm
+    key={(selectedActivity && selectedActivity.id) || 0}
+    activity={selectedActivity!}
+    ...
+    />

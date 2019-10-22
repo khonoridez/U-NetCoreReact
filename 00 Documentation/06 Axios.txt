@@ -48,3 +48,37 @@ useEffect(() => {
 - list() return a Promise<any>
 - Place the type after the ()
 list: (): Promise<IActivity[]> => requests.get("/activities"),
+
++++++++++Create+++++++++
+
+const handleCreateActivity = (activity: IActivity) => {
+	agent.Activities.create(activity).then(() => {
+		setActivities([...activities, activity]);
+		setSelectedActivity(activity);
+		setEditMode(false);
+	});
+};
+
+!note: Alternatively, we could put setActivity on top of .create() to update GUI (async)
+
++++++++++Update+++++++++
+
+const handleEditActivity = (activity: IActivity) => {
+    agent.Activities.update(activity).then(() => {
+      setActivities([
+        ...activities.filter(a => a.id !== activity.id),
+        activity
+      ]);
+      setSelectedActivity(activity);
+      setEditMode(false);
+    });
+  };
+
++++++++++Delete+++++++++
+
+const handleDeleteActivity = (id: string) => {
+	agent.Activities.delete(id).then(() => {
+		setActivities([...activities.filter(a => a.id !== id)]);
+	});
+};
+
