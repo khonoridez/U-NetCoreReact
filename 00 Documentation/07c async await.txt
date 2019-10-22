@@ -1,0 +1,38 @@
+
+@action loadActivities = () => {
+    this.loadingInitial = true;
+    agent.Activities.list()
+      .then(activities => {
+        activities.forEach(activity => {
+          activity.date = activity.date.split(".")[0];
+          this.activities.push(activity);
+        });
+      })
+	  .catch(error => console.log(error))
+      .finally(() => (this.loadingInitial = false));
+  };
+
+1. Promise chaining from asynchronous methods
+- Execute inside .then(...)
+- .catch(...) gets called when it fails
+- .finally(...) gets called when everything finishes
+
++++++++++++++async await+++++++++++++
+- Refactor this to async/await
+- No performance benefit, syntactical sugar
+
+@action loadActivities = async () => {
+    this.loadingInitial = true;
+    try {
+      const activities = await agent.Activities.list();
+      activities.forEach(activity => {
+        activity.date = activity.date.split(".")[0];
+        this.activities.push(activity);
+      });
+      this.loadingInitial = false;
+    } catch (error) {
+      console.log(error);
+      this.loadingInitial = false;
+    }
+  };
+
