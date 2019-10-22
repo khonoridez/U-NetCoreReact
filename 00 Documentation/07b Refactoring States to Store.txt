@@ -97,3 +97,45 @@ const { activities, selectActivity } = activityStore;
 
 !!Fix errors, remove duplicate declaration
 
+++++++++Create Activity++++++++
+1. Create action in Store for createActivity
+
+@action createActivity = async (activity: IActivity) => {
+	this.submitting = true;
+	try {
+		await agent.Activities.create(activity);
+		this.activities.push(activity);
+		this.editMode = false;
+		this.submitting = false;
+	} catch (error) {
+		console.log(error);
+		this.submitting = false;
+	}
+};
+
+2. Create action for openCreateForm
+@action openCreateForm = () => {
+	this.editMode = true;
+	this.selectedActivity = undefined;
+};
+
+3. Use openCreateForm in NavBar "Create" button
+const activityStore = useContext(ActivityStore);
+...
+<Button
+    onClick={activityStore.openCreateForm}
+    positive
+    content="Create Activity"
+    />
+...
+export default observer(NavBar);
+
+!!!Remove unusued and duplicate variables
+
+4. Use in ActivityForm
+}) => {
+  const activityStore = useContext(ActivityStore);
+  const { createActivity } = activityStore;
+
+!!!Remove unusued and duplicate variables
+
