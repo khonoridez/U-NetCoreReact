@@ -67,6 +67,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "07 MobX", "07 MobX", "{01BE
 		00 Documentation\07 MobX.txt = 00 Documentation\07 MobX.txt
 		00 Documentation\07a MobX implementation.txt = 00 Documentation\07a MobX implementation.txt
 		00 Documentation\07b Refactoring States to Store.txt = 00 Documentation\07b Refactoring States to Store.txt
+		00 Documentation\07c async await.txt = 00 Documentation\07c async await.txt
 	EndProjectSection
 EndProject
 Global

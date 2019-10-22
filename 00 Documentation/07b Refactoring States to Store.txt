@@ -1,0 +1,99 @@
+
+
+1. Set observables for activities data and loading flag
+
+class ActivityStore {
+  @observable activities: IActivity[] = [];
+  @observable loadingInitial = false;  
+}
+
+2. Get logic from useEffect() inside App.tsx and move inside ActivityStore as an @action
+
+@action loadActivities = () => {
+    this.loadingInitial = true;
+    agent.Activities.list()
+      .then(activities => {
+        activities.forEach(activity => {
+          activity.date = activity.date.split(".")[0];
+          this.activities.push(activity);
+        });
+      })
+      .finally(() => (this.loadingInitial = false));
+  };
+
+3. Use in App.tsx
+https://overreacted.io/a-complete-guide-to-useeffect/
+
+  useEffect(() => {
+    activityStore.loadActivities();
+  }, [activityStore]);
+
+  ...
+
+if (activityStore.loadingInitial)
+    return <LoadingComponent content="Loading Activities ..." />;
+
+	...
+
+<ActivityDashboard
+          activities={activityStore.activities}
+		  ...
+
+4. Make the component as observer
+!!Note on observables
+- If we have observables, it is important that the components obesrving we have to tell them to be an observer
+- Turn these components to observers
+- If not we will see the initial state of mobX and not the changes inside our components
+- observer is a higher-order component, taking another Component as parameter
+- then it returns a new component with extra functionalities, in this case to Observe observables
+
+App.tsx
+import {observer} from 'mobx-react-lite';
+...
+export default observer(App);
+
+ActivityDashboard.tsx
+export default observer(ActivityDashboard);
+
+ActivityList.tsx
+export default observer(ActivityList);
+
+++++++++Use Store in Child Components++++++++
+
+1. Set the Observables in Store
+@observable selectedActivity: IActivity | undefined;
+@observable editMode = false;
+...
+@action selectActivity = (id: string) => {
+    this.selectedActivity = this.activities.find(a => a.id === id);
+    this.editMode = false;
+  };
+
+2. Use in ActivityDashboard
+...
+}) => {
+const activityStore = useContext(ActivityStore);
+...
+
+3. Destructure properties that we will be using
+...
+const { editMode, selectedActivity } = activityStore;
+
+!!Fix errors, remove duplicate declaration
+
+4. Use in ActivityDetails
+...
+const activityStore = useContext(ActivityStore);
+const { selectedActivity: activity } = activityStore;
+...
+
+export default observer(ActivityDetails);
+
+! We have to set the View Button in ActivityList via selectActivity (which actually came form App)
+
+5. Use in ActivityList
+const activityStore = useContext(ActivityStore);
+const { activities, selectActivity } = activityStore;
+
+!!Fix errors, remove duplicate declaration
+

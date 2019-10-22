@@ -116,3 +116,10 @@ axios
 
 6. Decorators
 https://www.typescriptlang.org/docs/handbook/decorators.html
+
+7. Never[]
+
+8. Higher order components
+
+9. async await
+https://javascript.info/async-await
