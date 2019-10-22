@@ -47,6 +47,17 @@ Install packages (must be same as netcore version)
 -s startup project
 > dotnet ef migrations add SeedValues -p Persistence/ -s API/
 
+++++++++++++RESETTING DATABASE++++++++++++++
+1. Inside VS Code Terminal Window, inside solution folder
+
+2. Drop database
+- Specify persistence project and startup project
+
+dotnet ef database drop -p Persistence/ -s API/
+
+3. Re run Api since we have migration setup in startup
+dotnet watch run
+
 ++++++++++++POSTMAN FEATURES++++++++++++++
 1. Variables
 - under collections > edit
@@ -56,15 +67,6 @@ Install packages (must be same as netcore version)
 
 2. Creating Collections
 https://learning.getpostman.com/docs/postman/collections/intro_to_collections/
-
-++++++++++++RESETTING DATABASE++++++++++++++
-1. Inside VS Code Terminal Window
-- inside solution folder
-2. Drop database
-- Specify persistence project and startup project
-dotnet ef database drop -p Persistence/ -s API/
-3. Re run Api since we have migration setup in startup
-dotnet watch run
 
 ++++++++++++ERRORS++++++++++++++
 

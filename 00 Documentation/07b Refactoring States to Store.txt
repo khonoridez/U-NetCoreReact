@@ -139,3 +139,82 @@ export default observer(NavBar);
 
 !!!Remove unusued and duplicate variables
 
+++++++++Edit Activity++++++++
+
+1. Create action in Store
+@action editActivity = async (activity: IActivity) => {
+    this.submitting = true;
+    try {
+      await agent.Activities.update(activity);
+      this.activityRegistry.set(activity.id, activity);
+      this.selectedActivity = activity;
+      this.editMode = false;
+      this.submitting = false;
+    } catch (error) {
+      console.log(error);
+      this.submitting = false;
+    }
+  };
+
+2. Use in EditForm, we also need to destructure and include submitting
+const ActivityForm: React.FC<IProps> = ({
+  setEditMode,
+  activity: initialFormState
+}) => {
+  const activityStore = useContext(ActivityStore);
+  const { createActivity, editActivity, submitting } = activityStore;
+
+!! Clean up unused variables from parent components
+
+3. Create openEditForm
+
+@action openEditForm = (id: string) => {
+    this.editMode = true;
+    this.selectedActivity = this.activityRegistry.get(id);
+  };
+
+4. Use in ActivityDetails to handle Edit Button
+const ActivityDetails: React.FC<IProps> = ({
+  setEditMode,
+  setSelectedActivity
+}) => {
+  const activityStore = useContext(ActivityStore);
+  const { selectedActivity: activity, openEditForm } = activityStore;
+...
+ <Button
+	onClick={() => openEditForm(activity!.id)}
+
+!! Clean up unused variables from parent components
+
+5. Create cancelSelectedActivity and cancelFormOpen
+@action cancelSelectedActivity = () => {
+    this.selectedActivity = undefined;
+  };
+
+@action cancelFormOpen = () => {
+    this.editMode = false;
+  };
+
+6. Use in the Cancel button on ActivityDetails
+const {
+    selectedActivity: activity,
+    openEditForm,
+    cancelSelectedActivity
+  } = activityStore;
+...
+<Button
+    onClick={() => cancelSelectedActivity()}
+    basic
+    color="grey"
+    content="Cancel"
+></Button>
+
+7. Use in Cancel Button inside Form
+<Button
+	onClick={() => cancelFormOpen()}
+
+!!!Clean up unused variables
+
+++++++++Delete Activity++++++++
+
+1. Create observable for the loading button feature
