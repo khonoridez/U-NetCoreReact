@@ -82,3 +82,50 @@ const handleDeleteActivity = (id: string) => {
 	});
 };
 
++++++++++LOADING INDICATOR+++++++++
+https://react.semantic-ui.com/elements/loader/
+
+....
+TEMPORARY DELAY using JS Currying to verify loader:
+
+const sleep = (ms: number) => (response: AxiosResponse) =>
+  new Promise<AxiosResponse>(resolve =>
+    setTimeout(() => resolve(response), ms)
+  );
+....
+
++++++++++WHOLE PAGE INDICATOR+++++++++
+
+1. Create file 
+src/app/layout/LoadingComponent.tsx
+
+2. Use loader from Semantic UI 
+const LoadingComponent: React.FC<{
+  inverted?: boolean;
+  content?: string;
+}> = ({ inverted = true, content }) => {
+  return (
+    <Dimmer active inverted={inverted}>
+      <Loader content={content} />
+    </Dimmer>
+  );
+};
+
+3. Create hook
+const [loading, seLoading] = useState(true);
+
+4. Set inside useEffect
+useEffect(() => {
+    agent.Activities.list()
+      .then(response => {
+        let activities: IActivity[] = [];
+        response.forEach(activity => {
+          activity.date = activity.date.split(".")[0];
+          activities.push(activity);
+        });
+        setActivities(activities);
+      })
+      .then(() => setLoading(false));
+  }, []);
+
+

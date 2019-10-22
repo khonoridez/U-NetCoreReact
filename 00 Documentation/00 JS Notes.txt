@@ -94,3 +94,23 @@ We are going on a date!
   table: 5
 }
 
+5. Optional variables
+
+
+++++++++++Currying++++++++++
+https://www.sitepoint.com/currying-in-functional-javascript/
+
+ex. sleep function:
+
+const sleep = (ms: number) => (response: AxiosResponse) =>
+  new Promise<AxiosResponse>(resolve =>
+    setTimeout(() => resolve(response), ms)
+  );
+
+usage:
+...
+axios
+      .get(url)
+      .then(sleep(1000))
+      .then(responseBody)
+
