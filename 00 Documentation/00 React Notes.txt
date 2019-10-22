@@ -61,6 +61,11 @@ const element = (
 );
 ...
 
+++++++++++++Naming convention for files++++++++++++++
+1. React Component camelCase
+2. Regular .ts class UpperCase
+
+
 ++++++++++++Hooks++++++++++++++
 
 - React is pushing for Hooks rather than Components, in managing State and Life Cycle components

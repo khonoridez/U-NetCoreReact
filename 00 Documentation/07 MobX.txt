@@ -1,0 +1,94 @@
+
++++++++++++++Centralized Store+++++++++++++
+
+Move states outside of Components and put into centralized Stores via MobX
+
+MobX Api (State Management)
+1. Observable
+2. Action
+3. Computed
+4. Reaction
+
+5. Observer
+- Create higher order component to make our React Components Observers of our Store
+
++++++++++++++Observable+++++++++++++
+- Connect Observers to Store
+
+import {observable} from 'mobx';
+
+class DemoStore
+{
+	@observable firstName = 'Bob';
+	@observable lastName = 'Smith';
+}
+
+export default createContext(new DemoStore());
+...
+
++++++++++++++Action+++++++++++++
+- Use to modify the observables
+- mutating state, not possible in Redux
+- anything that has sidieeffects, we  have to decorate with @action
+
+@action setFirstName = (name: string) => {
+	this.firstName = name
+}
+
++++++++++++++Computed+++++++++++++
+- similiar to formulas in spreadsheets
+- highly optimized
+
+
+@computed get fullName()
+{
+	return this.firstName + ' ' + this.lastName;
+}
+
++++++++++++++Reaction+++++++++++++
+- tell the reaction which observable we are interested in tracking
+- if observable changes then call the reaction()
+
+constructor()
+{
+	reaction(
+		() => this.firstName,
+		(firstName) => console.log(firstName)
+	);
+}
+...
+
++++++++++++++React Context+++++++++++++
+- Where do we store the Stores, how do we access the Stores
+- if some data has to be accessible by React Components without passing via props
+- accesible by many components at different nesting levels
+- Storing our Store in React Context we can access it anywhere
+
+import {createContext} from 'react';
+...
+export default createContext(new DemoStore());
+...
+
+USAGE:
+- Get via useContext hook
+
+import ..., {usecontext} from 'react';
+import DemoStore from '../stores/demoStore';
+
+const Demo = () => {
+	const demoStore = useContext(DemoStore);
+	const {firstName, lastName} = demoStore;
+	...
+}
+
++++++++++++++Observer+++++++++++++
+- If you dont make component an Observer of an Observable, React Compoentn will not be notified with changes
+
+import {observer} from 'mobx-react-lite'
+
+const Demo = () => {
+...
+
+export default observer(Demo);
+
+

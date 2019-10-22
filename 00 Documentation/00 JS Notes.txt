@@ -114,3 +114,5 @@ axios
       .then(sleep(1000))
       .then(responseBody)
 
+6. Decorators
+https://www.typescriptlang.org/docs/handbook/decorators.html

@@ -18,3 +18,7 @@ https://react.semantic-ui.com/
 npm install uuid
 "uuid": "^3.3.3"
 
+4. State Management
+MobX-Lite (Functional Components only, no Class Components support)
+
+npm install mobx mobx-react-lite

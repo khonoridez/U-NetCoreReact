@@ -1,0 +1,43 @@
+
+- ActivityDashboard is middle man for all the State pasing
+- Move all states outside of compoenents and place in centralized State Store
+- MobX, reacts with changes
+- mobx-react-lite we will not be using mobx-react, can be used with Class Components and Functional Components 
+- lite can only be used with just Functional Components
+
+++++++++++++++Installation++++++++++++++
+
+> npm install mobx mobx-react-lite
+
+++++++++++++++Setup++++++++++++++
+
+1. Create Store
+src/app/stores/ActivityStore.ts
+
+Error: Experimental support for decorators is a feature that is subject to change in a future release. 
+Set the 'experimentalDecorators' option in your 'tsconfig' or 'jsconfig' to remove this warning.
+
+2. Add in tsconfig
+"experimentalDecorators": true
+
+3. export using createContext from react
+import { observable } from "mobx";
+import { createContext } from "react";
+
+class ActivityStore {
+  @observable title = "Hello from mobx";
+}
+
+export default createContext(new ActivityStore());
+
+4. Use in App.tsx
+import React, {
+  ...
+  useContext
+} from "react";
+import ActivityStore from "../stores/ActivityStore";
+
+const App = () => {
+  const activityStore = useContext(ActivityStore);
+  ...
+
