@@ -95,7 +95,7 @@ We are going on a date!
 }
 
 5. Optional variables
-
+https://www.typescriptlang.org/docs/handbook/variable-declarations.html
 
 ++++++++++Currying++++++++++
 https://www.sitepoint.com/currying-in-functional-javascript/

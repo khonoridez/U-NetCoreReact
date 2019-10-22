@@ -365,6 +365,9 @@ class App extends Component {
 - componentDidCatch
 - componentDidMount
 
++++++++++Synthetic Events+++++++++
+https://reactjs.org/docs/events.html
+
 +++++++++History+++++++++
 React 0.3
 May 2013

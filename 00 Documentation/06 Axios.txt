@@ -128,4 +128,106 @@ useEffect(() => {
       .then(() => setLoading(false));
   }, []);
 
++++++++++LOADING INDICATOR for CRUD+++++++++
+1. Create hook
+const [submitting, setSubmitting] = useState(false);
+
+2. Set on Create, Edit, Delete
+  const handleCreateActivity = (activity: IActivity) => {
+    setSubmitting(true);
+    agent.Activities.create(activity)
+      .then(() => {
+        setActivities([...activities, activity]);
+        setSelectedActivity(activity);
+        setEditMode(false);
+      })
+      .then(() => setSubmitting(false));
+  };
+
+3. Pass variable submitting to ActivityForm and ActivityList
+<ActivityDashboard
+          ...
+          submitting={submitting}
+        />
+...
+interface IProps {
+  ...
+  submitting: boolean;
+}
+
+const ActivityDashboard: React.FC<IProps> = ({
+  ...
+  submitting
+}) => {
+...
+
+4. Pass to button's loading attribute
+<Button
+    loading={submitting}
+    floated="right"
+    positive
+    type="submit"
+    content="Submit"
+/>
+
+5. Add name property on button
+ <Button
+    name={activity.id}
+	onClick={() => deleteActivity(activity.id)}
+    ...
+/>
+
+6. In the onClick event handler, we can use the event as a parameter to pass on the DeleteActivity method
+- React's original synthetic element, React.MouseEvent<HTMLButtonElement, MouseEvent>
+
+ <Button
+    name={activity.id}
+	onClick={e => deleteActivity(e, activity.id)}
+    ...
+/>
+
+7. Add event parameter, change signature, in deleteActivity
+- React.MouseEvent<HTMLButtonElement, MouseEvent>
+- MouseEvent is a supported Event of SyntheticEvent, we set the event's type here to SyntheticEvent<HTMLButtonElement> coming from HTMLButtonElement
+https://reactjs.org/docs/events.html
+
+  const handleDeleteActivity = (
+    event: SyntheticEvent<HTMLButtonElement>,
+    id: string
+  ) => {
+    ...
+  };
+- Fix other deleteActivity references of the old signature
+
+8. Add another hook called target, setTarget
+- This will represent the Button's name
+const handleDeleteActivity = (
+    event: SyntheticEvent<HTMLButtonElement>,
+    id: string
+  ) => {
+    ...
+    setTarget(event.currentTarget.name);
+    ...
+  };
+
+
+9. When we receive event set the target, in this case activityId
+- pass the target to ActivityForm then to ActivityList
+
+<ActivityDashboard
+    ...
+    target={target}
+/>
+
+const ActivityDashboard: React.FC<IProps> = ({
+  ...
+  target
+}) => {
+
+10. Use in Button to add loading flag
+<Button
+    loading={target === activity.id && submitting}
+	...
+/>
+
 
