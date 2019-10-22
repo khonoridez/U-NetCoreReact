@@ -1,0 +1,50 @@
+
++++++++++Axios+++++++++
+- React HttpClient 
+1. Http error codes
+2. Interceptors
+3. Response object (Data, Status, StatusText)
+
++++++++++Setting up+++++++++
+
+1. Create agent.ts under folder api
+- src/app/api/agent.ts
+
+2. Create scripts const for api methods
+
+import axios, { AxiosResponse } from "axios";
+import { IActivity } from "../models/activity";
+
+axios.defaults.baseURL = "http://localhost:5000/api";
+
+const responseBody = (response: AxiosResponse) => response.data;
+
+const requests = {
+  get: (url: string) => axios.get(url).then(responseBody),
+  post: (url: string, body: {}) => axios.post(url, body).then(responseBody),
+  put: (url: string, body: {}) => axios.put(url, body).then(responseBody),
+  del: (url: string) => axios.delete(url).then(responseBody)
+};
+
+const Activities = {
+  list: () => requests.get("/activities"),
+  details: (id: string) => requests.get(`/activities/${id}`),
+  create: (activity: IActivity) => requests.post("/activities", activity),
+  update: (activity: IActivity) =>
+    requests.put(`/activities/${activity.id}`, activity),
+  delete: (id: string) => requests.del(`/activities/${id}`)
+};
+
+export default { Activities };
+
++++++++++Usage+++++++++
+
+1. In App.tsx
+- replace usage to:
+useEffect(() => { 
+	agent.Activities.list().then(response => {....
+
+2. !!Error: Parameter 'activity' implicitly has an 'any' type.ts(7006)
+- list() return a Promise<any>
+- Place the type after the ()
+list: (): Promise<IActivity[]> => requests.get("/activities"),
