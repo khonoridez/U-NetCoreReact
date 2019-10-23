@@ -1,0 +1,34 @@
+
+- SPAs need router
+- We only have one page (index.html)
+- Small apps can use conditionals, instead of complex apps
+- React Router is most popular
+
++++++++++++Installation+++++++++++
+
+https://reacttraining.com/react-router/
+
+1. install React router
+cd client-app
+npm install react-router-dom
+
+2. import BrowserRouter as a namned import
+- <Router> is the low level interface for all Routers
+
+inside index.tsx:
+import { BrowserRouter } from "react-router-dom";
+!!Error - Could not find a declaration file for module 'react-router-dom'. 
+'c:/Users/User/source/repos/U-NetCoreReact/client-app/node_modules/react-router-dom/index.js' implicitly has an 'any' type.
+  Try `npm install @types/react-router-dom` if it exists or add a new declaration (.d.ts) file containing `declare module 
+  'react-router-dom';`ts(7016)
+
+- install @types
+npm install @types/react-router-dom
+
+3. Surround <App /> in <BrowserRouter> in:
+ReactDOM.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>,
+  document.getElementById("root")
+);

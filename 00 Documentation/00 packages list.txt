@@ -1,6 +1,8 @@
 
 +++++++++++React Packages+++++++++++
 
+> cd client-app
+
 1. HttpClient
 npm install axios
 "axios": "^0.19.0"
@@ -22,3 +24,8 @@ npm install uuid
 MobX-Lite (Functional Components only, no Class Components support)
 
 npm install mobx mobx-react-lite
+
+5. Routing
+https://reacttraining.com/react-router/
+
+npm install react-router-dom
