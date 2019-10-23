@@ -429,3 +429,30 @@ useEffect(
 
 Now the subscription will only be recreated when props.source changes.
 
++++++++++Hooks at a Glance+++++++++
+https://reactjs.org/docs/hooks-overview.html
+
+If you’re familiar with React class lifecycle methods, you can think of useEffect Hook as 
+componentDidMount, componentDidUpdate, and componentWillUnmount combined.
+1. componentDidMount
+2. componentDidUpdate
+3. componentWillUnmount
+
+...
+
+useEffect with Cleanup
+https://reactjs.org/docs/hooks-effect.html
+useEffect(() => {
+    function handleStatusChange(status) {
+      setIsOnline(status.isOnline);
+    }
+
+    ChatAPI.subscribeToFriendStatus(props.friend.id, handleStatusChange);
+    // Specify how to clean up after this effect:
+    return function cleanup() {
+      ChatAPI.unsubscribeFromFriendStatus(props.friend.id, handleStatusChange);
+    };
+  });
+
+- return a function inside useEffect
+

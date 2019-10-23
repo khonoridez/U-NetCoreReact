@@ -127,6 +127,12 @@ as of Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0" Guid is being migrat
 
 https://stackoverflow.com/questions/52684458/updating-entity-in-ef-core-application-with-sqlite-gives-dbupdateconcurrencyexce
 
+....
+
+Property 'activity' has no initializer and is not definitely assigned in the constructor.ts(2564)
+https://stackoverflow.com/questions/49699067/property-has-no-initializer-and-is-not-definitely-assigned-in-the-construc
+- Set to null upon declaration
+@observable activity: IActivity | null = null;
 
 ++++++++++++TODO++++++++++++++
 

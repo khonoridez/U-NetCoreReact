@@ -174,3 +174,156 @@ if (loadingInitial) return <LoadingComponent content="Loading activity..." />;
 @observable activity: IActivity | undefined;
 - add conditional
 if (loadingInitial || !activity) return <LoadingComponent content="Loading activity..." />;
+
+
++++++++++++Handle Cancel Button, Navigating in AcitvityDetails+++++++++++
+1. Destructure hisotry in Props
+const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({
+  match,
+  history
+}) => {
+
+2. Handle Cancel Button
+<Button
+    onClick={() => history.push("/activities")}
+    basic
+    color="grey"
+    content="Cancel"
+    ></Button>
+
++++++++++++Handle Edit Button+++++++++++
+1. Modify ActivityForm Route to include Edit Activity
+<Route
+    path={["/createActivity", "/manage/:id"]}
+    component={ActivityForm}
+/>
+
+2. Use in Edit Button, replace onClick={() => openEditForm(activity!.id)}
+<Button
+    as={Link}
+    to={`/manage/${activity.id}`}
+    basic
+    color="blue"
+    content="Edit"
+    ></Button>
+
+3. In ActivityForm, remove activity Props as we are going to get the activity from ActivityStore and Route Parameters
+from:
+const ActivityForm: React.FC<IProps> = ({ activity: initialFormState }) => {
+to:
+
+
+interface DetailParams {
+  id: string;
+}
+
+const ActivityForm: React.FC<RouteComponentProps<DetailParams>> = ({
+  match
+}) => {
+...
+  const {
+    ...
+    activity: initialFormState,
+	loadActivity
+  } = activityStore;
+
+4. Load activity by using hook effect
+useEffect(() => {
+    if (match.params.id) {
+      loadActivity(match.params.id);
+    }
+  });
+
++++++++++++Handle Create Button coming inside an Edit Form+++++++++++
+!! Issue, form populates when coming from Edit Button but not in browser (url, etc..)
+- useEffect runs synchronously, we have no opportunity to set state with retrieved activity
+- initializeForm is running before loadActivity had a chance to complete
+- We need to adjust form initializer
+
+5. Set blank, local state in the useState
+const [activity, setActivity] = useState<IActivity>({
+    id: "",
+    title: "",
+    category: "",
+    description: "",
+    date: "",
+    city: "",
+    venue: ""
+  });
+
+!remove initialFormState then setActivity inside .then() in the loadActivity returned promise
+
+useEffect(() => {
+	if (match.params.id) {
+		loadActivity(match.params.id).then(
+		() => initialFormState && setActivity(initialFormState)
+		);
+	}
+});
+
+!!! Issues, Create Activity Button from inside Form does not clear loaded activity
+- We have to clear the activity back to 'undefined'
+- Use Cleanup inside useEffect
+
+6. Create new action in Store
+- change activity's type to | null
+@observable activity: IActivity | null = null;
+!! Fix issues
+
+7. Create @action clearActivity
+@action clearActivity = () => {
+	this.activity = null;
+};
+
+8. Call clearActivity() inside ActivityForm's useEffect Cleanup
+...
+  const {
+    ...
+    clearActivity
+  } = activityStore;
+  ...
+
+  useEffect(() => {
+    ...
+    return () => {
+      clearActivity();
+    };
+  });
+
+
+!!! Still does not work properly
+
++++++++++++Handle Create Button using Fully Uncontrolled with a key+++++++++++
+
+Note on options:
+Previously we use UNSAFE_componentWillReceiveProps
+https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops
+
+We will try this option:
+- If you used componentWillReceiveProps to “reset” some state when a prop changes, consider either making a component fully 
+controlled or fully uncontrolled with a key instead.
+
+Fully Uncontrolled with a key
+https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+
+1. Use withRouter higher-order component
+- withRouter, higher-order component and wrap App as parameter
+- This is so we have access to "location" prop
+
+export default withRouter(observer(App));
+
+2. Destructure the location prop in App
+const App: React.FC<RouteComponentProps> = ({ location }) => {
+
+3. Add key to ActivityForm Route using the location prop
+<Route
+    key={location.key}
+    path={["/createActivity", "/manage/:id"]}
+    component={ActivityForm}
+/>
+
+
+
+
+
+
