@@ -488,6 +488,50 @@ ReactDOM.render(
   document.getElementById("root")
 );
 
++++++++++++Lists and Keys+++++++++++
+https://reactjs.org/docs/lists-and-keys.html
+https://reactjs.org/docs/reconciliation.html#recursing-on-children
+Keys help React identify which items have changed, are added, or are removed. 
+Keys should be given to the elements inside the array to give the elements a stable identity:
+
+const todoItems = todos.map((todo) =>
+  <li key={todo.id}>
+    {todo.text}
+  </li>
+);
 
 
+Recursing On Children
 
+By default, when recursing on the children of a DOM node, 
+React just iterates over both lists of children at the same time and generates a mutation whenever there’s a difference.
+
+<ul>
+  <li>Duke</li>
+  <li>Villanova</li>
+</ul>
+
+<ul>
+  <li>Connecticut</li>
+  <li>Duke</li>
+  <li>Villanova</li>
+</ul>
+
+React will mutate every child instead of realizing it can keep the <li>Duke</li> and <li>Villanova</li> subtrees intact. 
+This inefficiency can be a problem.
+
+In order to solve this issue, React supports a key attribute. When children have keys, React uses the key to match children 
+in the original tree with children in the subsequent tree. 
+
+<ul>
+  <li key="2015">Duke</li>
+  <li key="2016">Villanova</li>
+</ul>
+
+<ul>
+  <li key="2014">Connecticut</li>
+  <li key="2015">Duke</li>
+  <li key="2016">Villanova</li>
+</ul>
+
+Now React knows that the element with key '2014' is the new one, and the elements with the keys '2015' and '2016' have just moved.

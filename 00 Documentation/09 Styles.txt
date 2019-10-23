@@ -1,0 +1,34 @@
+
++++++++++++Activity Details in List+++++++++++
+- Break down details into own components
+
+1. Create file ActivityListItem.tsx
+- src/features/activities/dashboard/ActivityListItem.tsx
+
+2. Copy code from ActivityList to ActivityListItem
+return (
+    <Item key={activity.id}>
+      ...
+    </Item>
+  );
+
+!! Fix missing imports
+
+3. Remove Delete Button (Delete was for exercise purposes only)
+
+4. Pass in Activity from ActivityList
+- pass in a key
+{activitiesByDate.map(activity => (
+    <ActivityListItem key={activity.id} activity={activity} />
+))}
+
+5. Catch in ActivityList
+- We do not need and IProps, we can import type IActivity and then set the Type parameter as a destructured Props
+...
+import { IActivity } from "../../../app/models/activity";
+...
+const ActivityListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
+...
+
+
+
