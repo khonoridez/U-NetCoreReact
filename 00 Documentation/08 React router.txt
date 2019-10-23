@@ -322,7 +322,104 @@ const App: React.FC<RouteComponentProps> = ({ location }) => {
     component={ActivityForm}
 />
 
++++++++++++Redirect Submit Button+++++++++++
 
+1. Get the history object in ActivityForm
+const ActivityForm: React.FC<RouteComponentProps<DetailParams>> = ({
+  ...
+  history
+}) => {
+
+2. Handle route to ActivityDetails ("/activities/:id") inside .then() of both the createActivity(), editActivity() method
+...
+const handleSubmit = () => {
+...
+createActivity(newActivity).then(() =>
+    history.push(`/activities/${newActivity.id}`)
+    );
+...
+editActivity(activity).then(() =>
+    history.push(`/activities/${activity.id}`)
+    );
+...
+
+!!!Error in console
+index.js:1375 Warning: Can't perform a React state update on an unmounted component. 
+This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks 
+in a useEffect cleanup function.
+- In ActivityForm, in useEffect method we are setting state with ...setActivity(initialFormState)
+- Problem occurs when Submitting
+- Verify in Mobx developer tools. Go to Edit, then Submit. 
+- There are 2 calls for clearActivity and loadActivity, one of loadActivity happened AFTER we submit the activity
+- Since we redirected after we edited, there was a change with our params, 
+- useEffect ("match.params.id") changes then the method gets called again, even when we have match.params.id set as dependency
+ if (match.params.id) {...
+- We need to add another condition, check to see if id has length since it means that we still have an activity in our state so 
+no need to call loadActivity again
+
+3. Add conditional in useEffect for existing Activity in Store
+ if (match.params.id && activity.id.length === 0) {
+
+4. Fix errors, missing dependencies unusued variables
+! ActivityForm.tsx
+Error: Block-scoped variable 'activity' used before its declaration.ts(2448
+useEffect(() => {
+    ...
+  }, [..., activity.id.length]);
+
+- Move declaration of useEffect after useState
+const [activity, setActivity] = useState<IActivity>({
+
+! ActivityDetails.tsx
+- Add dependency
+
++++++++++++Separate Home Page out of NavBar+++++++++++
+1. Create Route inside App.tsx with render={}
+- assign with path={"/(.+)"}
+- .+, expression meaning if we're hitting a route with a "/" and anything else
+2. Place NavBar and Container Code inside render
+<Route
+    path={"/(.+)"}
+    render={() => (
+        <Fragment>
+        <NavBar />
+        <Container style={{ marginTop: "7em" }}>
+            <Route exact path="/" component={HomePage} />
+            <Route exact path="/activities" component={ActivityDashboard} />
+            <Route path="/activities/:id" component={ActivityDetails} />
+            <Route
+            key={location.key}
+            path={["/createActivity", "/manage/:id"]}
+            component={ActivityForm}
+            />
+        </Container>
+        </Fragment>
+    )}
+    />
+
+3. Separate Route for Home page
+<Route exact path="/" component={HomePage} />
+<Route
+    path={"/(.+)"}
+    render={() => (
+        <Fragment>
+		....
+
+
++++++++++++Code Cleanup+++++++++++
+1. ActivityStore.tsx
+- remove 
+@observable activities: IActivity[] = [];
+@observable editMode = false;
+
+// We are controoling state via Routes now
+@action openCreateForm = () => {
+@action openEditForm = (id: string) => {
+@action cancelSelectedActivity = () => {
+@action cancelFormOpen = () => {
+
+2. Loading Activities set in Home Page
+- Move loadActivities to ActivityDashboard
 
 
 

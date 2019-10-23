@@ -456,3 +456,38 @@ useEffect(() => {
 
 - return a function inside useEffect
 
+
++++++++++++Scroll Restoration+++++++++++
+- Scrolling issue with Routing to Homepage
+https://reacttraining.com/react-router/web/guides/scroll-restoration
+
+1. Create file on 
+src/app/layout/ScrollToTop.tsx
+
+long content page, that when navigated to, stays scrolled down. This is straightforward to handle with a <ScrollToTop> component that will scroll the window up on every navigation:
+
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+export default function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
+2. Set in index.tsx
+ReactDOM.render(
+  <BrowserRouter>
+    <ScrollToTop />
+    <App />
+  </BrowserRouter>,
+  document.getElementById("root")
+);
+
+
+
+
