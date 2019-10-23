@@ -124,4 +124,15 @@ https://www.typescriptlang.org/docs/handbook/decorators.html
 9. async await
 https://javascript.info/async-await
 
-10. 
+10. getter
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get
+ex.
+var obj = {
+  log: ['a', 'b', 'c'],
+  get latest() {
+    if (this.log.length == 0) {
+      return undefined;
+    }
+    return this.log[this.log.length - 1];
+  }
+}

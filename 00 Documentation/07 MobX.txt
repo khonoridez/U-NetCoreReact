@@ -226,3 +226,25 @@ Resolution 1: we put state  changes inside runInAction(() => {});
   };
 
   !!! Set runInAction in all @action methods that uses async and place state change code inside
+
+
++++++++++++++MOBX DEVELOPER TOOLS+++++++++++++
+
+  1. install MobX Developer Tools, Chrome developer tools
+  As of 10/22/2019 tabs (component) not appearing
+
+
+
++++++++++++++Moving Decorators+++++++++++++
+https://mobx.js.org/best/decorators.html
+
+import { ...decorate } from "mobx"
+
+decorate(Timer, {
+    start: observable,
+    current: observable,
+    elapsedTime: computed,
+    tick: action
+})
+
+
