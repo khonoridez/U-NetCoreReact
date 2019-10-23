@@ -405,7 +405,6 @@ const [activity, setActivity] = useState<IActivity>({
         <Fragment>
 		....
 
-
 +++++++++++Code Cleanup+++++++++++
 1. ActivityStore.tsx
 - remove 
@@ -421,6 +420,7 @@ const [activity, setActivity] = useState<IActivity>({
 2. Loading Activities set in Home Page
 - Move loadActivities to ActivityDashboard
 
-
-
-
++++++++++++Conclusion+++++++++++
+- SPAs and routers
+- Intro to React Router
+- Adding more components
