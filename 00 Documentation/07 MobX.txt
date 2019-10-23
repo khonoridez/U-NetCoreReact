@@ -154,3 +154,75 @@ return Array.from(this.activityRegistry.values()).sort(
       (a, b) => Date.parse(a.date) - Date.parse(b.date)
     );
 
++++++++++++++Strict Mode+++++++++++++
+
+  @action loadActivities = async () => {
+    this.loadingInitial = true;
+    try {
+      const activities = await agent.Activities.list();
+      activities.forEach(activity => {
+        activity.date = activity.date.split(".")[0];
+        this.activityRegistry.set(activity.id, activity);
+      });
+      this.loadingInitial = false;
+    } catch (error) {
+      console.log(error);
+      this.loadingInitial = false;
+    }
+  };
+
+async actions & flows | MobX
+https://mobx.js.org/best/actions.html?source=post_page---------------------------
+action
+https://mobx.js.org/refguide/action.html
+ex. this.activityRegistry.set(activity.id, activity);
+- mutating state inside action, we have to run everything that mutate state inside the action
+- however this doesnt run inside action, because we are inside async/await
+- we are actually inside .then(...), which is a new action
+- action wrapper/decorator only affects the running action
+
+1. We have to set enforceActions
+configure({ enforceActions: "always" });
+
+!! Error in App, Unhandled Rejection (Error): [mobx] Since strict-mode is enabled, changing observed observable values outside actions 
+is not allowed. Please wrap the code in an `action` if this change is intended. 
+Tried to modify: ActivityStore@2.loadingInitial
+
+2. Strict mode enabled, Refactor code to wrap code inside actions
+
+@action loadActivities = async () => {
+    this.loadingInitial = true;
+    try {
+      const activities = await agent.Activities.list();
+      activities.forEach(activity => {
+        activity.date = activity.date.split(".")[0];
+        this.activityRegistry.set(activity.id, activity);
+      });
+      this.loadingInitial = false; //THIS IS CASUING THE ERROR
+    } catch (error) {
+      console.log(error);
+      this.loadingInitial = false; //THIS IS CASUING THE ERROR
+    }
+  };
+
+Resolution 1: we put state  changes inside runInAction(() => {});
+@action loadActivities = async () => {
+    this.loadingInitial = true;
+    try {
+      const activities = await agent.Activities.list();
+      runInAction("loading activities", () => {
+        activities.forEach(activity => {
+          activity.date = activity.date.split(".")[0];
+          this.activityRegistry.set(activity.id, activity);
+        });
+        this.loadingInitial = false;
+      });
+    } catch (error) {
+      runInAction("load activities error", () => {
+        this.loadingInitial = false;
+      });
+      console.log(error);
+    }
+  };
+
+  !!! Set runInAction in all @action methods that uses async and place state change code inside
