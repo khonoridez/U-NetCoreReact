@@ -33,7 +33,7 @@ ReactDOM.render(
   document.getElementById("root")
 );
 
-+++++++++++Setup Routes+++++++++++
++++++++++++Setup Initial Routes+++++++++++
 ! No Route Configuration file like Angular
 ! For Home Route "/" we have to set exact keyword since other routes that contain "/..."  will trigger Home
 
@@ -73,5 +73,104 @@ inside NavBar.tsx:
     />
 </Menu.Item>
 
++++++++++++Route/Link for Activity Details+++++++++++
 
+1. Create Route for Activity Details
+<Route path="/activities/:id" component={ActivityDetails} />
 
+2. Handle Button in ActivityList.tsx
+- replace onClick with Links
+From:
+onClick={() => selectActivity(activity.id)}
+To:
+as={Link} to={`/activities/${activity.id}`}
+
+3. Create Api for getting activity details
+- 2 Scenarios: Get Activity from inmside teh Activity List page, get Activity from outsidie (browesr url, bookmark..)
+- Create helper method getActivity and check if we already have something in activityRegistry (coming from Actviity List page)
+- check if undefined (as per mobX, observable returns undefined when not found) then we load from Api
+
+getActivity = (id: string) =>
+{
+	return this.activityRegistry.get(id);
+}
+
+4. rename selectedActivity to activity
+!! fix rename issues
+
+5. Create loadActivity method
+- Check getActivity if it exist in activityRegistry
+- if not load from Api
+
+@action loadActivity = async (id: string) => {
+    let activity = this.getActivity(id);
+    if (activity) {
+      this.activity = activity;
+    } else {
+      this.loadingInitial = true;
+      try {
+        activity = await agent.Activities.details(id);
+        runInAction("getting activity", () => {
+          this.activity = activity;
+          this.loadingInitial = false;
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+6. Add exact to Activities Route
+<Route exact path="/activities" component={ActivityDashboard} />
+
+7. Check properties available for ActivityDetails
+- f12, components tab
+- search for ActivityDetails
+
+- history
+-- push, goBack, goForward
+- location
+-- pathname, search
+- match 
+-- params
+--- id
+
+8. Use params to access id parameter inside ActivityDetails
+- declare type parameter RouteComponentProps so we can access properties
+  history: H.History;
+  location: H.Location<S>;
+  match: match<Params>; ...
+- Create interface DetailParams to specify name of parameter (:id) we have set in Route
+- Add DetailsParams as type parameter for RouteComponentProps<...>
+
+const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({
+  match
+}) => {
+
+9. Use loadActivity Api to get Activity by id
+- Create useEffect hook
+- pass dependency loadActivity, if we leave of the call to loadActivity will run everytime
+
+  useEffect(() => {
+    loadActivity(match.params.id);
+  }, [loadActivity]);
+
+10. Create a loading Component
+const {
+	...
+	loadingInitial
+} = activityStore;
+...
+if (loadingInitial) return <LoadingComponent content="Loading activity..." />;
+
+!!!Error in ActivityDashboard
+11. Remove right side content in ActivityDashbaord
+<GridColumn width="6">
+    <h2>Activity Filters</h2>
+</GridColumn>
+
+12. Error src={`/assets/categoryImages/${activity!.category}.jpg`}
+- This is because our ActivityStore has the activity set to:
+@observable activity: IActivity | undefined;
+- add conditional
+if (loadingInitial || !activity) return <LoadingComponent content="Loading activity..." />;

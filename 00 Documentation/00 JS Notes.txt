@@ -136,3 +136,7 @@ var obj = {
     return this.log[this.log.length - 1];
   }
 }
+
+11. Generics and Types
+https://www.typescriptlang.org/docs/handbook/generics.html
+

@@ -401,4 +401,31 @@ However he keyword this still exist. to make React easier to learn, Hooks were d
 
 
 +++++++++Read Exact Property+++++++++
+- Applicable for Routes and Links/NavLinks (React Router)
+ex.
+<Route exact path="/activities" component={ActivityDashboard} />
+<Menu.Item header as={NavLink} exact to="/">
+
++++++++++useEffect Dependency+++++++++
+https://overreacted.io/a-complete-guide-to-useeffect/
+https://reactjs.org/docs/hooks-faq.html#is-it-safe-to-omit-functions-from-the-list-of-dependencies
+https://reactjs.org/docs/hooks-reference.html#conditionally-firing-an-effect
+
+The default behavior for effects is to fire the effect after every completed render. 
+That way an effect is always recreated if one of its dependencies changes.
+
+To implement this, pass a second argument to useEffect that is the array of values that the effect depends on. 
+Our updated example now looks like this:
+
+useEffect(
+  () => {
+    const subscription = props.source.subscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
+  },
+  [props.source],
+);
+
+Now the subscription will only be recreated when props.source changes.
 
