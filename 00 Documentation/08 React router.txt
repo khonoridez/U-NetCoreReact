@@ -32,3 +32,39 @@ ReactDOM.render(
   </BrowserRouter>,
   document.getElementById("root")
 );
+
++++++++++++Setup Routes+++++++++++
+! No Route Configuration file like Angular
+! For Home Route "/" we have to set exact keyword since other routes that contain "/..."  will trigger Home
+
+1. Create home folder and HomePage.tsx
+/src.features/home/HomePage.tsx
+
+return (
+    <Container style={{ marginTop: "7em" }}>
+      <h1>Home page</h1>
+    </Container>
+  );
+
+2. Setup Routes inside App.tsx
+! Import from react-router-dom and not from auto-import react-router
+
+import { Route } from "react-router-dom";
+...
+return (
+	...
+	<Route exact path="/" component={HomePage} />
+	<Route path="/activities" component={ActivityDashboard} />
+	<Route path="/createActivity" component={ActivityForm} />
+	...
+
+3. Create Links
+inside NavBar.tsx:
+<Menu.Item header as={NavLink} exact to="/">
+<Menu.Item name="Activities" as={NavLink} to="/activities" />
+<Menu.Item as={NavLink} to="/createActivity">
+
+
+
+
+

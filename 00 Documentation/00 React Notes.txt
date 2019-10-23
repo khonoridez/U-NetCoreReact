@@ -399,3 +399,6 @@ this.delta = this.delta.bind(this);
 - Class fields proposals , allows to declare state as class property, without needing a constructor, arrow functions were used to bind. 
 However he keyword this still exist. to make React easier to learn, Hooks were developed
 
+
++++++++++Read Exact Property+++++++++
+
