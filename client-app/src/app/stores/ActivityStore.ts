@@ -8,7 +8,7 @@ configure({ enforceActions: "always" });
 class ActivityStore {
   @observable activityRegistry = new Map();
   @observable activities: IActivity[] = [];
-  @observable selectedActivity: IActivity | undefined;
+  @observable activity: IActivity | undefined;
   @observable loadingInitial = false;
   @observable editMode = false;
   @observable submitting = false;
@@ -62,7 +62,7 @@ class ActivityStore {
       await agent.Activities.update(activity);
       runInAction("edit activity", () => {
         this.activityRegistry.set(activity.id, activity);
-        this.selectedActivity = activity;
+        this.activity = activity;
         this.editMode = false;
         this.submitting = false;
       });
@@ -98,21 +98,21 @@ class ActivityStore {
 
   @action selectActivity = (id: string) => {
     this.editMode = false;
-    this.selectedActivity = this.activityRegistry.get(id);
+    this.activity = this.activityRegistry.get(id);
   };
 
   @action openCreateForm = () => {
     this.editMode = true;
-    this.selectedActivity = undefined;
+    this.activity = undefined;
   };
 
   @action openEditForm = (id: string) => {
     this.editMode = true;
-    this.selectedActivity = this.activityRegistry.get(id);
+    this.activity = this.activityRegistry.get(id);
   };
 
   @action cancelSelectedActivity = () => {
-    this.selectedActivity = undefined;
+    this.activity = undefined;
   };
 
   @action cancelFormOpen = () => {
