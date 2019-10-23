@@ -64,7 +64,14 @@ inside NavBar.tsx:
 <Menu.Item name="Activities" as={NavLink} to="/activities" />
 <Menu.Item as={NavLink} to="/createActivity">
 
-
+4. We remove the onClick method from the Create Activity Button
+<Menu.Item as={NavLink} to="/createActivity">
+    <Button
+    onClick={activityStore.openCreateForm}
+    positive
+    content="Create Activity"
+    />
+</Menu.Item>
 
 
 
