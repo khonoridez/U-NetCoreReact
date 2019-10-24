@@ -1,0 +1,207 @@
+﻿
+++++++++++Error Handling++++++++++
+
+Http Request
+API <-------- Client
+
+Http Responses
+API --------> Client
+
+Http Response Codes
+2xx - OK
+3xx - Not modified/redirection
+4xx - Client side error
+5xx - Server error
+
+- By default we only have 2xx and 5xx returned automatically
+
+++++++++++Implementation Options++++++++++
+
+1. Api Controller Method
+- Logic inside Api Controllers
+- If we have access to HttpHandlers
+
+[HttpGet("id")]
+public async Task<ActionResult<Value>> Get(int id) {
+...
+if (value == null)
+	return NotFound();
+
+return Ok(value);
+...
+
+!!!!
+- However our Api does not have this responsibility, we will be keeping the Api Controllers thin
+- We will not be putting exception in Controllers, our Api Controllers are dumb
+	- not unlike ex. the Repository Pattern
+- This wont work with CQRS, we have to catch the errors in the Command/Query
+
+2. Application Handler
+- Stop execution of request from Command
+public async Task<Activity> Handle(Query request, CancellationToken cancellationToken) {
+...
+if (activity == null)
+	throw new Exception("Not Found");
+
+return activity;
+
+- We will be writing an error and send this to the response
+- We need a way to have access to HttpContext
+- We need an exception handling middleware!!
+
+
+++++++++++Exception Handling Middleware++++++++++
+https://techblog.dorogin.com/handling-errors-in-aspnet-core-middleware-e39872496d51
+https://www.devtrends.co.uk/blog/handling-errors-in-asp.net-core-web-api
+
+- With access to HttpContext
+- Check the exception, and write an appropriate Http Response based on exception
+- Intercept the exception and turn it into an HttpResponse and send to the client
+
+1. Verify types of error server can return to client
+- 400 - Not found
+- 401 - Not authorized
+- 500 - Server exception errors
+
+2. Create folder in Application/Errors
+
+3. Create class RestException with 2 paramters, create and initialize Properties for the parameters
+public class RestException : Exception
+{
+    public RestException(HttpStatusCode code, object errors = null)
+    {
+        Code = code;
+        Errors = errors;
+    }
+
+    public HttpStatusCode Code { get; }
+    public object Errors { get; }
+}
+
+- We will be using this instead of throw new Exception in Command/Queries
+
+4. Configure middleware in Startup.cs Configure() method
+- Ordering is important
+https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-3.0
+"Each delegate can perform operations before and after the next delegate. Exception-handling delegates should be called 
+early in the pipeline, so they can catch exceptions that occur in later stages of the pipeline."
+
+5. Create new file in folder Api project
+/Middlewear/ErrorHandlingMiddlewear.cs
+
+6. Create 2 parameters
+- Logger should specify type it will log
+private readonly RequestDelegate _next;
+private readonly ILogger<ErrorHandlingMiddlewear> _logger;
+
+public ErrorHandlingMiddlewear(RequestDelegate next, ILogger<ErrorHandlingMiddlewear> logger)
+{
+    _next = next;
+    _logger = logger;
+}
+
+7. Create method Invoke
+- catch the exception and do something with exception
+
+public async Task Invoke(HttpContext context)
+{
+    try
+    {
+        await _next(context);
+    }
+    catch (Exception ex)
+    {
+        await HandleExceptionAsync(context, ex, _logger);
+    }
+}
+
+8. Generate method for HandleExceptionAsync
+- Invoke the middleware
+- If we do not have an exception then we just pass it through the next delegate
+await _next(context);
+- If we do we check if it is a RestException or a normal exception
+- Create content response based on the status code that we will be receiving
+
+private async Task HandleExceptionAsync(HttpContext context, Exception ex, ILogger<ErrorHandlingMiddleware> logger)
+    {
+        object errors = null;
+
+        switch (ex)
+        {
+            case RestException re:
+                logger.LogError(ex, "REST ERROR");
+                errors = re.Errors;
+                context.Response.StatusCode = (int)re.Code;
+                break;
+            case Exception e:
+                logger.LogError(ex, "SERVER ERROR");
+                errors = string.IsNullOrWhiteSpace(e.Message) ? "Error" : e.Message;
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                break;
+            default:
+                break;
+        }
+
+        context.Response.ContentType = "application/json";
+        if (errors != null)
+        {
+            var result = JsonConvert.SerializeObject(new { errors });
+
+            await context.Response.WriteAsync(result);
+        }
+    }
+}
+
+9. Set UseMiddleware in Api/Startup.cs
+- Comment out //app.UseDeveloperExceptionPage();
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseMiddleware<ErrorHandlingMiddleware>();
+    if (env.IsDevelopment())
+    {
+        //app.UseDeveloperExceptionPage();
+    }
+	...
+
+++++++++++Use Middleware++++++++++
+
+1. Use middleware in Application project - Application/Activities/Delete.cs
+
+- Replace Exception with RestException
+if (activity == null)
+	throw new Exception("Could not find activity");
+
+to:
+
+if (activity == null)
+	throw new RestException(HttpStatusCode.NotFound, new { activity = "Not Found" });
+
+Verify in Postman, deleting non-existent activity:
+before:
+500 internal server error
+{
+    "errors": "Could not find activity"
+}
+to:
+404 Not Found
+{
+    "errors": {
+        "activity": "Not Found"
+    }
+}
+
+2. Use in Details.cs
+public async Task<Activity> Handle(Query request, CancellationToken cancellationToken)
+{
+    var activity = await _context.Activities.FindAsync(request.Id);
+
+    if (activity == null)
+        throw new RestException(HttpStatusCode.NotFound, new { activity = "Not Found" });
+
+    return activity;
+}
+
+3. Use in Edit.cs
+if (activity == null)
+	throw new RestException(HttpStatusCode.NotFound, new { activity = "Not Found" });
