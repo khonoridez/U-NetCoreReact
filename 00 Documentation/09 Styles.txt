@@ -143,5 +143,48 @@ activities[date] = activities[date] ? [...activities[date], activity] : [activit
 !! clean unused imports
 
 
++++++++++++Styling Deatils Page+++++++++++
+Header Component, Info Component, Chat Component, Sidebar Component
 
+1. Create file ActivityDetailedHeader.tsx, ActivityDetailedInfo.tsx, ActivityDetailedChat.tsx, ActivityDetailedSidebar.tsx
+- inside /src/features/activities/details/
 
+2. ActivityDetails, create Grid
+<Grid>
+    <Grid.Column width={10}>
+    <ActivityDetailedHeader />
+    <ActivityDetailedInfo />
+    <ActivityDetailedChat />
+    </Grid.Column>
+    <Grid.Column width={6}>
+    <ActivityDetailedSidebar />
+    </Grid.Column>
+</Grid>
+
+! remove unused imports
+
++++++++++++Header Component+++++++++++
+- Pass Activity down to Header
+
+1. Get snippet s_9.6.1 for ActivityDetailedHeader return body
+2. On Visual Studio Code, lightbulb at the right> Add all missing imports
+3. Get snippet s_9.6.2 for image style declarations
+4. Attach style to objects
+<Image
+    ...
+    style={activityImageStyle}
+/>
+...
+<Segment basic style={activityImageTextStyle}>
+- set 'basic' = no styles
+
+5. Pass activity as a prop from ActivityDetails to ActivityHeader
+<ActivityDetailedHeader activity={activity} />
+...
+- Catch in ActivityHeader
+const ActivityDetailedHeader: React.FC<{ activity: IActivity }> = ({ activity }) => {
+
+6. Set ActivityHeader as observer since we are using an observable (activity)
+export default observer(ActivityDetailedHeader);
+
++++++++++++Info Component+++++++++++
