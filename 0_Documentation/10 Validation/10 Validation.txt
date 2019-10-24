@@ -55,3 +55,33 @@ public async Task<ActionResult<Unit>> Create(Create.Command command)
 5. Binding Source Parameter Inference
 - No need for ([FromBody]..., to check where data is coming from. This is already inferred
 
+++++++++++Fluent Validations++++++++++
+- Common Technique in Mediator Pattern, add data validation between Command and Handler
+
+1. Install Fluent Validation
+https://fluentvalidation.net/start
+- Nuget Package Manager: Add Package
+- FluentValidation.AspNetCore 8.5.0
+- Add to Application Project
+- Restore button
+
+2. implement FluentValidation in Create Command under Application/Activities/Create.cs
+- create class
+public class CommandValidator : AbstractValidator<Command>
+- create Constructor and specify rules
+public CommandValidator()
+{
+    RuleFor(x => x.Title).NotEmpty();
+	...
+
+3. Add FluentValidation on Startup (Api project)
+services.AddControllers()
+	.AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Create>());
+
+4. implement on Edit Command
+- Copy paste CommandValidator
+public class CommandValidator : AbstractValidator<Command> ...
+
+- Test in Postman
+- Edit an Activity missing fields (Check input in Body) should return 400
+- Edit an Activity correct (Check input in Body, should have all fields) should return 200
