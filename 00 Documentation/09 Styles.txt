@@ -187,4 +187,28 @@ const ActivityDetailedHeader: React.FC<{ activity: IActivity }> = ({ activity })
 6. Set ActivityHeader as observer since we are using an observable (activity)
 export default observer(ActivityDetailedHeader);
 
+7. Set values inside template
+
 +++++++++++Info Component+++++++++++
+1. Get snippet s_9.6.1 for ActivityDetailedInfo return body
+2. VS Code Light bulb, Add all missing imports
+3. Grid system for icon spacing
+<Grid>
+    <Grid.Column width={1}>
+    <Icon size="large" color="teal" name="info" />
+    </Grid.Column>
+    <Grid.Column width={15}>
+    <p>{"description"}</p>
+    </Grid.Column>
+</Grid>
+4. Pass activity as a prop from ActivityDetails to ActivityDetailedInfo
+<ActivityDetailedInfo activity={activity} />
+...
+const ActivityDetailedInfo: React.FC<{ activity: IActivity }> = ({ activity }) => {
+...
+export default observer(ActivityDetailedInfo);
+
+5. Set values inside template
+
++++++++++++Chat Component+++++++++++
+
