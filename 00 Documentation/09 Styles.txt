@@ -117,3 +117,31 @@ activities[date] = activities[date] ? [...activities[date], activity] : [activit
 
 - Loop through the [..,activities and pass to ListItems
  
+ +++++++++++Styling List Item+++++++++++
+ ActivityListItem.tsx
+ 1. Add Segment.Group
+ https://semantic-ui.com/elements/segment.html
+ - Remove key={..}
+ ...
+ <Segment.Group>
+	<Segment>
+        <Item>
+		...
+- Enclose Item in Item.Group
+...
+ <Item.Group>
+	<Item>
+	...
+
+- Place icons
+<Segment>
+    <Icon name="clock" /> {activity.date}
+    <Icon name="marker" /> {activity.venue}, {activity.city}
+</Segment>
+
+- Remove <Segment> on ActivityList
+!! clean unused imports
+
+
+
+
