@@ -31,4 +31,89 @@ const ActivityListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
 ...
 
 
++++++++++++Sort, Group by Date+++++++++++
+- Construct this.activityRegistry.values() to group
+- use reduce method
+ @computed get activitiesByDate() {
+    return Array.from(this.activityRegistry.values()).sort(
+      (a, b) => Date.parse(a.date) - Date.parse(b.date)
+    );
+  }
 
+- unique date will act as key
+
+1. Create helper method
+groupActivitiesByDate(activities: IActivity[]) {
+	const sortedActivities = activities.sort(
+		(a, b) => Date.parse(a.date) - Date.parse(b.date)
+	);
+	return sortedActivities;
+}
+
+2. Use and replace in activitiesByDate
+
+@computed get activitiesByDate() {
+    return this.groupActivitiesByDate(
+      Array.from(this.activityRegistry.values())
+    );
+  }
+
+3. Replace sortedActivities to return Object.entries
+- We will be having date as the key and value will be an array of Activities
+- use Array.reduce(..)
+note: const date = activity.date.split("T")[0];
+- Get the string date without the time
+
+Object.entries(
+      sortedActivities.reduce(
+        (activities, activity) => {
+          const date = activity.date.split("T")[0];
+          activities[date] = activities[date]
+            ? [...activities[date], activity]
+            : [activity];
+          return activities;
+        },
+        {} as { [key: string]: IActivity[] }
+      )
+    );
+- Check and compare the date, if it is a matching date add it to array
+activities[date] = activities[date] ? [...activities[date], activity] : [activity];
+
+- If match, Spread the array of activities and add activity to array
+ [...activities[date], activity]
+
+- If not then we just add the activity
+[activity]
+
+- Give the initial value empty object a type
+{} as { [key: string]: IActivity[] }
+
+
+4. Fix errors caused to use this new grouped activities
+- loop each date, then loop through activities for each date
+
+5. ActivityList.tsx place inside Fragment
+<Fragment>
+...      
+</Fragment>
+
+6. Loop through activities by date and map with format from Object.entries(...{ [key: string]: IActivity[] }
+{activitiesByDate.map(([group, activities]) => (...
+
+7. Place in anopther Fragment with key the List Item and set {group} (the date) as the key
+{activitiesByDate.map(([group, activities]) => (
+	<Fragment key={group}>
+		<Label size="large" color="blue">
+		{group}
+		</Label>
+		<Segment clearing>
+		<Item.Group divided>
+			{activities.map(activity => (
+			<ActivityListItem key={activity.id} activity={activity} />
+			))}
+		</Item.Group>
+		</Segment>
+	</Fragment>
+
+- Loop through the [..,activities and pass to ListItems
+ 

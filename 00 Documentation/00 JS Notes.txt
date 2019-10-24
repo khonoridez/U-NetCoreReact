@@ -140,3 +140,58 @@ var obj = {
 11. Generics and Types
 https://www.typescriptlang.org/docs/handbook/generics.html
 
+12. reduce method
+https://www.w3schools.com/jsref/jsref_reduce.asp
+https://codeburst.io/learn-understand-javascripts-reduce-function-b2b0406efbdc
+
+ex.
+const numbers = [1,-1,2,3];
+let sum=0;
+for (let n of numbers)
+	sum +=n;
+console.log(sum);
+...
+const numbers = [1,-1,2,3];
+const sum = numbers.reduce((accumulator, currentValue) => {
+	return accumulator + currentValue;
+}, 0);
+
+- reduce has 2 parameters, 1st is a callback fn and the next is the initial value of the "accumulator"
+- accumulator value is 0
+- 1st rd value is 0, accumulator will be 1, accumulator + 1
+- 2nd rd value is 1,  accumulator will be -1, accumulator(1) + (-1)
+- 3rd rd value is 0,  accumulator will be 2, accumulator(0) + (2)
+- 4th rd value is 2,  accumulator will be 3, accumulator(2) + (3) = 5
+
+- we can exclude the initial value,  accumulator will get the 1st element
+const sum = numbers.reduce((accumulator, currentValue) => {
+	return accumulator + currentValue;
+});
+- 1st rd value is 1, accumulator will be 1, accumulator + second elememt(-1)
+
+- we can remove the curly {} and remove
+const sum = numbers.reduce((accumulator, currentValue) => accumulator + currentValue);
+
+13. Array.from
+-  creates a new, shallow-copied Array instance from an array-like or iterable object.
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+
+- Iterable Iterator
+Iterable objects is a generalization of arrays. That’s a concept that allows to make any object useable in a for..of loop.
+https://javascript.info/iterable
+
+14. Object.entries(...
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries
+The Object.entries() method returns an array of a given object's own enumerable string-keyed property [key, value] pairs,
+
+const object1 = {
+  a: 'somestring',
+  b: 42
+};
+
+for (let [key, value] of Object.entries(object1)) {
+  console.log(`${key}: ${value}`);
+}
+
+15. .date.split("T")[0];
+https://www.w3schools.com/jsref/jsref_split.asp
