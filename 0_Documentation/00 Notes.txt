@@ -134,6 +134,27 @@ https://stackoverflow.com/questions/49699067/property-has-no-initializer-and-is-
 - Set to null upon declaration
 @observable activity: IActivity | null = null;
 
+++++++++++++DEBUGGING IN VS CODE++++++++++++++
+1. Verify in .vscode/launch.json
+{
+    "name": ".NET Core Attach",
+    "type": "coreclr",
+    "request": "attach",
+    "processId": "${command:pickProcess}"
+}
+
+2. In Debug Tab, select .Net Core Attach in dropdown
+- .Net Core Launch will start a new instance
+
+3. Debug. Search for Api.dll, api.exe
+
+4. Note on [ApiController] attribute
+- This throws its own errors hence breakpoitn might not trigger
+- comment out [ApiController] for verification
+
+5. Verify values under Variables/Locals/
+
+
 ++++++++++++TODO++++++++++++++
 
 Create Generic Notes Repository
@@ -150,4 +171,5 @@ Apply API Best Practices
 Front end
 1. Create interfaces/classes for Api objects
 - Sample was created Chapter 5
+
 

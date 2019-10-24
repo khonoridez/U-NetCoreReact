@@ -11,3 +11,47 @@ Client Side
 1. Axios interceptors
 2. Throwing errors
 
+++++++++++Validation Cases++++++++++
+Cases
+1. Creating with empty object
+2. 
+
+++++++++++Data Annotations++++++++++
+In Application/Activities/Create.cs
+- Creating Empty Activity
+
+1. Set Required Attribute
+[Required]
+public Guid Id { get; set; }
+[Required]
+public string Title { get; set; }
+- This should not give a 400 bad request
+
+- This is due however to [ApiController] handling the error
+- Comment out [ApiController] for verification
+
+2. Debug and verify null values in VS Code
+- Verify values under Variables/locals/command upon debugging that we have null values upon testing "api/create" with empty object
+- Verify ModelState
+ IsValid: Variables/locals/this/ModelState/IsValid
+ ErrorMessage: Variables/locals/this/ModelState/Results View/[0]/Value/Errors/[0]/ErrorMessage
+
+ 3. Add validation for ModelState.IsValid
+ [HttpPost]
+public async Task<ActionResult<Unit>> Create(Create.Command command)
+{
+    if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+    return await _mediator.Send(command);
+}
+
+4. Verify in Postman (Module10 Create Empty Activty) that it will return 400 Bad Request and the Annotation error message
+{
+    "Title": [
+        "The Title field is required."
+    ]
+}
+
+5. Binding Source Parameter Inference
+- No need for ([FromBody]..., to check where data is coming from. This is already inferred
+

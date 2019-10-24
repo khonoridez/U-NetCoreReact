@@ -2,6 +2,7 @@
 using MediatR;
 using Persistence;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,7 +12,9 @@ namespace Application.Activities
     {
         public class Command : IRequest
         {
+            [Required]
             public Guid Id { get; set; }
+            [Required]
             public string Title { get; set; }
             public string Description { get; set; }
             public string Category { get; set; }
