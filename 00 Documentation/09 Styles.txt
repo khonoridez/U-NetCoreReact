@@ -211,4 +211,14 @@ export default observer(ActivityDetailedInfo);
 5. Set values inside template
 
 +++++++++++Chat Component+++++++++++
+- Semantic UI Comment Component
+https://semantic-ui.com/views/comment.html
 
+1. Get snippet s_9.8.1 for ActivityDetailedChat return body
+! no functionality yet
+
++++++++++++Sidebar Component+++++++++++
+1. Get snippet s_9.9.1 for ActivityDetailedSidebar return body
+- Segment for Header
+- Segment for list of Users
+! no functionality yet
