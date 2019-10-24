@@ -11,74 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence", "Persistence\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{BAA81FB9-7C05-4B76-ADE2-AEC3773B32A2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00 Documentation", "00 Documentation", "{4BB81710-F026-11E9-BC77-4BF48B187AB9}"
-	ProjectSection(SolutionItems) = preProject
-		00 Documentation\00 JS Notes.txt = 00 Documentation\00 JS Notes.txt
-		00 Documentation\00 Notes.txt = 00 Documentation\00 Notes.txt
-		00 Documentation\00 packages list.txt = 00 Documentation\00 packages list.txt
-		00 Documentation\00 React Notes.txt = 00 Documentation\00 React Notes.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 Environment Setup", "01 Environment Setup", "{5332BE7D-DD35-4113-84A9-D36B037845E5}"
-	ProjectSection(SolutionItems) = preProject
-		00 Documentation\01 Environment Setup.txt = 00 Documentation\01 Environment Setup.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 Api Skeleton", "02 Api Skeleton", "{39D13FA5-0CAE-4665-8D97-DFDF622839B5}"
-	ProjectSection(SolutionItems) = preProject
-		00 Documentation\02a Api Skeleton.txt = 00 Documentation\02a Api Skeleton.txt
-		00 Documentation\02b WebApi Notes.txt = 00 Documentation\02b WebApi Notes.txt
-		00 Documentation\02c Creating Entities EF Migrations.txt = 00 Documentation\02c Creating Entities EF Migrations.txt
-		00 Documentation\02d Getting Data.txt = 00 Documentation\02d Getting Data.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03 Client Skeleton", "03 Client Skeleton", "{D2AF3D6A-0504-4B03-8727-BAFACB387C08}"
-	ProjectSection(SolutionItems) = preProject
-		00 Documentation\03 Client Skeleton.txt = 00 Documentation\03 Client Skeleton.txt
-		00 Documentation\03a Get Api.txt = 00 Documentation\03a Get Api.txt
-		00 Documentation\03b Semantic UI.txt = 00 Documentation\03b Semantic UI.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04 CRUD Api", "04 CRUD Api", "{531196A2-7285-4AD5-B019-C17E4462AD25}"
-	ProjectSection(SolutionItems) = preProject
-		00 Documentation\04a CRUD Api.txt = 00 Documentation\04a CRUD Api.txt
-		00 Documentation\04b CQRS.txt = 00 Documentation\04b CQRS.txt
-		00 Documentation\04c CRUD Operations.txt = 00 Documentation\04c CRUD Operations.txt
-		00 Documentation\04d CancellationToken.txt = 00 Documentation\04d CancellationToken.txt
-		00 Documentation\04e VS Code Snippet.txt = 00 Documentation\04e VS Code Snippet.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05 CRUD Client", "05 CRUD Client", "{D0972319-B84D-4F7E-BF5F-83B4284D249A}"
-	ProjectSection(SolutionItems) = preProject
-		00 Documentation\05 CRUD Client.txt = 00 Documentation\05 CRUD Client.txt
-		00 Documentation\05a Hooks.txt = 00 Documentation\05a Hooks.txt
-		00 Documentation\05b GUI.txt = 00 Documentation\05b GUI.txt
-		00 Documentation\05c Passing States.txt = 00 Documentation\05c Passing States.txt
-		00 Documentation\05d CRUD methods.txt = 00 Documentation\05d CRUD methods.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "06 Axios", "06 Axios", "{89C8AB4E-E4DB-474D-A21F-685B429F42BF}"
-	ProjectSection(SolutionItems) = preProject
-		00 Documentation\06 Axios.txt = 00 Documentation\06 Axios.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "07 MobX", "07 MobX", "{01BEA9B2-0F1F-491B-89F2-E9EABC35268B}"
-	ProjectSection(SolutionItems) = preProject
-		00 Documentation\07 MobX.txt = 00 Documentation\07 MobX.txt
-		00 Documentation\07a MobX implementation.txt = 00 Documentation\07a MobX implementation.txt
-		00 Documentation\07b Refactoring States to Store.txt = 00 Documentation\07b Refactoring States to Store.txt
-		00 Documentation\07c async await.txt = 00 Documentation\07c async await.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "08 Router", "08 Router", "{B7602574-7354-43D7-B2E3-B141A50FF00F}"
-	ProjectSection(SolutionItems) = preProject
-		00 Documentation\08 React router.txt = 00 Documentation\08 React router.txt
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "09 Styles", "09 Styles", "{418568F0-CBDC-45F9-865F-D482E1032B3D}"
-	ProjectSection(SolutionItems) = preProject
-		00 Documentation\09 Styles.txt = 00 Documentation\09 Styles.txt
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "0_Documentation", "0_Documentation\0_Documentation.csproj", "{B296D75B-9867-4998-87DD-F46A875F9777}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -138,20 +71,21 @@ Global
 		{BAA81FB9-7C05-4B76-ADE2-AEC3773B32A2}.Release|x64.Build.0 = Release|Any CPU
 		{BAA81FB9-7C05-4B76-ADE2-AEC3773B32A2}.Release|x86.ActiveCfg = Release|Any CPU
 		{BAA81FB9-7C05-4B76-ADE2-AEC3773B32A2}.Release|x86.Build.0 = Release|Any CPU
+		{B296D75B-9867-4998-87DD-F46A875F9777}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B296D75B-9867-4998-87DD-F46A875F9777}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B296D75B-9867-4998-87DD-F46A875F9777}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B296D75B-9867-4998-87DD-F46A875F9777}.Debug|x64.Build.0 = Debug|Any CPU
+		{B296D75B-9867-4998-87DD-F46A875F9777}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B296D75B-9867-4998-87DD-F46A875F9777}.Debug|x86.Build.0 = Debug|Any CPU
+		{B296D75B-9867-4998-87DD-F46A875F9777}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B296D75B-9867-4998-87DD-F46A875F9777}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B296D75B-9867-4998-87DD-F46A875F9777}.Release|x64.ActiveCfg = Release|Any CPU
+		{B296D75B-9867-4998-87DD-F46A875F9777}.Release|x64.Build.0 = Release|Any CPU
+		{B296D75B-9867-4998-87DD-F46A875F9777}.Release|x86.ActiveCfg = Release|Any CPU
+		{B296D75B-9867-4998-87DD-F46A875F9777}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{5332BE7D-DD35-4113-84A9-D36B037845E5} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
-		{39D13FA5-0CAE-4665-8D97-DFDF622839B5} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
-		{D2AF3D6A-0504-4B03-8727-BAFACB387C08} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
-		{531196A2-7285-4AD5-B019-C17E4462AD25} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
-		{D0972319-B84D-4F7E-BF5F-83B4284D249A} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
-		{89C8AB4E-E4DB-474D-A21F-685B429F42BF} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
-		{01BEA9B2-0F1F-491B-89F2-E9EABC35268B} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
-		{B7602574-7354-43D7-B2E3-B141A50FF00F} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
-		{418568F0-CBDC-45F9-865F-D482E1032B3D} = {4BB81710-F026-11E9-BC77-4BF48B187AB9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9B8D82CC-C900-4D99-A71E-62125EB3182B}

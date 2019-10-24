@@ -1,0 +1,13 @@
+
+
+Api Side
+1. Api Validation using Data Attributes
+2. Api Validation using Fluent Validation
+3. Exception and Error Handling
+4. Adding custom middleware
+- Api controllers are not going to be responsible for handling error handlers
+
+Client Side
+1. Axios interceptors
+2. Throwing errors
+
