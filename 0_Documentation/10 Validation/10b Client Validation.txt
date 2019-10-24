@@ -1,0 +1,80 @@
+﻿
+++++++++++Axios Response Interceptors++++++++++
+https://github.com/axios/axios
+
+1. Add Interceptor in /src/app/api/agent.ts
+- 1st parameter what to do to the response
+
+axios.interceptors.response.use(undefined, error =>
+  console.log(error.response)
+);
+
+2. Verify results by going to url with a non-existent id
+- Verify error object
+- under data/errors/activity: "Not Found"
+
+3. Create new component NotFound.tsx
+- under /src/app/layout/NotFound.tsx
+- type snippet s_10.9.1 for the styled content
+- Add Route with no path at the end of Route list in App.tsx
+		...
+		<Route component={NotFound} />
+	</Container>
+</Fragment>
+
+- Will be working for url that has no specified path (ex. http://localhost:3000/asdasda)
+
+4. Add <Switch> from Router and put Routes inside to ensure that only one Route at a time will render
+...
+<Container style={{ marginTop: "7em" }}>
+<Switch>
+	<Route exact path="/activities" component={ActivityDashboard} />
+	<Route path="/activities/:id" component={ActivityDetails} />
+	...
+
+!!!Redirect to the NotFound Component NotFound activities
+
+5. Fix Loading Component in ActivityDetails
+  ...
+  if (loadingInitial) return <LoadingComponent content="Loading activity..." />;
+  if (!activity) return <h2>Activity Not Found</h2>;
+  ...
+
+6. Throw error from axios interceptor
+axios.interceptors.response.use(undefined, error => {
+  if (error.response.status === 404) {
+    throw error.response;
+  }
+});
+
+7. Catch and throw again in ActivityStore in:
+...
+@action loadActivity = async (id: string) => {
+...
+} catch (error) {
+	...
+	throw error;
+}
+...
+
+8. Catch in ActivityDetails page, in useEffect.. loadActivity
+useEffect(() => {
+ loadActivity(match.params.id).catch(() => {});
+ ...
+
+9. Get the history props inside ActivityDetails
+const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({
+  ...
+  history
+}) => {
+
+10. Redirect to NotFound inside the catch callback
+  useEffect(() => {
+    loadActivity(match.params.id).catch(() => history.push("/notfound"));
+  }, [loadActivity, match.params.id, history]);
+
+!! Add history in the useEffect's dependency
+
+!! We will utilize the routing inside Axios Interceptor instead of inside Component
+
+

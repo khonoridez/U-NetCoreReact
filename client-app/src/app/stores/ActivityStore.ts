@@ -68,7 +68,10 @@ class ActivityStore {
           this.loadingInitial = false;
         });
       } catch (error) {
-        console.log(error);
+        runInAction("getting activity error", () => {
+          this.loadingInitial = false;
+        });
+        throw error;
       }
     }
   };
