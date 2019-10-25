@@ -77,4 +77,53 @@ const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({
 
 !! We will utilize the routing inside Axios Interceptor instead of inside Component
 
+++++++++++Redirect to NotFound++++++++++
+
+1. Create custom history object, and pass history as props to Router
+- in Index.html
+
+...
+export const history = createBrowserHistory();
+...
+ReactDOM.render(
+  <Router history={history}>
+  ...
+
+2. Use history in axios interceptor
+- import from index.tsx (../..) no need to specify file if coming from index
+import { history } from "../..";
+
+axios.interceptors.response.use(undefined, error => {
+  if (error.response.status === 404) {
+    history.push("/notfound");
+  }
+});
+
+3. Change throw errors in ActivityStore (loadActivity) back to console.log(...)
+4. Remove .catch() on ActivityDetails
+5. Redirection to NotFound component now works for Details for id in Guid format
+- However if id is not in Guid format we are redirected to a different error
+- Verify in f12 > Network > Preview
+- Validation error:  "The value 'b3afd51f-63c9-4227-a32d-732ca9d73e2' is not valid."
+
+6. Verify the conditions for this route for the invalid kind of Guid error
+- Use the conditions in the axios interceptor
+6.1 It is a get
+6.2 error has a key of id
+6.3 status code is 400
+
+axios.interceptors.response.use(undefined, error => {
+  const { status, data, config } = error.response;
+  ...
+  if (
+    status === 400 &&
+    config.method === "get" &&
+    data.errors.hasOwnProperty("id")
+  ) {
+    history.push("/notfound");
+  }
+});
+
+
+
 
