@@ -40,7 +40,7 @@ import { Form as FinalForm, Field } from "react-final-form";
 
 7. Verify if handleFinalFormSubmit is working
 
-+++++++++++++Implement Input Fields+++++++++++++
++++++++++++++TextInput Resuable Component+++++++++++++
 
 1. Create new file TextInput.tsx
 - src/app/common/TextInput.tsx
@@ -85,3 +85,10 @@ return (
     ...
     component={TextInput}
 />
+
++++++++++++++TextArea Resuable Component+++++++++++++
+1. Create new file TextAreaInput.tsx
+- src/app/common/TextAreaInput.tsx
+
++++++++++++++Use TextInput component in ActivityForm+++++++++++++
+1. Change to Field, remove onChangeHandler from all input components
