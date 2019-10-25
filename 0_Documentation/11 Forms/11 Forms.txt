@@ -218,3 +218,70 @@ onClick={
         ? () => history.push(`/activity/${activity.id}`)
         : () => history.push("/activities")
     }
+
++++++++++++++Handle Errors+++++++++++++
+- Only console.log() the errors
+- We will display error.message to toast
+
+1. Handle the error inside toast, ActivityStore
+@action createActivity = async (activity: IActivity) => {
+	  ...
+      toast.error("Problem submitting data");
+      console.log(error.response);
+    }
+  };
+
+  @action editActivity = async (activity: IActivity) => {
+      ...
+      toast.error("Problem submitting data");
+      console.log(error.response);
+    }
+  };
+
+2. Install revalidate
+npm install revalidate
+npm install @types/revalidate
+
+3. Create validate function
+const validate = combineValidators({
+  title: isRequired("Title"),
+  category: isRequired("Category"),
+  description: composeValidators(
+    isRequired("Description"),
+    hasLengthGreaterThan(4)({
+      message: "Description needs to be at least 5 characters"
+    })
+  )(),
+  city: isRequired("City"),
+  venue: isRequired("Venue"),
+  date: isRequired("Date"),
+  time: isRequired("Time")
+});
+
+4. Use in form
+<FinalForm
+	validate={validate}
+	...
+
+5. Modify DateInput Component
+- Add onBlur to trigger validation
+- Add preventDefault on onKeyDown to prevent typing in
+<DateTimePicker
+    ...
+    onBlur={input.onBlur}
+    onKeyDown={e => e.preventDefault()}
+    />
+
+6. Disable Submit button when there are validation errors
+- Add props from FinalForm
+ <FinalForm
+    ...
+    render={({ ..., invalid, pristine }) => (
+        ...
+
+- Set in Submit button
+<Button
+    content="Submit"
+    ...
+    disabled={... || invalid || pristine}
+/>

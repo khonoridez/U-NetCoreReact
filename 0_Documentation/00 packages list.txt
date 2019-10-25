@@ -102,5 +102,7 @@ Could not find a declaration file for module 'react-widgets'.
 Try npm install @types/react-widgets
 
 
-
+9. Form Validation
+https://github.com/jfairbank/revalidate
+npm install revalidate
 
