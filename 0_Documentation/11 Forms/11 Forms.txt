@@ -144,3 +144,77 @@ const [loading, setLoading] = useState(false);
 	...
 />
 
++++++++++++++Submit Activity in ActivityForm+++++++++++++
+
+- Implement handleFinalFormSubmit
+
+1. Set throw on axios interceptor since our Api only console.log(error) for other errors (400)
+
+axios.interceptors.response.use(undefined, error => {
+ ...
+  throw error;
+});
+
+2. Set check for activity.id to null instead of length
+if (!activity.id) {
+...
+
+3. Move history.push(... to ActivityStore instead
+
+  @action createActivity = async (activity: IActivity) => {
+    this.submitting = true;
+    try {
+      await agent.Activities.create(activity);
+      runInAction("create activity", () => {
+        this.activityRegistry.set(activity.id, activity);
+        this.submitting = false;
+      });
+      history.push(`/activities/${newActivity.id}`);
+	  ...
+
+@action editActivity = async (activity: IActivity) => {
+    this.submitting = true;
+    try {
+      await agent.Activities.update(activity);
+      runInAction("edit activity", () => {
+        this.activityRegistry.set(activity.id, activity);
+        this.activity = activity;
+        this.submitting = false;
+      });
+      history.push(`/activities/${activity.id}`);
+	  ...
+
+4. Remove the .then on both create and editActivity
+if (!activity.id) {
+	let newActivity = { ...activity, id: uuid() };
+	createActivity(newActivity);
+} else {
+	editActivity(activity);
+}
+
+!! Form should submit now
+
+5. Modify loadActivity to not load activity when already loaded
+- set to activityRegistry in loadingActivity
+- this.activityRegistry.set(activity.id, activity);
+@action loadActivity = async (id: string) => {
+    let activity = this.getActivity(id);
+    if (activity) {
+      this.activity = activity;
+      return activity;
+    } else {
+      this.loadingInitial = true;
+      try {
+        activity = await agent.Activities.details(id);
+        runInAction("getting activity", () => {
+          activity.date = new Date(activity.date);
+          this.activity = activity;
+          this.activityRegistry.set(activity.id, activity);
+          ....
+
+6. Handle Cancel Button redirects (Edit/Create)
+onClick={
+    activity.id
+        ? () => history.push(`/activity/${activity.id}`)
+        : () => history.push("/activities")
+    }
