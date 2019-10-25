@@ -43,7 +43,7 @@ import { Form as FinalForm, Field } from "react-final-form";
 +++++++++++++TextInput Resuable Component+++++++++++++
 
 1. Create new file TextInput.tsx
-- src/app/common/TextInput.tsx
+- src/app/common/form/TextInput.tsx
 
 2. Add imports and destructure Props to get fields that we will be using
 - extend from FieldRenderProps, FormFieldProps to get specific fields here
@@ -88,7 +88,42 @@ return (
 
 +++++++++++++TextArea Resuable Component+++++++++++++
 1. Create new file TextAreaInput.tsx
-- src/app/common/TextAreaInput.tsx
+- src/app/common/form/TextAreaInput.tsx
+
+2. Copy code from TextInput and change some variales for TextArea
+<Form.Field error={touched && !!error} width={width}>
+      <textarea rows={rows} {...input} placeholder={placeholder} />
+      {touched && error && (
+        <Label basic color="red">
+          {error}
+        </Label>
+      )}
+    </Form.Field>
+
+
++++++++++++++SelectInput Resuable Component+++++++++++++
+1. Create new file SelectInput.tsx
+- src/app/common/form/SelectInput.tsx
+2. Copy code from TextInput and change some variales for SelectInput
+<Form.Field error={touched && !!error} width={width}>
+    <Select
+    value={input.value}
+    onChange={(e, data) => input.onChange(data.value)}
+    placeholder={placeholder}
+    options={options}
+    />
+    {touched && error && (
+    <Label basic color="red">
+        {error}
+    </Label>
+    )}
+</Form.Field>
+- input is from FieldRenderProps<string, HTMLSelectElement>,
+
+3. Create file categoryOptions.ts
+- src/app/common/options/categoryOptions.ts
+-type snippet s_11.7.1
+
 
 +++++++++++++Use TextInput component in ActivityForm+++++++++++++
 1. Change to Field, remove onChangeHandler from all input components
