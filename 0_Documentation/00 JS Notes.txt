@@ -205,3 +205,35 @@ interface IProps
 - ex. return a boolean if we have an error
 !!error
 
+18. double asterisk?
+https://stackoverflow.com/questions/33284569/is-the-double-asterisk-a-valid-javascript-operator
+sample:
+/**/*.ts
+
+19. optional parameter ?
+date?: Date;
+- this pertains to Date | undefined and not Date | null
+
+20. ...rest
+https://stackoverflow.com/questions/43484302/what-does-it-mean-rest-in-react-jsx
+
+ex.:
+const myObj = {
+  name: 'John Doe',
+  age: 35,
+  sex: 'M',
+  dob: new Date(1990, 1, 1)
+};
+
+For this example, it may help to just think of props as having the same structure (i.e., properties and values) as shown in myObj. 
+
+const { name: Username, ...rest } = myObj
+
+console.log(Username);
+// => John Doe
+
+console.log(rest);
+// => { age: 35, sex: 'M', dob: Mon Jan 01 1990 00:00:00 GMT-0800 (PST) }
+
+21. date toISOString
+https://www.w3schools.com/jsref/jsref_toisostring.asp

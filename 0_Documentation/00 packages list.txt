@@ -61,3 +61,46 @@ import "react-toastify/dist/ReactToastify.min.css";
 7. Forms
 React Final Form
 https://github.com/final-form/react-final-form#examples
+
+8. DateTime Picker
+https://jquense.github.io/react-widgets/api/DateTimePicker/
+- dependency on Date Format (Localization)
+https://date-fns.org/
+8.1 Install:
+- npm install react-widgets react-widgets-date-fns
+! Error
+npm WARN react-widgets-date-fns@4.0.26 requires a peer of date-fns@2.0.0-alpha.13 but none is installed. 
+You must install peer dependencies yourself.
+8.2 Install:
+- npm install date-fns@2.0.0-alpha.13
+8.3 Add to index.tsx
+import 'react-widgets/dist/css/react-widgets.css';
+8.4 Install localizer for date-fns in index.tsx
+import dateFnsLocalizer from 'react-widgets-date-fns';
+
+dateFnsLocalizer();
+
+8.5 Error in react-widgets-date-fns
+!!Error:Could not find a declaration file for module 'react-widgets-date-fns'.  Try `npm install @types/react-widgets-date-fns`
+npm install @types/react-widgets-date-fns
+
+!!Error: @types/react-widgets-date-fns is not in the npm registry
+add a new declaration (.d.ts) file containing `declare module 'react-widgets-date-fns';`
+- Create folder typings-custom (/client-app/typings-custom)
+- Create file react-widget-date-fns.d.ts with content:
+declare module "react-widgets-date-fns";
+
+- in tsconfig.json, add another element in the "include" array. **, include all files
+"include": [..., "./typings-custom/**/*.ts"]
+
+-restart client-app
+
+...
+
+8.6 Error with react-widgets
+Could not find a declaration file for module 'react-widgets'.
+Try npm install @types/react-widgets
+
+
+
+
