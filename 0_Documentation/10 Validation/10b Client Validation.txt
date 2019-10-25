@@ -124,6 +124,39 @@ axios.interceptors.response.use(undefined, error => {
   }
 });
 
+++++++++++Redirect for Server Error 500++++++++++
+
+1. Install Toastify
+2. Add contional in axios interceptor
+axios.interceptors.response.use(undefined, error => {
+  ....
+  if (status === 500) {
+    toast.error("Server error - check the terminal for more info");
+  }
+});
+
+3. Verify by refreshing inside Details
+- developer tools > Network > Preview
+
+4. Verify in dotnet terminal the stack trace for the error
+
+++++++++++Error Connection Refusued++++++++++
+1. Stop dotnet terminal
+2. Verify in axios the error object we are getting
+- error.message: Network Error
+- error.response: undefined
+
+3. Add contional in axios interceptor
+axios.interceptors.response.use(undefined, error => {
+  if (error.message === "Network Error" && !error.response) {
+    toast.error("Network Error - make sure Api is running");
+  }
+  ...
+
+
+
+
+
 
 
 

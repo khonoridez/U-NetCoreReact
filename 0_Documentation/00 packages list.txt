@@ -49,3 +49,12 @@ npm install mobx mobx-react-lite
 https://reacttraining.com/react-router/
 
 npm install react-router-dom
+
+6. Toastify
+https://fkhadra.github.io/react-toastify/
+
+npm install react-toastify
+- Add css in index.tsx
+import "react-toastify/dist/ReactToastify.min.css";
+- Place Toast Container in App Component
+
