@@ -195,3 +195,13 @@ for (let [key, value] of Object.entries(object1)) {
 
 15. .date.split("T")[0];
 https://www.w3schools.com/jsref/jsref_split.asp
+
+16. extends keyword
+interface IProps
+  extends FieldRenderProps<string, HTMLInputElement>,
+    FormFieldProps {}
+
+17. double excalamation mark 
+- ex. return a boolean if we have an error
+!!error
+
