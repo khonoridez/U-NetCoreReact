@@ -1,0 +1,45 @@
+﻿
++++++++++++++Outline+++++++++++++
+
+1. npm React Final Form
+2. Validating forms with Revalidate
+
+
++++++++++++++Implement React Final Form+++++++++++++
+1. install Final Form
+npm install react-final-form final-form
+
+2. import Form as FinalForm to avoid confilct with Semantic UI
+import { Form as FinalForm, Field } from "react-final-form";
+
+3. Create handler for FinalForm submit
+  const handleFinalFormSubmit = (values: any) => {
+    console.log(values);
+  };
+
+4. Wrap Final Form around Semantic UI Form
+<FinalForm
+    onSubmit={handleFinalFormSubmit}
+    render={({ handleSubmit }) => (
+        <Form onSubmit={handleSubmit}>
+        <Form.Input
+            onChange={handleInputChange}
+            name="title"
+            placeholder="Title"
+            value={activity.title}
+        />
+		....
+5. Comment out handleSubmit
+6. Replace Form.Input to a Field
+<Field
+    name="title"
+    placeholder="Title"
+    value={activity.title}
+    component="input"
+/>
+
+7. Verify if handleFinalFormSubmit is working
+
++++++++++++++Implement Input Fields+++++++++++++
+
+1. 
