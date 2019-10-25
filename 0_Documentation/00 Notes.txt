@@ -156,7 +156,45 @@ https://stackoverflow.com/questions/49699067/property-has-no-initializer-and-is-
 
 
 !!!!Error
+- On submitting ActivityForm
+react-dom.development.js:12466 Warning: componentWillMount has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details.
+
+* Move code with side effects to componentDidMount, and set initial state in the constructor.
+* Rename componentWillMount to UNSAFE_componentWillMount to suppress this warning in non-strict mode. In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+
 Please update the following components: Uncontrolled(DateTimePicker)
+
+react-dom.development.js:12466 Warning: componentWillReceiveProps has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details.
+
+* Move data fetching code or side effects to componentDidUpdate.
+* If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://fb.me/react-derived-state
+* Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+
+Please update the following components: Uncontrolled(DateTimePicker)
+
+!!Error
+Unhandled Rejection (Error): [mobx] Since strict-mode is enabled, changing observed observable values outside actions is not allowed. 
+Please wrap the code in an `action` if this change is intended. 
+Tried to modify: ActivityStore@4.activityRegistry.4102d545-2a97-411f-809b-9fae31e006da.time0
+
+/client-app/src/app/models/activity.ts:27
+  24 | 
+  25 |  constructor(init?: IActivityFormValues) {
+  26 |    if (init && init.date) {
+> 27 |      init.time = init.date;
+     | ^  28 |    }
+  29 |    Object.assign(this, init);
+  30 |  }
+View compiled
+(anonymous function)
+/client-app/src/features/activities/form/ActivityForm.tsx:59
+  56 | useEffect(() => {
+  57 |   if (match.params.id) {
+  58 |     setLoading(true);
+> 59 |     loadActivity(match.params.id)
+     | ^  60 |       .then(activity => setActivity(new ActivityFormValues(activity)))
+  61 |       .finally(() => setLoading(false));
+  62 |   }
 
 
 ++++++++++++TODO++++++++++++++
