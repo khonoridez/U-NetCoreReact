@@ -1,0 +1,83 @@
+﻿+++++++++++++TextInput Resuable Component+++++++++++++
+
+1. Create new file TextInput.tsx
+- src/app/common/form/TextInput.tsx
+
+2. Add imports and destructure Props to get fields that we will be using
+- extend from FieldRenderProps, FormFieldProps to get specific fields here
+
+interface IProps
+  extends FieldRenderProps<string, HTMLInputElement>,
+    FormFieldProps {}
+
+const TextInput: React.FC<IProps> = ({
+  input,
+  width,
+  type,
+  placeholder,
+  meta: { touched, error }
+}) => {
+  return <div></div>;
+};
+
+3. Implement Input in return
+- spread properties of input to attach to the input in this template
+- check error with meta from FieldRenderProps in React FinalForm
+- set Form.Field (Semanti-UI) type and width
+- 
+
+return (
+    <Form.Field error={touched && !!error} type={type} width={width}>
+      <input {...input} placeholder={placeholder} />
+      {touched && error && (
+        <Label basic color="red">
+          {error}
+        </Label>
+      )}
+    </Form.Field>
+  );
+
+4. Use inside ActivityForm
+<Field
+    name="title"
+    ...
+    component={TextInput}
+/>
+
++++++++++++++TextArea Resuable Component+++++++++++++
+1. Create new file TextAreaInput.tsx
+- src/app/common/form/TextAreaInput.tsx
+
+2. Copy code from TextInput and change some variales for TextArea
+<Form.Field error={touched && !!error} width={width}>
+      <textarea rows={rows} {...input} placeholder={placeholder} />
+      {touched && error && (
+        <Label basic color="red">
+          {error}
+        </Label>
+      )}
+    </Form.Field>
+
+
++++++++++++++SelectInput Resuable Component+++++++++++++
+1. Create new file SelectInput.tsx
+- src/app/common/form/SelectInput.tsx
+2. Copy code from TextInput and change some variales for SelectInput
+<Form.Field error={touched && !!error} width={width}>
+    <Select
+    value={input.value}
+    onChange={(e, data) => input.onChange(data.value)}
+    placeholder={placeholder}
+    options={options}
+    />
+    {touched && error && (
+    <Label basic color="red">
+        {error}
+    </Label>
+    )}
+</Form.Field>
+- input is from FieldRenderProps<string, HTMLSelectElement>,
+
+3. Create file categoryOptions.ts
+- src/app/common/options/categoryOptions.ts
+-type snippet s_11.7.1

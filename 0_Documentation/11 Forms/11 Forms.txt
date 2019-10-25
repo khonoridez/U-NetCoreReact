@@ -5,121 +5,142 @@
 2. Validating forms with Revalidate
 
 
-+++++++++++++Implement React Final Form+++++++++++++
-1. install Final Form
-npm install react-final-form final-form
++++++++++++++Load Activity in ActivityForm+++++++++++++
+- ex. Loading of activity details when Editing
+- We do not want details coming from an observable (initialFormState), it is loading multiple times
+- initialFormState changes mutliple times in useEffect()
+- We want to get the activity from the Api
 
-2. import Form as FinalForm to avoid confilct with Semantic UI
-import { Form as FinalForm, Field } from "react-final-form";
-
-3. Create handler for FinalForm submit
-  const handleFinalFormSubmit = (values: any) => {
-    console.log(values);
+1. In ActivityStore, loadActivity. 
+- set return activity upon retrieving from Api
+ @action loadActivity = async (id: string) => {
+    let activity = this.getActivity(id);
+    if (activity) {
+      this.activity = activity;
+      return activity;
+    } else {
+      this.loadingInitial = true;
+      try {
+        activity = await agent.Activities.details(id);
+        runInAction("getting activity", () => {
+          activity.date = new Date(activity.date);
+          this.activity = activity;
+          this.loadingInitial = false;
+        });
+        return activity;
+      } catch (error) {
+        runInAction("getting activity error", () => {
+          this.loadingInitial = false;
+        });
+        console.log(error);
+      }
+    }
   };
 
-4. Wrap Final Form around Semantic UI Form
+2. Modify useEffect of ActivityForm
+from:
+  useEffect(() => {
+    if (match.params.id && !activity.id) {
+      loadActivity(match.params.id).then(
+        () => initialFormState && setActivity(initialFormState)
+      );
+    }
+
+    return () => {
+      clearActivity();
+    };
+  }, [
+    match.params.id,
+    loadActivity,
+    initialFormState,
+    clearActivity,
+    activity.id
+  ]);
+to: 
+ useEffect(() => {
+    if (match.params.id) {
+      loadActivity(match.params.id).then(activity => setActivity(activity));
+    }
+  }, [match.params.id, loadActivity]);
+
+- Since we are returning activity in Api, we could remove initialFormState, activity.id, and clearActivity method
+- useEffect will now only trigger with changes on 2 depeepndencies (match.paramns.id, loadActivity)
+
+!!!going to edit ({url}/manage/f03479d5-4113-4fff-b103-6b6023a32adc) now triggers the loadActivity once
+
+3. Instead of using interface IActivityFormValues,  we could create a new class and initialize the values in constructor
+3.1 Create new class under activity.ts
+- mover initialization from ActivityForm useState to here:
+export class ActivityFormValues implements IActivityFormValues {
+  id?: string = undefined;
+  title: string = "";
+  category: string = "";
+  description: string = "";
+  date?: Date = undefined;
+  time?: Date = undefined;
+  city: string = "";
+  venue: string = "";
+}
+
+3.2 Create constructor and set the values depending if Editing existing or Creating new
+- Automatically map properties inside the "init" object to the propertines inside the class (this)
+constructor(init?: IActivityFormValues) {
+    if (init && init.date) {
+      init.time = init.date;
+    }
+    Object.assign(this, init);
+  }
+
+3.3 Use in ActivityForm
+- use an empty ActivityFormValues() - for new activities
+- load activity values - for Edit
+const [activity, setActivity] = useState(new ActivityFormValues());
+
+  useEffect(() => {
+    if (match.params.id) {
+      loadActivity(match.params.id).then(activity =>
+        setActivity(new ActivityFormValues(activity))
+      );
+    }
+  }, [match.params.id, loadActivity]);
+
+3.4 Set initalvalues in React FinalForm
+...
 <FinalForm
-    onSubmit={handleFinalFormSubmit}
-    render={({ handleSubmit }) => (
-        <Form onSubmit={handleSubmit}>
-        <Form.Input
-            onChange={handleInputChange}
-            name="title"
-            placeholder="Title"
-            value={activity.title}
-        />
-		....
-5. Comment out handleSubmit
-6. Replace Form.Input to a Field
-<Field
-    name="title"
-    placeholder="Title"
-    value={activity.title}
-    component="input"
-/>
+	initialValues={activity}
+...
 
-7. Verify if handleFinalFormSubmit is working
+Loading values in form should now work for Edit, Create
 
-+++++++++++++TextInput Resuable Component+++++++++++++
+3.5 Set loading indicator
+- Set local props
+const [loading, setLoading] = useState(false);
 
-1. Create new file TextInput.tsx
-- src/app/common/form/TextInput.tsx
+- Initialize in finally block
+  useEffect(() => {
+    if (match.params.id) {
+      setLoading(true);
+      loadActivity(match.params.id)
+        ...
+        .finally(() => setLoading(false));
+    }
+	...
 
-2. Add imports and destructure Props to get fields that we will be using
-- extend from FieldRenderProps, FormFieldProps to get specific fields here
+- Segmet has loading property
+- <Segment clearing>, clearing flag for the buttons affects the visibility of loading indicator
+- We will put this inside <Form instead
 
-interface IProps
-  extends FieldRenderProps<string, HTMLInputElement>,
-    FormFieldProps {}
+<Form onSubmit={handleSubmit} loading={loading}>
 
-const TextInput: React.FC<IProps> = ({
-  input,
-  width,
-  type,
-  placeholder,
-  meta: { touched, error }
-}) => {
-  return <div></div>;
-};
-
-3. Implement Input in return
-- spread properties of input to attach to the input in this template
-- check error with meta from FieldRenderProps in React FinalForm
-- set Form.Field (Semanti-UI) type and width
-- 
-
-return (
-    <Form.Field error={touched && !!error} type={type} width={width}>
-      <input {...input} placeholder={placeholder} />
-      {touched && error && (
-        <Label basic color="red">
-          {error}
-        </Label>
-      )}
-    </Form.Field>
-  );
-
-4. Use inside ActivityForm
-<Field
-    name="title"
+- disable Buttons when loading
+<Button
+    content="Submit"
+	disabled={loading}
     ...
-    component={TextInput}
+/>
+<Button
+    content="Cancel"
+    disabled={loading}
+	...
 />
 
-+++++++++++++TextArea Resuable Component+++++++++++++
-1. Create new file TextAreaInput.tsx
-- src/app/common/form/TextAreaInput.tsx
-
-2. Copy code from TextInput and change some variales for TextArea
-<Form.Field error={touched && !!error} width={width}>
-      <textarea rows={rows} {...input} placeholder={placeholder} />
-      {touched && error && (
-        <Label basic color="red">
-          {error}
-        </Label>
-      )}
-    </Form.Field>
-
-
-+++++++++++++SelectInput Resuable Component+++++++++++++
-1. Create new file SelectInput.tsx
-- src/app/common/form/SelectInput.tsx
-2. Copy code from TextInput and change some variales for SelectInput
-<Form.Field error={touched && !!error} width={width}>
-    <Select
-    value={input.value}
-    onChange={(e, data) => input.onChange(data.value)}
-    placeholder={placeholder}
-    options={options}
-    />
-    {touched && error && (
-    <Label basic color="red">
-        {error}
-    </Label>
-    )}
-</Form.Field>
-- input is from FieldRenderProps<string, HTMLSelectElement>,
-
-3. Create file categoryOptions.ts
-- src/app/common/options/categoryOptions.ts
--type snippet s_11.7.1

@@ -59,6 +59,7 @@ class ActivityStore {
     let activity = this.getActivity(id);
     if (activity) {
       this.activity = activity;
+      return activity;
     } else {
       this.loadingInitial = true;
       try {
@@ -68,6 +69,7 @@ class ActivityStore {
           this.activity = activity;
           this.loadingInitial = false;
         });
+        return activity;
       } catch (error) {
         runInAction("getting activity error", () => {
           this.loadingInitial = false;
