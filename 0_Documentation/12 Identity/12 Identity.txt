@@ -49,3 +49,17 @@ protected override void OnModelCreating(ModelBuilder builder)
 
 4. Add new migration
 dotnet ef migrations add "AddedIdentity" -p Persistence/ -s API/
+
++++++++++++++Setup Identity in Api Project+++++++++++++
+
+1. Setup identityBuilder
+- under Startup.cs
+public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    var builder = services.AddIdentityCore<AppUser>();
+    var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
+    identityBuilder.AddEntityFrameworkStores<DataContext>();
+    identityBuilder.AddSignInManager<SignInManager<AppUser>>();
+}
+
