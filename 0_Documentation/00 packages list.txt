@@ -19,6 +19,10 @@ https://fluentvalidation.net/start
 - FluentValidation.AspNetCore 8.5.0
 - Add to Application Project
 
+4. AspNet Identity
+- Microsoft.AspNetCore.Identity.EntityFrameworkCore 3.0.0
+- Add to Domain Project
+
 +++++++++++React Packages+++++++++++
 
 > cd client-app

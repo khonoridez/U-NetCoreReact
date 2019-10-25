@@ -1,0 +1,51 @@
+﻿
++++++++++++++Outline+++++++++++++
+1. AspNet Core Identity
+- Login, generate a token
+
+2. JWT Token authentication
+- return to the user from Identity
+
+3. Adding an Infrastructure Project
+- JWT Token Generator
+
++++++++++++++AspNet Core Identity+++++++++++++
+1. Membership System
+2. Supports login stored in Identity
+3. Supports external providers
+- ex. Facebook, Google Login
+4. Comes with default user stores
+- AspNetUsers, AspNetRoles etc.
+5. UserManager
+- Create, Search
+6. SignInManager
+
+
+PasswordHasher.cs
+- Applies Hash and Salt to Paswords
+
++++++++++++++Install and Setup AspNet Core Identity+++++++++++++
+
+1. Under Domain Project, Create AppUser.cs
+- We do not have a workaround but to add IdentityUser to the Domain Project
+public class AppUser : IdentityUser
+{
+    public string DisplayName { get; set; }
+}
+
+2. Install AspNet Core identity
+- NuGet Package Manager: Add Package
+- Micorosft.AspNetCore.Identity.EntityFrameworkCore
+- Same verion with AspNet Core installed 3.0.0
+
+3. Modify DataContext to inherit from IdentityDbContext<AppUser>
+public class DataContext : IdentityDbContext<AppUser>
+
+- Pass base OnModelCreating
+protected override void OnModelCreating(ModelBuilder builder)
+{
+	base.OnModelCreating(builder);
+	...
+
+4. Add new migration
+dotnet ef migrations add "AddedIdentity" -p Persistence/ -s API/
