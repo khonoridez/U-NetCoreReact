@@ -237,3 +237,6 @@ console.log(rest);
 
 21. date toISOString
 https://www.w3schools.com/jsref/jsref_toisostring.asp
+
+22. ... extends Partial<T>
+- get all properties from parent interface but set as optional?

@@ -1,0 +1,174 @@
+﻿
++++++++++++++Date Resuable Component+++++++++++++
+
+https://jquense.github.io/react-widgets/api/DateTimePicker/
+
+1. Install widgets
+npm install react-widgets react-widgets-date-fns
+!!Error with react-widgets
+Could not find a declaration file for module 'react-widgets-date-fns'
+!!Error with 'npm install @types/react-widgets-date-fns'
+- add a new declaration (.d.ts) file containing `declare module 'react-widgets-date-fns';`
+!!Error with react-widgets
+npm install @types/react-widgets
+
+2. Create Date File, client-app\src\app\common\form\DateInput.tsx
+<Form.Field error={touched && !!error} width={width}>
+    <DateTimePicker
+    placeholder={placeholder}
+    value={input.value || null}
+    onChange={input.onChange}
+    {...rest}
+    />
+    {touched && error && (
+    <Label basic color="red">
+        {error}
+    </Label>
+    )}
+</Form.Field>
+
+- use DateTimePicker from react-widgets
+- value is changed to include null, this is 
+value={input.value || null}
+- include onChange={input.onChange}
+- include spread ...rest to copy remaining Props to the DatePicker
+
+3. Use this DateInput in AcrtivityForm.tsx
+ <Field
+    component={DateInput}
+    name="date"
+    type="datetime-local"
+    placeholder="Date"
+    value={activity.date!}
+/>
+
+!!Error: interface is of type string
+
++++++++++++++Changing Date Type to Date+++++++++++++
+!!Error: Objects are not valid as a React child
+- We cant render objects (ex. Date) in render functions
+- We have to render them as something displayable
+- We will have to use date-fns, convert to something that the browser can display
+
+1. Change interface date type
+export interface IActivity {
+  ...
+  date: Date | null;
+  ...
+}
+
+- Temporary
+- not date?: Date;
+- this pertains to Date | undefined;
+- we need Date | null;
+
+2. In ActivityForm we have to specify that date is of Non-null assertion
+<Field
+	...
+	value={activity.date!}
+/>
+
+3. In ActivityStore in groupActivitiesByDate we have to change string comparison of activity.date
+
+groupActivitiesByDate(activities: IActivity[]) {
+    const sortedActivities = activities.sort(
+      (a, b) => a.date!.getTime() - b.date!.getTime()
+    );
+
+4. In loadActivities we pass a new Date object
+@action loadActivities = async () => {
+    this.loadingInitial = true;
+    try {
+      const activities = await agent.Activities.list();
+      runInAction("loading activities", () => {
+        activities.forEach(activity => {
+          activity.date = new Date(activity.date!);
+
+5. format all usage of activity.date using date-fns
+import { format } from "date-fns";
+- in ActivityListItem, 
+<Icon name="clock" /> {format(activity.date!, "h:mm a")}
+- in ActivityDetailedHeader
+<p>{format(activity.date!, "eeee do MMMM")}</p>
+- in ActivityDetailedInfo
+<Grid.Column width={15}>
+    <span>
+        {format(activity.date!, "eeee do MMMM")} at{" "}
+        {format(activity.date!, "h:mm a")}
+    </span>
+</Grid.Column>
+
+
++++++++++++++Style DatePicker to Separate Date and Time+++++++++++++
+https://jquense.github.io/react-widgets/api/DateTimePicker/#date
+
+1. Add props to DateInput initialized to false
+const DateInput: React.FC<IProps> = ({
+  ...
+  date = false,
+  time = false,
+  ...
+}) => {
+<DateTimePicker
+    ...
+    date={date}
+    time={time}
+	...
+    />
+
+2. Implement in ActivityForm
+<Form.Group widths="equal">
+    <Field
+    component={DateInput}
+    name="date"
+    date={true}
+    placeholder="Date"
+    value={activity.date!}
+    />
+    <Field
+    component={DateInput}
+    name="time"
+    time={true}
+    placeholder="Time"
+    value={activity.date!}
+    />
+</Form.Group>
+
+!!! Separate time property from date
+3. Remove the null from date property, activity.ts
+export interface IActivity {
+  ...
+  date: Date;
+}
+4. Create another interface with time property, extends IActivity set as optional (Partial<..)
+export interface IActivityFormValues extends Partial<IActivity> {
+  time?: Date;
+}
+
+5. use interface in ActivityForm
+- set date ininital to undefined instead of null. (when we set property to optional it will be undefined)
+- remove all Non-null assertion operator for activity.date! (ActivityForm.tsx, ActivityStore.tsx, ActivityDetails.tsx etc)
+- set new DateInput with value to activity.time
+
++++++++++++++Combine Date and Time values from DatePicker+++++++++++++
+
+1. Create Helper method to combine Date and Time values
+- create folder client-app\src\app\common\util\util.ts
+
+export const combineDateAndTime = (date: Date, time: Date) => {
+  const timeString = time.getHours() + ":" + time.getMinutes() + ":00";
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const dateString = `${year}-${month}-${day}`;
+  return new Date(dateString + " " + timeString);
+};
+
+2. Handle in submit form
+const handleFinalFormSubmit = (values: any) => {
+    const dateAndTime = combineDateAndTime(values.date, values.time);
+    const { date, time, ...activity } = values;
+    activity.date = dateAndTime;
+    console.log(activity);
+  };
+
