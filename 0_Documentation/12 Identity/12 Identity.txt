@@ -192,3 +192,53 @@ public class ActivitiesController : BaseController
         return await Mediator.Send(new List.Query());
     }
 
+
++++++++++++++Create User Controller+++++++++++++
+
+1. Create UserController.cs
+ public class UserController : BaseController
+{
+    [HttpPost("login")]
+    public async Task<ActionResult<AppUser>> Login(Login.Query query)
+    {
+        return await Mediator.Send(query);
+    }
+}
+
+2. Test in Postman
+- Module 12 scenarios
+
+3. Create User class under Application Project
+- choose properties that we will be returning to Api so we do not send sensitive information
+- (email, password hash etc.)
+public class User
+{
+    public string DisplayName { get; set; }
+	...
+
+4. Use User object instead of AppUser in Login handler
+public class Query : IRequest<User>
+...
+public class Handler : IRequestHandler<Query, User>
+...
+return new User
+{
+    DisplayName = user.DisplayName,
+    Token = "This will be the token",
+    Username = user.UserName,
+    Image = null
+};
+
+- Modify in Controller
+public async Task<ActionResult<User>> Login(Login.Query query)
+
+5. Test in Postman,  Login user successful
+{
+    "displayName": "Bob",
+    "token": "This will be the token",
+    "username": "bob",
+    "image": null
+}
+
+
+
