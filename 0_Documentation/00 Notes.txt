@@ -75,6 +75,18 @@ https://docs.microsoft.com/en-us/dotnet/api/microsoft.identitymodel.tokens.token
 - ValidateAudience - Validation of the audience, mitigates forwarding attacks. For example, a site that receives a token, could not replay it to another side.
 - ValidateIssuer - Gets or sets a String that represents a valid issuer that will be used to check against the token's issuer.
 
+++++++++++++++Set User Secrets++++++++++++++
+1. In the Api.csproj file add User Secrets id
+- ex. copy existing Guid from an Activity id
+<PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+	<UserSecretsId>a09d8666-de6a-45b7-82ae-69e8d8e33cd1</UserSecretsId>
+</PropertyGroup>
+
+2. In VS Code terminal, Solution level
+-p : specify startup project
+dotnet user-secrets set "TokenKey" "super secret key" -p API/
+
 ++++++++++++ERRORS++++++++++++++
 
 Error in packages with 3.0.0 and project template defaulting to netstandard2.0
