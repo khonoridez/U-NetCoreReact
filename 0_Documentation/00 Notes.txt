@@ -283,6 +283,20 @@ public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
 
+
+++++++++++++++ERROR IN SIGN IN MANAGER++++++++++++++
+- Error not recognizing SignInManager
+https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity.signinmanager-1?view=aspnetcore-3.0
+
+...
+    private readonly SignInManager<AppUser> _signInManager;
+
+    public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+	...
+
+Resolution: Convert Project to Net Core 3 from Net Standard 2.1
+
+
 ++++++++++++TODO++++++++++++++
 
 Create Generic Notes Repository
