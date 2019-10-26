@@ -25,7 +25,7 @@ https://fluentvalidation.net/start
 
 5. JWT Token
 System.IdentityModel.Tokens.Jwt 5.6.0
-
+Microsoft.AspNetCore.Authentication.JwtBearer
 
 +++++++++++React Packages+++++++++++
 

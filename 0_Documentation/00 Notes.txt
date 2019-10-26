@@ -68,6 +68,13 @@ dotnet watch run
 2. Creating Collections
 https://learning.getpostman.com/docs/postman/collections/intro_to_collections/
 
+++++++++++++API SECURITY++++++++++++++
+
+1. TokenValidationParameters
+https://docs.microsoft.com/en-us/dotnet/api/microsoft.identitymodel.tokens.tokenvalidationparameters?view=azure-dotnet
+- ValidateAudience - Validation of the audience, mitigates forwarding attacks. For example, a site that receives a token, could not replay it to another side.
+- ValidateIssuer - Gets or sets a String that represents a valid issuer that will be used to check against the token's issuer.
+
 ++++++++++++ERRORS++++++++++++++
 
 Error in packages with 3.0.0 and project template defaulting to netstandard2.0
@@ -305,6 +312,21 @@ The process cannot access the file ...\Persistence\obj\Debug\netstandard2.1\Pers
 because it is being used by another process.	
 
 Resolution: Restart Visual Studio
+
+++++++++++++++ERROR IN Microsoft.AspNetCore.Authentication.JwtBearer++++++++++++++
+https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.jwtbearer.jwtbearerdefaults?view=aspnetcore-2.2
+
+...not available for ASP.NET Core 3.0. You have been redirected to the newest product version this page is available for.
+ASP.NET Core
+2.2 2.1 2.0 1.1 1.0
+
+Resolution: Downgrade Microsoft.AspNetCore.Authentication.JwtBearer to 2.2
+
+++++++++++++++ERROR Authentication++++++++++++++
+Resolution: In Startup.cs, UseAuthentication should be called before UseAuthorization
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 ++++++++++++TODO++++++++++++++
 
