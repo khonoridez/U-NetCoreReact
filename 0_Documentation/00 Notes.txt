@@ -297,6 +297,15 @@ https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity.signin
 Resolution: Convert Project to Net Core 3 from Net Standard 2.1
 
 
+++++++++++++++ERROR IN Installing System.IdentityModel.Tokens.Jwt++++++++++++++
+
+Severity	Code	Description	Project	File	Line	Suppression State
+Warning	MSB3101	Could not write state file "obj\Debug\netstandard2.1\Persistence.csprojAssemblyReference.cache". 
+The process cannot access the file ...\Persistence\obj\Debug\netstandard2.1\Persistence.csprojAssemblyReference.cache' 
+because it is being used by another process.	
+
+Resolution: Restart Visual Studio
+
 ++++++++++++TODO++++++++++++++
 
 Create Generic Notes Repository

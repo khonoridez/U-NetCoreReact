@@ -1,0 +1,99 @@
+﻿
++++++++++++++Introduction+++++++++++++
+JSON Web Tokens
+https://jwt.io/
+
+1. Send back to the client by a long string
+2. When client want to access server it sends the token everytime
+- We have to keep the token as small as possible
+3. Anybody can decode this token
+- We have to be careful what we send back as claims
+
++++++++++++++JWT Parts+++++++++++++
+1. Header
+- describes the type of token (JWT)
+- describes algorithm (alg) for encryption
+
+2. Payload (CLAIMS)
+- Data stored inside JWT
+- CLAIMS of the JWT
+- Time related fields ex.
+nbf (not before)
+exp (expiry date)
+ist (issued at date)
+
+- other fields ex.
+nameid
+
+3. Signature for the token
+- what server uses to verify that token is valid, has not been modified/manipulated
+- before sending out the token, applies a signature to it, encrypted with algorithm we set on the header
+- token is assigned with a secret key stored on the server
+- to verify if token is valid, server will check secret key on the server, compare it with the signature
+
+Steps
+- Authenticaton of user, server withh then issue a token
+- Client keeps the token stored (ex. local storage in browser)
+- Client uses this token when it making a request, sends it along an Authorization Header as a bearer token
+	(Header: Authorization: Bearer <JWT>)
+- Server validates token and signature, if it is Ok server will return response (200) + data, if not return 401 unauthorized
+
+
++++++++++++++Setup JWTGenerator+++++++++++++
+- Cross cutting project, projects will be depending on this
+- This will contain the JWT Generator
+
+1. Create new Projecct Infrastructure
+
+2. In Applcaition Folder, create interface /Interfaces/IJWTGenerator.cs
+public interface IJWTGenerator
+{
+    string CreateToken(AppUser user);
+}
+
+3. In Infrastructure Project, create new file /Security/JWTGenerator.cs
+public class JWTGenerator : IJWTGenerator
+
+4. Add (Inject) as a service in Api Project, Startup.cs
+public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddScoped<IJWTGenerator, JWTGenerator>();
+}
+
++++++++++++++Create JWT Token+++++++++++++
+- Implement public string CreateToken(AppUser user)
+
+1. JwtRegisteredClaimNames needs package 
+System.IdentityModel.Tokens.Jwt
+
+2. Build list of claims (payload)
+- one for now (NameId)
+var claims = new List<Claim>
+{
+    new Claim(JwtRegisteredClaimNames.NameId, user.UserName)
+};
+
+3. Generate sign in credentials
+- We will improve on the key string later
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super secret key"));
+
+- use the strongest available
+var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+4. Decalre token descriptor
+var tokenDescriptor = new SecurityTokenDescriptor
+{
+    Subject = new ClaimsIdentity(claims),
+    Expires = DateTime.Now.AddDays(7),
+    SigningCredentials = creds
+};
+
+5. Declare token handler
+var tokenHandler = new JwtSecurityTokenHandler();
+
+6. Create Token
+var token = tokenHandler.CreateToken(tokenDescriptor);
+
+return tokenHandler.WriteToken(token);
+
