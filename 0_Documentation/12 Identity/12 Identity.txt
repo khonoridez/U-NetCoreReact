@@ -107,4 +107,88 @@ public static void Main(string[] args)
 
 4. Rerun Api to Seed AppUsers
 
++++++++++++++Login Handler+++++++++++++
+1. Application Project, create new folder User
+- Create new file Login.cs
+
+2. Type snippet (Vs Code) qhandler to generate Query snippept
+
+3. Add Query propeprties
+public string Email { get; set; }
+public string Password { get; set; }
+
+4. Add Query Validator
+public class QueryValidator : AbstractValidator<Query>
+{
+    public QueryValidator()
+    {
+        RuleFor(x => x.Email).NotEmpty();
+        RuleFor(x => x.Password).NotEmpty();
+    }
+}
+
+5. Implement in Handler
+- we are getting these values from UserManager instead of dbContext
+
+public class Handler : IRequestHandler<Query, AppUser>
+{
+    private readonly UserManager<AppUser> _userManager;
+    private readonly SignInManager<AppUser> _signInManager;
+
+    public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+    {
+        _userManager = userManager;
+        _signInManager = signInManager;
+    }
+	...
+
+6. Implement Handle
+public async Task<AppUser> Handle(Query request, CancellationToken cancellationToken)
+{
+    var user = await _userManager.FindByEmailAsync(request.Email);
+
+    if (user == null)
+    {
+        throw new RestException(HttpStatusCode.Unauthorized);
+    }
+
+    var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+
+    if (result.Succeeded)
+    {
+        //TODO: Generate Token
+
+        return user;
+    }
+
+    throw new RestException(HttpStatusCode.Unauthorized);
+}
+
++++++++++++++Create Base Controller+++++++++++++
+- Api Project, create Base Controller to get all methods/properties common to all Controllers
+
+1. Create file Controllers/BaseController.cs
+- manually add using Microsoft.Extensions.DependencyInjection;
+...
+using Microsoft.Extensions.DependencyInjection;
+...
+[Route("api/[controller]")]
+[ApiController]
+public class BaseController : ControllerBase
+{
+    private IMediator _mediator;
+    protected IMediator Mediator => _mediator ?? (_mediator = HttpContext.RequestServices.GetService<IMediator>());
+}
+
+2. Derive suceeding Controllers to this BaseController
+- Remove controller [atrributes]
+- replace calls from _mediator to the protected property Mediator from the base controller
+
+public class ActivitiesController : BaseController
+{
+    [HttpGet]
+    public async Task<ActionResult<List<Activity>>> List()
+    {
+        return await Mediator.Send(new List.Query());
+    }
 
