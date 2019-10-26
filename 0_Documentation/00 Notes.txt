@@ -340,6 +340,25 @@ Resolution: In Startup.cs, UseAuthentication should be called before UseAuthoriz
 app.UseAuthentication();
 app.UseAuthorization();
 
+++++++++++++++ERROR NO USER SECRET++++++++++++++
+- If there is Key installed in Dev workstation this error will show up:
+
+Unhandled exception. System.ArgumentNullException: String reference not set to an instance of a String. (Parameter 's')
+   at System.Text.Encoding.GetBytes(String s)
+
+Resolution: Create Secret Key
+
+1. In the Api.csproj file add User Secrets id
+- ex. copy existing Guid from an Activity id
+<PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UserSecretsId>a09d8666-de6a-45b7-82ae-69e8d8e33cd1</UserSecretsId>
+</PropertyGroup>
+
+2. In VS Code terminal, Solution level
+-p : specify startup project
+dotnet user-secrets set "TokenKey" "super secret key" -p API/
+
 ++++++++++++TODO++++++++++++++
 
 Create Generic Notes Repository
