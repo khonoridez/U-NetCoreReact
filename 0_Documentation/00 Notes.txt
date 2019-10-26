@@ -197,6 +197,92 @@ View compiled
   62 |   }
 
 
+++++++++++++++ERROR IN ENTITIY FRAMEWORK AND ASPNET IDENTITY++++++++++++++
+
+https://github.com/OData/WebApi/issues/1748
+https://stackoverflow.com/questions/44483589/unable-to-resolve-service-for-type-microsoft-aspnetcore-identity-usermanager-w#48074649
+
+  Unhandled exception. System.AggregateException: Some services are not able to be constructed 
+(Error while validating the service descriptor 'ServiceType: Microsoft.AspNetCore.Identity.ISecurityStampValidator Lifetime: Scoped ImplementationType: Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]': Unable to resolve service for type 'Microsoft.AspNetCore.Authentication.ISystemClock' while attempting to activate 'Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]'.) 
+(Error while validating the service descriptor 'ServiceType: Microsoft.AspNetCore.Identity.ITwoFactorSecurityStampValidator Lifetime: Scoped ImplementationType: Microsoft.AspNetCore.Identity.TwoFactorSecurityStampValidator`1[Domain.AppUser]': Unable to resolve service for type 'Microsoft.AspNetCore.Authentication.ISystemClock' while attempting to activate 'Microsoft.AspNetCore.Identity.TwoFactorSecurityStampValidator`1[Domain.AppUser]'.)
+ ---> System.InvalidOperationException: Error while validating the service descriptor 'ServiceType: Microsoft.AspNetCore.Identity.ISecurityStampValidator Lifetime: Scoped ImplementationType: Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]': Unable to resolve service for type 'Microsoft.AspNetCore.Authentication.ISystemClock' while attempting to activate 'Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]'.
+ ---> System.InvalidOperationException: Unable to resolve service for type 'Microsoft.AspNetCore.Authentication.ISystemClock' while attempting to activate 'Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]'.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(Type serviceType, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, Type serviceType, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceDescriptor descriptor, Type serviceType, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngine.ValidateService(ServiceDescriptor descriptor)
+   --- End of inner exception stack trace ---
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngine.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(IEnumerable`1 serviceDescriptors, ServiceProviderOptions options)
+   --- End of inner exception stack trace ---
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(IEnumerable`1 serviceDescriptors, ServiceProviderOptions options)
+   at Microsoft.Extensions.DependencyInjection.ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(IServiceCollection services, ServiceProviderOptions options)
+   at Microsoft.Extensions.DependencyInjection.DefaultServiceProviderFactory.CreateServiceProvider(IServiceCollection containerBuilder)
+   at Microsoft.Extensions.Hosting.Internal.ServiceFactoryAdapter`1.CreateServiceProvider(Object containerBuilder)
+   at Microsoft.Extensions.Hosting.HostBuilder.CreateServiceProvider()
+   at Microsoft.Extensions.Hosting.HostBuilder.Build()
+   at API.Program.Main(String[] args) in C:\Users\User\source\repos\U-NetCoreReact\api\Program.cs:line 17
+ ---> (Inner Exception #1) System.InvalidOperationException: Error while validating the service descriptor 'ServiceType: Microsoft.AspNetCore.Identit   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceDescriptor descriptor, Type serviceType, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngine.ValidateService(ServiceDescriptor descriptor)
+   --- End of inner exception stack trace ---
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngine.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(IEnumerable`1 serviceDescriptors, ServiceProviderOptions options)<---
+
+watch : Exited with error code -532462766
+
+....
+
+!! Error on dropping db
+https://stackoverflow.com/questions/50652944/unable-to-resolve-service-for-type-microsoft-aspnetcore-identity-rolemanager-for
+https://stackoverflow.com/questions/57991925/aspnet-core3-identity-configuration
+
+An error occurred while accessing the Microsoft.Extensions.Hosting services. Continuing without the application service provider. 
+Error: Some services are not able to be constructed (Error while validating the service descriptor 
+'ServiceType: Microsoft.AspNetCore.Identity.ISecurityStampValidator Lifetime: Scoped ImplementationType: 
+Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]': Unable to resolve service for type 
+'Microsoft.AspNetCore.Authentication.ISystemClock' while attempting to activate 
+'Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]'.) 
+
+(Error while validating the service descriptor 'ServiceType: Microsoft.AspNetCore.Identity.ITwoFactorSecurityStampValidator 
+Lifetime: Scoped ImplementationType: Microsoft.AspNetCore.Identity.TwoFactorSecurityStampValidator`1[Domain.AppUser]': 
+Unable to resolve service for type 'Microsoft.AspNetCore.Authentication.ISystemClock' while attempting to activate 
+'Microsoft.AspNetCore.Identity.TwoFactorSecurityStampValidator`1[Domain.AppUser]'.)     
+Unable to create an object of type 'DataContext'. For the different patterns supported at design time, 
+see https://go.microsoft.com/fwlink/?linkid=851728
+
+https://www.blinkingcaret.com/2016/11/30/asp-net-identity-core-from-scratch/
+
+Temporary Resolution:
+comment out code:
+var builder = services.AddIdentityCore<AppUser>();
+var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
+identityBuilder.AddEntityFrameworkStores<DataContext>();
+identityBuilder.AddSignInManager<SignInManager<AppUser>>();
+
+replace with:
+services.AddIdentity<AppUser, IdentityRole>()
+    .AddEntityFrameworkStores<DataContext>()
+    .AddDefaultTokenProviders();
+
+....
+
+!!!!!!!!!!!!RESOLUTION!!!!!!!!!!!!
+In Startup.cs replace HostBuilder to CreateWebHostBuilder
+From:
+public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+To: 
+
+public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>();
+
 ++++++++++++TODO++++++++++++++
 
 Create Generic Notes Repository
@@ -209,6 +295,9 @@ Apply API Best Practices
 3. Attributes
 4. Returning error codes (extension method?)
 5. Compare Api Architecture (No MediatR) in the Angular version
+
+! .Wait(); usages
+ex. Seed.SeedData(context, userManager).Wait();
 
 Front end
 1. Create interfaces/classes for Api objects

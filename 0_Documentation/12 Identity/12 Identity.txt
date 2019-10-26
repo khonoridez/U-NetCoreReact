@@ -63,3 +63,48 @@ public void ConfigureServices(IServiceCollection services)
     identityBuilder.AddSignInManager<SignInManager<AppUser>>();
 }
 
++++++++++++++Seed Users+++++++++++++
+1. Persistence/Seed.cs
+2. Seed AppUsers
+- we have to change the signature to async
+
+public static async Task SeedData(DataContext context, UserManager<AppUser> userManager)
+{
+    if (!userManager.Users.Any())
+    {
+        var users = new List<AppUser>
+        {
+            new AppUser { DisplayName = "Bob", UserName = "bob", Email = "bob@test.com" },
+            new AppUser { DisplayName = "Tom", UserName = "tom", Email = "tom@test.com" },
+            new AppUser { DisplayName = "Jane", UserName = "jane", Email = "jane@test.com" }
+        };
+
+        foreach (var user in users)
+        {
+            await userManager.CreateAsync(user, "password@1");
+        }
+    }
+	....
+
+3. Modify Seed call in Program.cs in Api Project
+- Pass in the new parameter UserManager instance
+
+public static void Main(string[] args)
+{
+    var host = CreateHostBuilder(args).Build();
+
+    using (var scope = host.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+
+        try
+        {
+            var context = services.GetRequiredService<DataContext>();
+            var userManager = services.GetRequiredService<UserManager<AppUser>>();
+
+            context.Database.Migrate();
+            Seed.SeedData(context, userManager).Wait();
+
+4. Rerun Api to Seed AppUsers
+
+
