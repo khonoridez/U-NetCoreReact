@@ -97,3 +97,37 @@ var token = tokenHandler.CreateToken(tokenDescriptor);
 
 return tokenHandler.WriteToken(token);
 
++++++++++++++Usage: JWT Token+++++++++++++
+1. Inject in Application Project, Login Handler
+
+private readonly IJwtGenerator _jwtGenerator;
+
+public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IJwtGenerator jwtGenerator)
+{
+    _userManager = userManager;
+    _signInManager = signInManager;
+    _jwtGenerator = jwtGenerator;
+}
+
+2. Use in Handle method
+if (result.Succeeded)
+{
+    return new User
+    {
+        ...
+        Token = _jwtGenerator.CreateToken(user),
+    };
+}
+
+3. Test in Postman, Login user successful: {{url}}/api/user/login
+{
+    "displayName": "Bob",
+    "token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJib2IiLCJuYmYiOjE1NzIxMjM2OTQsImV4cCI6MTU3MjcyODQ5NCwiaWF0IjoxNTcyMTIzNjk0fQ.iZBI5FXdxYonsK1aizNYfnb4lbsdvwtGbo09uh9XaxOoO8JqwBv5zwf5jYXgoWRLYgy8ontbc7Si8lIJCW998Q",
+    "username": "bob",
+    "image": null
+}
+
+4. Verify in https://jwt.io/#libraries
+- Type key 'super secret key' under 'verify signature'
+- Paste token under Encoded
+
