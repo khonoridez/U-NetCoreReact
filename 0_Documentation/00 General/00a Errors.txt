@@ -54,7 +54,7 @@ suggested to add value in ConnectionString
 Data Source=c:\mydb.db;Version=3;BinaryGUID=False;
 
 as of Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0" Guid is being migrated to sqlite as string
-
+https://docs.microsoft.com/en-us/ef/core/what-is-new/ef-core-3.0/breaking-changes#guid-values-are-now-stored-as-text-on-sqlite
 https://stackoverflow.com/questions/52684458/updating-entity-in-ef-core-application-with-sqlite-gives-dbupdateconcurrencyexce
 
 ....
