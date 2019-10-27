@@ -1,0 +1,64 @@
+﻿
++++++++++++++Outline+++++++++++++
+
+1. Axios interceptors
+- request, with token
+- authenticate to server
+2. Root Mobx Stores
+- Parent for other Stores
+3. Submission errors
+- Coming back from Api
+4. Modals
+- Pop up window form
+- But cannot access toast error message
+
+
++++++++++++++Configuration+++++++++++++
+- Create corresponding interface coming from Api (From User.cs in Application project)
+1.Create interface for the User with Token
+- client-app/src/app/models/user.ts
+export interface IUser {
+  username: string;
+  displayName: string;
+  description: string;
+  token: string;
+  image?: string;
+}
+
+2.Create interface for the User for the Register method (Register.cs in Application project)
+export interface IUserFormValues {
+  email: string;
+  password: string;
+  displayName?: string;
+  username?: string;
+}
+
+3. Create Api methods (agent.ts)
+...
+const User = {
+  current: (): Promise<IUser> => requests.get("/user"),
+  login: (user: IUserFormValues): Promise<IUser> =>
+    requests.post("/login/", user),
+  register: (user: IUserFormValues): Promise<IUser> =>
+    requests.post("/register/", user)
+};
+
+export default { ..., User };
+
+4. Create userStore.ts
+export default class UserStore {
+  @observable user: IUser | null = null;
+
+  @computed get isLoggedIn() {
+    return !!this.user;
+  }
+
+  @action login = async (values: IUserFormValues) => {
+    try {
+      const user = await agent.User.login(values);
+      this.user = user;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+}
