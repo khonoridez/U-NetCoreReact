@@ -1,7 +1,30 @@
 ﻿
 
-++++++++++Main Article Linkk++++++++++
+++++++++++Main Article Link++++++++++
 https://docs.microsoft.com/en-us/aspnet/core/migration/22-to-30?view=aspnetcore-3.0&tabs=visual-studio
+
+++++++++++HostBuilder replaces WebHostBuilder++++++++++
+
+The ASP.NET Core 3.0 templates use Generic Host. Previous versions used Web Host. 
+The following code shows the ASP.NET Core 3.0 template generated Program class:
+
+public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
+
+The most significant change from WebHostBuilder to HostBuilder is in dependency injection (DI). When using HostBuilder, you can only inject the following into Startup's constructor:
+
+    IConfiguration
+    Microsoft.Extensions.Hosting.IHostEnvironment
+    IWebHostEnvironment
+
+The HostBuilder DI constraints:
+
+    Enable the DI container to be built only one time.
+    Avoids the resulting object lifetime issues like resolving multiple instances of singletons.
 
 
 ++++++++++Authorization Policy++++++++++
@@ -33,3 +56,22 @@ app.UseEndpoints(endpoints =>
 
 - The DefaultPolicy is triggered by [Authorize] or RequireAuthorization, while the FallbackPolicy is triggered when 
 no other policy is set. FallbackPolicy is initially configured to allow requests without authorization.
+
+++++++++++++++Password Settings++++++++++++++
+
+https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-configuration?view=aspnetcore-3.0
+
+By default, Identity requires that passwords contain an uppercase character, lowercase character, a digit, and a non-alphanumeric 
+character. Passwords must be at least six characters long. PasswordOptions can be set in Startup.ConfigureServices.
+
+services.Configure<IdentityOptions>(options =>
+{
+    // Default Password settings.
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+});
+
