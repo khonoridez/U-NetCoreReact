@@ -278,3 +278,10 @@ The copy/paste answer is git rm --cached -r .; git add .; git status
 This command will ignore the files that have already been committed to a Git repository but now we have added them to .gitignore.
 
 https://stackoverflow.com/questions/1274057/how-to-make-git-forget-about-a-file-that-was-tracked-but-is-now-in-gitignore/1274447#1274447
+
+
+++++++++++++++Error renaming file from UpperCase to camelCase++++++++++++++
+https://github.com/Microsoft/TypeScript/issues/25460
+
+Resolution: Workaround: deleted file, commit, recreated file
+
