@@ -20,4 +20,94 @@ const LoginForm = () => {
 
 +++++++++++++Attach to Api Login Method+++++++++++++
 
-4. 
+4. Replace console.log() with login method from rootStore.userStore
+const LoginForm = () => {
+  const rootStore = useContext(RootStoreContext);
+  const { login } = rootStore.userStore;
+
+  return (
+    <FinalForm
+      onSubmit={(values: IUserFormValues) => login(values)}
+	  ....
+
++++++++++++++Handle errors on login+++++++++++++
+
+1. Add props to render
+- submitting - for the loader
+- form - for accessing form properties
+render={({ handleSubmit, submitting, form }) => (
+
+2. Attach submitting to Button
+<Button loading={submitting} positive content="Login" />
+
+3. Checking the form state, hasSubmitErrors is not reflecting on save
+"hasSubmitErrors": false,
+
+4. Throw error from userStore then catch it in the login() catch
+- axios error will be caught by a [FORM_ERROR] Final Form property
+ onSubmit={(values: IUserFormValues) =>
+        login(values).catch(error => ({
+          [FORM_ERROR]: error
+        }))
+      }
+
+5. Modify Axios interceptor to throw error.response to get an error object
+axios.interceptors.response.use(undefined, error => {
+...
+throw error.response;
+
+6. Handle in LoginForm
+- Add submitError prop
+render={({ ...submitError }) => (
+ <Form onSubmit={handleSubmit}>
+    ...
+    {submitError && (
+    <Label color="red" basic content={submitError.statusText} />
+    )}
+    ...
+</Form>
+
++++++++++++++Disable Login Button+++++++++++++
+1. Create combineValidators function
+const validate = combineValidators({
+  email: isRequired("email"),
+  password: isRequired("password")
+});
+
+2. Attach to Form
+<FinalForm
+    ...
+    validate={validate}
+	...
+
+3. Add invalid, dirtySinceLastSubmit and pristine prop to render
+render={({
+    ...
+    invalid,
+    pristine,
+	dirtySinceLastSubmit
+    }) => (
+
+4. Attach to button and label
+{submitError && !dirtySinceLastSubmit && (
+            <Label color="red" basic content={submitError.statusText} />
+          )}
+...
+<Button
+    disabled={invalid && (!dirtySinceLastSubmit || pristine)}
+    ...
+    />
+
++++++++++++++Redirect if Successful+++++++++++++
+1. Push in userStore
+
+@action login = async (values: IUserFormValues) => {
+    try {
+      const user = await agent.User.login(values);
+      runInAction(() => {
+        this.user = user;
+      });
+      console.log(user);
+      history.push("/activities");
+	  ...
+

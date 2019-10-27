@@ -559,3 +559,16 @@ https://date-fns.org/docs/format
 <FinalForm
       render={({ handleSubmit }) => (
 https://final-form.org/docs/react-final-form/api/Form#3-do-something-with-handlesubmit
+
++++++++++++Final Form getting Form State+++++++++++
+- Destructure form in render
+- Use JSON.stringify to format
+<FinalForm
+      ...
+      render={({ handleSubmit, submitting, form }) => (
+        <Form onSubmit={handleSubmit}>
+          ...
+          <pre>{JSON.stringify(form.getState(), null, 2)}</pre>
+        </Form>
+      )}
+    />
