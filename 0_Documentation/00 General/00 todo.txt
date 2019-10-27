@@ -9,6 +9,8 @@
 
 4. Returning error codes (extension method?)
 - UserController/CurrentUser returns 500 for no/invalid token
+	Resolution: this is because [AllowAnonymous] is set for the whole Controller, 
+	Adjusted [AllowAnonymous] attribute, this will now prodice 401 unauthorized error
 
 5. Compare Api Architecture (No MediatR)
 5.1 Complete Core Angular

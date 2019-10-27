@@ -2,12 +2,18 @@
 +++++++++++++Outline+++++++++++++
 1. AspNet Core Identity
 - Login, generate a token
+- Setup, Configiration
+- Authentication
 
 2. JWT Token authentication
-- return to the user from Identity
+- send to the user from Identity
 
 3. Adding an Infrastructure Project
 - JWT Token Generator
+
+4. Getting username from the token when request comes in to the Api
+- used a lot to get current user as user navigates in the application
+
 
 +++++++++++++AspNet Core Identity+++++++++++++
 1. Membership System
@@ -240,5 +246,95 @@ public async Task<ActionResult<User>> Login(Login.Query query)
     "image": null
 }
 
++++++++++++++Get Current UserName from Token+++++++++++++
 
+1. In Application Project create new interface IUserAccessor.cs
+public interface IUserAccessor
+{
+    string GetCurrentUserName();
+}
+
+2. In Infrastructure Project create concrete class UserAccessor.cs
+
+public class UserAccessor : IUserAccessor
+{
+    public string GetCurrentUserName()
+	...
+
+- Get Username from token
+
+3. Inject IHttpContextAccessor
+private readonly IHttpContextAccessor _httpContextAccessor;
+
+public UserAccessor(IHttpContextAccessor httpContextAccessor)
+{
+    _httpContextAccessor = httpContextAccessor;
+}
+
+4. Get the username from claims inside httpcontext
+public string GetCurrentUserName()
+{
+    var username = _httpContextAccessor.HttpContext.User?.Claims?
+        .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+    return username;
+}
+
+5. Inject userAccessor as a service in Startup.cs
+...
+services.AddScoped<IUserAccessor, UserAccessor>();
+
+6. In Application Project, create file User/CurrentUser.cs
+- type qhandler in VS Code for query snippet
+
+7. Change return type to User
+public class Query : IRequest<User>
+...
+
+8. Inject UserManager, IJwtGenerator and IUserAccessor to populate User
+private readonly UserManager<AppUser> _userManager;
+private readonly IJwtGenerator _jwtGenerator;
+private readonly IUserAccessor _userAccessor;
+
+public Handler(UserManager<AppUser> userManager, IJwtGenerator jwtGenerator,
+    IUserAccessor userAccessor)
+{
+    _userManager = userManager;
+    _jwtGenerator = jwtGenerator;
+    _userAccessor = userAccessor;
+}
+
+9. Implement Handle method by getting user by user name and return
+public async Task<User> Handle(Query request, CancellationToken cancellationToken)
+{
+    var user = await _userManager.FindByNameAsync(_userAccessor.GetCurrentUserName());
+
+    return new User
+    {
+        DisplayName = user.DisplayName,
+        Token = _jwtGenerator.CreateToken(user),
+        Username = user.UserName,
+        Image = null
+    };
+}
+
+10. Implement in user controller
+[HttpGet]
+public async Task<ActionResult<User>> CurrentUser()
+{
+    return await Mediator.Send(new CurrentUser.Query());
+}
+
+11. Test in Postman
+- Module 12/Get Current User
+- In Headers tab: Paste token in Bearer
+!! Error 500 if no/incorrect token specified
+- Adjusted [AllowAnonymous] attribute from Controller level to method level
+[AllowAnonymous]
+[HttpPost("login")]
+public async Task<ActionResult<User>> Login(Login.Query query) ...
+
+[AllowAnonymous]
+[HttpPost("register")]
+public async Task<ActionResult<User>> Register(Register.Command command) ...
 
