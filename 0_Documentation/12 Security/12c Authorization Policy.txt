@@ -1,2 +1,25 @@
 ﻿
 ++++++++++Authorization Policy++++++++++
+https://docs.microsoft.com/en-us/aspnet/core/migration/22-to-30?view=aspnetcore-3.0&tabs=visual-studio
+
+- Sample in tuts uses Core 2.2
+!!If the app uses an AuthorizeFilter as a global filter in MVC, we recommend refactoring the code to 
+provide a policy in the call to AddAuthorization.
+
+Use:
+services.AddAuthorization(opt =>
+{
+    opt.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
+1. Configure FallbackPolicy to apply AuthorizationPolicy for ALL endpoints
+- See note on FallbackPolicy vs DefaultPolicy
+
+2. Override Plociy by setting AllowAnonymous on UserController
+[AllowAnonymous]
+public class UserController : BaseController
+...
+
+
