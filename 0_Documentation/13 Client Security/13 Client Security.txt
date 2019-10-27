@@ -62,3 +62,77 @@ export default class UserStore {
     }
   };
 }
+
++++++++++++++Create Root Store and we pass this to the components+++++++++++++
+- Currently we have createContext that passes a new ActivityStore
+export default createContext(new ActivityStore());
+
+1. Create rootStore.ts
+- Modify ActivityStore and move createContext to the RootStore
+- Create variables (activityStore, userStore)
+
+2. Create constructor to initialize both stores, by passing this rootstore in each store's constructor
+constructor() {
+    this.activityStore = new ActivityStore(this);
+    this.userStore = new UserStore(this);
+  }
+
+3. Export new RootStoreContext via createContext
+export const RootStoreContext = createContext(new RootStore());
+
+4. Add RootStore in both stores' constructors
+export default class UserStore {
+  rootStore: RootStore;
+
+  constructor(rootStore: RootStore) {
+    this.rootStore = rootStore;
+  }
+  ...
+
+5. Usage:
+- If we need specific stores, we can access stores inside the rootStore
+this.rootStore.activityStore.loadActivities....
+
+6. Fix errors for activityStore changes, use RootStoreContext
+const rootStore = useContext(RootStoreContext);
+
+7. Destructure to get activityStore props
+
+ActivityForm.tsx
+From: 
+const activityStore = useContext(ActivityStore);
+const {
+	createActivity,
+	editActivity,
+	submitting,
+	loadActivity
+} = activityStore;
+To:
+const rootStore = useContext(RootStoreContext);
+const {
+	createActivity,
+	editActivity,
+	submitting,
+	loadActivity
+} = rootStore.activityStore;
+
+ActivityDashboard.tsx
+From:
+const activityStore = useContext(ActivityStore);
+
+useEffect(() => {
+activityStore.loadActivities();
+}, [activityStore]);
+
+if (activityStore.loadingInitial)
+To: 
+const rootStore = useContext(RootStoreContext);
+const { loadActivities, loadingInitial } = rootStore.activityStore;
+
+useEffect(() => {
+loadActivities();
+}, [loadActivities]);
+
+if (loadingInitial)
+
+
