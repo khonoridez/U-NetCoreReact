@@ -1,0 +1,74 @@
+﻿
++++++++++++++Login Styles+++++++++++++
+- HomePage.tsx
+1. Get properties from userStore
+const HomePage = () => {
+  const rootStore = useContext(RootStoreContext);
+  const { isLoggedIn, user } = rootStore.userStore;
+...
+
+2. Place in conditional to whether display Welcome or Login
+{isLoggedIn && user ? (...Welcome) : (...Login)
+
+{isLoggedIn && user ? (
+        <Fragment>
+        <Header
+            as="h2"
+            inverted
+            content={`Welcome back ${user.displayName}`}
+        />
+        <Button as={Link} to="/activities" size="huge" inverted>
+            Go to activities
+        </Button>
+        </Fragment>
+    ) : (
+        <Fragment>
+        <Header as="h2" inverted content="Welcome to Reactivities" />
+        <Button as={Link} to="/login" size="huge" inverted>
+            Login
+        </Button>
+        </Fragment>
+    )}
+
+3. Prepare Register button
+<Button as={Link} to="/login" size="huge" inverted>
+    Login
+</Button>
+<Button as={Link} to="/register" size="huge" inverted>
+    Register
+</Button>
+
++++++++++++++HomePage NavBar+++++++++++++
+- NavBar.tsx
+1. Get properties from userStore
+const NavBar: React.FC = () => {
+  const rootStore = useContext(RootStoreContext);
+  const { user } = rootStore.userStore;
+
+2. Create Menu Item inside conditional statement
+- type snippet s_13.6.1
+
+3. Adjust menu item properties
+
+{user && (
+    <Menu.Item position="right">
+    <Image
+        avatar
+        spaced="right"
+        src={user.image || "/assets/user.png"}
+    />
+    <Dropdown pointing="top left" text={user.displayName}>
+        <Dropdown.Menu>
+        <Dropdown.Item
+            as={Link}
+            to={`/profile/username`}
+            text="My profile"
+            icon="user"
+        />
+        <Dropdown.Item text="Logout" icon="power" />
+        </Dropdown.Menu>
+    </Dropdown>
+    </Menu.Item>
+)}
+
+!! Refreshing the page resets the store and loses the user
