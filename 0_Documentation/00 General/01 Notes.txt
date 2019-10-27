@@ -379,4 +379,6 @@ Front end
 1. Create interfaces/classes for Api objects
 - Sample was created Chapter 5
 
-
+CQRS
+1. On User/Register.cs
+- Refactor register and logging in user
