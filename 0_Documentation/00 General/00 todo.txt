@@ -1,0 +1,32 @@
+﻿++++++++++++TODO++++++++++++++
+
+++++++++++++Apply API Best Practices++++++++++++
+1. Async
+2. Naming methods
+3. Attributes, Validations
+- Applied Fluent Validation
+- Applied ValidatorExtensions for Password
+
+4. Returning error codes (extension method?)
+- UserController/CurrentUser returns 500 for no/invalid token
+
+5. Compare Api Architecture (No MediatR)
+5.1 Complete Core Angular
+- Angular tuts has non decoupled architecture
+5.2 Mosh Full Stack
+
+++++++++++++.Wait(); usages++++++++++++
+ex. Seed.SeedData(context, userManager).Wait();
+
+++++++++++++Front end++++++++++++
+1. Create interfaces/classes for Api objects
+- Sample was created Chapter 5
+
+++++++++++++CQRS++++++++++++
+1. On User/Register.cs
+- Refactor register and logging in user
+
+++++++++++++SECURITY++++++++++++
+
+1. add as User Secret
+- CORS magic string "CorsPolicy"
