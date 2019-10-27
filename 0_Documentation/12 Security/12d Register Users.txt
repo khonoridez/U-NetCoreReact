@@ -1,5 +1,5 @@
 ﻿
-++++++++++Register Users++++++++++
+++++++++++Register Command++++++++++
 
 1. Under Application Project, Create Command Register
 /User/Register.cs
@@ -69,3 +69,19 @@ public async Task<User> Handle(Command request, CancellationToken cancellationTo
 
 9. Specify second type parameter of Handler
 public class Handler : IRequestHandler<Command, User> ....
+
+
+++++++++++Register Controller++++++++++
+
+1. Create Register Controller
+[HttpPost("register")]
+public async Task<ActionResult<User>> Register(Register.Command command)
+{
+    return await Mediator.Send(command);
+}
+
+2. Test in Postman
+- Test various scenarios
+- For weak password: net identity requries strong password
+https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-configuration?view=aspnetcore-3.0
+
