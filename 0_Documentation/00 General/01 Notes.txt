@@ -96,9 +96,17 @@ Create Generic Notes Repository
 Apply API Best Practices
 1. Async
 2. Naming methods
-3. Attributes
+3. Attributes, Validations
+- Applied Fluent Validation
+- Applied ValidatorExtensions for Password
+
 4. Returning error codes (extension method?)
-5. Compare Api Architecture (No MediatR) in the Angular version
+- UserController/CurrentUser returns 500 for no/invalid token
+
+5. Compare Api Architecture (No MediatR)
+5.1 Complete Core Angular
+- Angular tuts has non decoupled architecture
+5.2 Mosh Full Stack
 
 ! .Wait(); usages
 ex. Seed.SeedData(context, userManager).Wait();
