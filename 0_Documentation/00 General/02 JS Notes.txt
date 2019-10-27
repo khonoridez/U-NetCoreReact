@@ -261,3 +261,6 @@ export class ActivityFormValues implements IActivityFormValues {
   }
 }
 
+24. Promise.reject()
+- The Promise.reject() method returns a Promise object that is rejected with a given reason.
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/reject

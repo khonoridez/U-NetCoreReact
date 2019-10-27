@@ -38,6 +38,7 @@ this.appLoaded = true;
 4. In userStore login method, setToken
 - Call setToken and pass the generated token
 
++++++++++++++Logout+++++++++++++
 
 5. In userStore we could also implement the logout method by setting the token to null
 - Set parameter for setToken to string or null, set token with non-null operator (token!)
@@ -65,5 +66,35 @@ const { ..logout } = rootStore.userStore;
 
 8. Redirect to root after logout
 history.push("/");
+
+
++++++++++++++Place token in Authorization Header+++++++++++++
+
+1. Set interceptor in /src/app/api/agent.ts
+- get the token that was saved in the localStorage
+- if there is a token set the Request Header "Authorization key" with value = "bearer" + "token value"
+- Like in Postman, this will simulate that the user is authenticated
+
+axios.interceptors.request.use(
+  config => {
+    const token = window.localStorage.getItem("jwt");
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
+2. Logging in should now show Activities
+- Verify in developer tools
+- Under network tab  > Headers, verify that the request for activities:
+a. Authorization with value bearer + token value
+b. Sec-Fetch-Mode cors
+
+!!! However refreshing the page still logouts the current user
+- jwt token still exist
+- verify jwt token in developer tools > Application tab > Storage > Local Storage
+
 
 
