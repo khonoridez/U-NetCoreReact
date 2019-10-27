@@ -554,3 +554,8 @@ Now React knows that the element with key '2014' is the new one, and the element
 
 https://date-fns.org/docs/format
 
++++++++++++Final Form handleSubmit+++++++++++
+
+<FinalForm
+      render={({ handleSubmit }) => (
+https://final-form.org/docs/react-final-form/api/Form#3-do-something-with-handlesubmit

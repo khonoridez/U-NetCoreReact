@@ -1,0 +1,23 @@
+﻿
++++++++++++++Create Root Store and we pass this to the components+++++++++++++
+
+1. Create new /src/features/user/LoginForm.tsx
+const LoginForm = () => {
+  return (
+    <FinalForm
+      onSubmit={({ values }) => console.log(values)}
+      render={({ handleSubmit }) => (
+		<Form onSubmit={handleSubmit}>
+		...
+
+2. Create Route in App.tsx
+<Route path="/login" component={LoginForm} />
+
+3. Create link in Homepage
+<Button as={Link} to="/login" size="huge" inverted>
+   Login
+</Button>
+
++++++++++++++Attach to Api Login Method+++++++++++++
+
+4. 
