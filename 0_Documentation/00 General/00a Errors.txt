@@ -1,0 +1,271 @@
+﻿++++++++++++ERRORS++++++++++++++
+
+Error in packages with 3.0.0 and project template defaulting to netstandard2.0
+For projects Persistence, Application
+
+Solution: Manually change Projects to target netstandard2.1
+
+<PropertyGroup>
+	<TargetFramework>netstandard2.1</TargetFramework>
+</PropertyGroup>
+
+...
+
+Error running 
+> dotnet ef migrations add InitalCreate -p Persistence/ -s API/
+
+Could not execute because the specified command or file was not found.
+Possible reasons for this include:
+  * You misspelled a built-in dotnet command.
+  * You intended to execute a .NET Core program, but dotnet-ef does not exist.
+
+Solution: https://stackoverflow.com/questions/56862089/cannot-find-command-dotnet-ef
+dotnet tool install --global dotnet-ef
+
+...
+
+Error
+Your startup project 'API' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework 
+Core Tools to work. Ensure your startup project is correct, install the package, and try again.
+
+...
+
+Error Node not running
+https://medium.com/appseed-io/how-to-run-multiple-versions-of-node-js-with-nvm-for-windows-ffbe5c7a2b47
+
+- Powershell
+- Check list of node versions
+> nvm list
+12.12.0
+
+> nvm use 12.12.0
+
+- Check if node is running
+> node -v
+v12.12.0
+
+...
+
+Issues with Sqlite generating Guid as blob
+https://www.connectionstrings.com/sqlite-net-provider/store-guid-as-text/
+https://stackoverflow.com/questions/18821265/proper-way-to-store-guid-in-sqlite
+
+suggested to add value in ConnectionString
+Data Source=c:\mydb.db;Version=3;BinaryGUID=False;
+
+as of Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0" Guid is being migrated to sqlite as string
+
+https://stackoverflow.com/questions/52684458/updating-entity-in-ef-core-application-with-sqlite-gives-dbupdateconcurrencyexce
+
+....
+
+Property 'activity' has no initializer and is not definitely assigned in the constructor.ts(2564)
+https://stackoverflow.com/questions/49699067/property-has-no-initializer-and-is-not-definitely-assigned-in-the-construc
+- Set to null upon declaration
+@observable activity: IActivity | null = null;
+
+++++++++++++DEBUGGING IN VS CODE++++++++++++++
+1. Verify in .vscode/launch.json
+{
+    "name": ".NET Core Attach",
+    "type": "coreclr",
+    "request": "attach",
+    "processId": "${command:pickProcess}"
+}
+
+2. In Debug Tab, select .Net Core Attach in dropdown
+- .Net Core Launch will start a new instance
+
+3. Debug. Search for Api.dll, api.exe
+
+4. Note on [ApiController] attribute
+- This throws its own errors hence breakpoitn might not trigger
+- comment out [ApiController] for verification
+
+5. Verify values under Variables/Locals/
+
+
+!!!!Error
+- On submitting ActivityForm
+react-dom.development.js:12466 Warning: componentWillMount has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details.
+
+* Move code with side effects to componentDidMount, and set initial state in the constructor.
+* Rename componentWillMount to UNSAFE_componentWillMount to suppress this warning in non-strict mode. In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+
+Please update the following components: Uncontrolled(DateTimePicker)
+
+react-dom.development.js:12466 Warning: componentWillReceiveProps has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details.
+
+* Move data fetching code or side effects to componentDidUpdate.
+* If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://fb.me/react-derived-state
+* Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+
+Please update the following components: Uncontrolled(DateTimePicker)
+
+!!Error
+Unhandled Rejection (Error): [mobx] Since strict-mode is enabled, changing observed observable values outside actions is not allowed. 
+Please wrap the code in an `action` if this change is intended. 
+Tried to modify: ActivityStore@4.activityRegistry.4102d545-2a97-411f-809b-9fae31e006da.time0
+
+/client-app/src/app/models/activity.ts:27
+  24 | 
+  25 |  constructor(init?: IActivityFormValues) {
+  26 |    if (init && init.date) {
+> 27 |      init.time = init.date;
+     | ^  28 |    }
+  29 |    Object.assign(this, init);
+  30 |  }
+View compiled
+(anonymous function)
+/client-app/src/features/activities/form/ActivityForm.tsx:59
+  56 | useEffect(() => {
+  57 |   if (match.params.id) {
+  58 |     setLoading(true);
+> 59 |     loadActivity(match.params.id)
+     | ^  60 |       .then(activity => setActivity(new ActivityFormValues(activity)))
+  61 |       .finally(() => setLoading(false));
+  62 |   }
+
+
+++++++++++++++ERROR IN ENTITIY FRAMEWORK AND ASPNET IDENTITY++++++++++++++
+
+https://github.com/OData/WebApi/issues/1748
+https://stackoverflow.com/questions/44483589/unable-to-resolve-service-for-type-microsoft-aspnetcore-identity-usermanager-w#48074649
+
+  Unhandled exception. System.AggregateException: Some services are not able to be constructed 
+(Error while validating the service descriptor 'ServiceType: Microsoft.AspNetCore.Identity.ISecurityStampValidator Lifetime: Scoped ImplementationType: Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]': Unable to resolve service for type 'Microsoft.AspNetCore.Authentication.ISystemClock' while attempting to activate 'Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]'.) 
+(Error while validating the service descriptor 'ServiceType: Microsoft.AspNetCore.Identity.ITwoFactorSecurityStampValidator Lifetime: Scoped ImplementationType: Microsoft.AspNetCore.Identity.TwoFactorSecurityStampValidator`1[Domain.AppUser]': Unable to resolve service for type 'Microsoft.AspNetCore.Authentication.ISystemClock' while attempting to activate 'Microsoft.AspNetCore.Identity.TwoFactorSecurityStampValidator`1[Domain.AppUser]'.)
+ ---> System.InvalidOperationException: Error while validating the service descriptor 'ServiceType: Microsoft.AspNetCore.Identity.ISecurityStampValidator Lifetime: Scoped ImplementationType: Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]': Unable to resolve service for type 'Microsoft.AspNetCore.Authentication.ISystemClock' while attempting to activate 'Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]'.
+ ---> System.InvalidOperationException: Unable to resolve service for type 'Microsoft.AspNetCore.Authentication.ISystemClock' while attempting to activate 'Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]'.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(Type serviceType, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, Type serviceType, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceDescriptor descriptor, Type serviceType, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngine.ValidateService(ServiceDescriptor descriptor)
+   --- End of inner exception stack trace ---
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngine.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(IEnumerable`1 serviceDescriptors, ServiceProviderOptions options)
+   --- End of inner exception stack trace ---
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(IEnumerable`1 serviceDescriptors, ServiceProviderOptions options)
+   at Microsoft.Extensions.DependencyInjection.ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(IServiceCollection services, ServiceProviderOptions options)
+   at Microsoft.Extensions.DependencyInjection.DefaultServiceProviderFactory.CreateServiceProvider(IServiceCollection containerBuilder)
+   at Microsoft.Extensions.Hosting.Internal.ServiceFactoryAdapter`1.CreateServiceProvider(Object containerBuilder)
+   at Microsoft.Extensions.Hosting.HostBuilder.CreateServiceProvider()
+   at Microsoft.Extensions.Hosting.HostBuilder.Build()
+   at API.Program.Main(String[] args) in C:\Users\User\source\repos\U-NetCoreReact\api\Program.cs:line 17
+ ---> (Inner Exception #1) System.InvalidOperationException: Error while validating the service descriptor 'ServiceType: Microsoft.AspNetCore.Identit   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceDescriptor descriptor, Type serviceType, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngine.ValidateService(ServiceDescriptor descriptor)
+   --- End of inner exception stack trace ---
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngine.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(IEnumerable`1 serviceDescriptors, ServiceProviderOptions options)<---
+
+watch : Exited with error code -532462766
+
+....
+
+!! Error on dropping db
+https://stackoverflow.com/questions/50652944/unable-to-resolve-service-for-type-microsoft-aspnetcore-identity-rolemanager-for
+https://stackoverflow.com/questions/57991925/aspnet-core3-identity-configuration
+
+An error occurred while accessing the Microsoft.Extensions.Hosting services. Continuing without the application service provider. 
+Error: Some services are not able to be constructed (Error while validating the service descriptor 
+'ServiceType: Microsoft.AspNetCore.Identity.ISecurityStampValidator Lifetime: Scoped ImplementationType: 
+Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]': Unable to resolve service for type 
+'Microsoft.AspNetCore.Authentication.ISystemClock' while attempting to activate 
+'Microsoft.AspNetCore.Identity.SecurityStampValidator`1[Domain.AppUser]'.) 
+
+(Error while validating the service descriptor 'ServiceType: Microsoft.AspNetCore.Identity.ITwoFactorSecurityStampValidator 
+Lifetime: Scoped ImplementationType: Microsoft.AspNetCore.Identity.TwoFactorSecurityStampValidator`1[Domain.AppUser]': 
+Unable to resolve service for type 'Microsoft.AspNetCore.Authentication.ISystemClock' while attempting to activate 
+'Microsoft.AspNetCore.Identity.TwoFactorSecurityStampValidator`1[Domain.AppUser]'.)     
+Unable to create an object of type 'DataContext'. For the different patterns supported at design time, 
+see https://go.microsoft.com/fwlink/?linkid=851728
+
+https://www.blinkingcaret.com/2016/11/30/asp-net-identity-core-from-scratch/
+
+Temporary Resolution:
+comment out code:
+var builder = services.AddIdentityCore<AppUser>();
+var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
+identityBuilder.AddEntityFrameworkStores<DataContext>();
+identityBuilder.AddSignInManager<SignInManager<AppUser>>();
+
+replace with:
+services.AddIdentity<AppUser, IdentityRole>()
+    .AddEntityFrameworkStores<DataContext>()
+    .AddDefaultTokenProviders();
+
+....
+
+!!!!!!!!!!!!RESOLUTION!!!!!!!!!!!!
+In Startup.cs replace HostBuilder to CreateWebHostBuilder
+From:
+public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+To: 
+
+public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>();
+
+
+++++++++++++++ERROR IN SIGN IN MANAGER++++++++++++++
+- Error not recognizing SignInManager
+https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity.signinmanager-1?view=aspnetcore-3.0
+
+...
+    private readonly SignInManager<AppUser> _signInManager;
+
+    public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+	...
+
+Resolution: Convert Project to Net Core 3 from Net Standard 2.1
+
+
+++++++++++++++ERROR IN Installing System.IdentityModel.Tokens.Jwt++++++++++++++
+
+Severity	Code	Description	Project	File	Line	Suppression State
+Warning	MSB3101	Could not write state file "obj\Debug\netstandard2.1\Persistence.csprojAssemblyReference.cache". 
+The process cannot access the file ...\Persistence\obj\Debug\netstandard2.1\Persistence.csprojAssemblyReference.cache' 
+because it is being used by another process.	
+
+Resolution: Restart Visual Studio
+
+++++++++++++++ERROR IN Microsoft.AspNetCore.Authentication.JwtBearer++++++++++++++
+https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.jwtbearer.jwtbearerdefaults?view=aspnetcore-2.2
+
+...not available for ASP.NET Core 3.0. You have been redirected to the newest product version this page is available for.
+ASP.NET Core
+2.2 2.1 2.0 1.1 1.0
+
+Resolution: Downgrade Microsoft.AspNetCore.Authentication.JwtBearer to 2.2
+
+++++++++++++++ERROR Authentication++++++++++++++
+Resolution: In Startup.cs, UseAuthentication should be called before UseAuthorization
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+++++++++++++++ERROR NO USER SECRET++++++++++++++
+- If there is Key installed in Dev workstation this error will show up:
+
+Unhandled exception. System.ArgumentNullException: String reference not set to an instance of a String. (Parameter 's')
+   at System.Text.Encoding.GetBytes(String s)
+
+Resolution: Create Secret Key
+
+1. In the Api.csproj file add User Secrets id
+- ex. copy existing Guid from an Activity id
+<PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UserSecretsId>a09d8666-de6a-45b7-82ae-69e8d8e33cd1</UserSecretsId>
+</PropertyGroup>
+
+2. In VS Code terminal, Solution level
+-p : specify startup project
+dotnet user-secrets set "TokenKey" "super secret key" -p API/
