@@ -96,5 +96,68 @@ b. Sec-Fetch-Mode cors
 - jwt token still exist
 - verify jwt token in developer tools > Application tab > Storage > Local Storage
 
++++++++++++++Implement setAppLoaded, Check token+++++++++++++
+Gist:
+- Application initializiation
+- When app is loaded, check token exist
+- if exist, then we get current logged in user
+- store this user in mobx store
+- we'll use mobx Reactions
+https://mobx.js.org/refguide/reaction.html
+- In commonStore, if token changes, we trigger Reactions
 
+1. In commonStore, add a Reaction in constructor
+reaction(
+    () => this.token,
+    token => {
+    if (token) {
+        window.localStorage.setItem("jwt", token);
+    } else {
+        window.localStorage.removeItem("jwt");
+    }
+    }
+);
+
+Reaction 
+	- accepts expression
+	- specify what we want to react on (this.token)
+	- next is the effect, what we want to do if the token is changed
+
+ex. If @action setToken gets called, whenever we set the token the reaction triggers
+- We can remove window.localStorage.setItem("jwt", token!); from @action setToken
+
+2. Set  @observable initial value to the 'jwt' token
+@observable token: string | null = window.localStorage.getItem("jwt");
+
+3. Initialize App in App.tsx
+- Get rootStore to get commonStore observables
+const rootStore = useContext(RootStoreContext);
+const { setAppLoaded, token } = rootStore.commonStore;
+
+4. Create getUser in userStore.ts
+@action getUser = async () => {
+    try {
+      const user = await agent.User.current();
+      runInAction(() => {
+        this.user = user;
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+5. Destructure getUser in App.tsx
+const { getUser } = rootStore.userStore;
+
+6. useEffect to see if we have a token
+- if token exist get user from Api
+- if we dont set App as loaded, redirect as usual
+
+  useEffect(() => {
+    if (token) {
+      getUser().finally(() => setAppLoaded());
+    } else {
+      setAppLoaded();
+    }
+  }, [token, getUser, setAppLoaded]);
 
