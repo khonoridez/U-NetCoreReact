@@ -1,0 +1,69 @@
+﻿
++++++++++++++Common Store+++++++++++++
+1. Create new Store
+/src/app/stores/commonStore.ts
+- Inject rootStore
+export default class CommonStore {
+  rootStore: RootStore;
+
+  constructor(rootStore: RootStore) {
+    this.rootStore = rootStore;
+  }
+
+2. Inject rootStore to commonStore
+export class RootStore {
+  ...
+  commonStore: CommonStore;
+
+  constructor() {
+    ...
+    this.commonStore = new CommonStore(this);
+  }
+  ...
+
+3. Implement observables for token and appLoaded, set function getters/setters
+...
+@observable token: string | null = null;
+@observable appLoaded = false;
+
+@action setToken = (token: string) => {
+window.localStorage.setItem("jwt", token);
+this.token = token;
+};
+
+@action setAppLoaded = () => {
+this.appLoaded = true;
+};
+
+4. In userStore login method, setToken
+- Call setToken and pass the generated token
+
+
+5. In userStore we could also implement the logout method by setting the token to null
+- Set parameter for setToken to string or null, set token with non-null operator (token!)
+  @action setToken = (token: string | null) => {
+    window.localStorage.setItem("jwt", token!);
+    this.token = token;
+  };
+
+@action logout = async () => {
+    this.rootStore.commonStore.setToken(null);
+    this.user = null;
+  };
+
+6. Implement logout in Navbar.tsx
+- Destructure the logout action from the rootStore
+const { ..logout } = rootStore.userStore;
+
+- Implement on onClick
+<Dropdown.Item onClick={logout} text="Logout" icon="power" />
+
+7. Test Login, Verify on developer tools
+- Applicaiton tab > Storage > Local Storage
+- a "jwt" Key with value should be visible
+- Test logout, the "jwt" key should now be set to null
+
+8. Redirect to root after logout
+history.push("/");
+
+

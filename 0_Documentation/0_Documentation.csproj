@@ -5,12 +5,4 @@
     <RootNamespace>_0_Documentation</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="13 Client Security\13b Aesthetics.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="13 Client Security\13b Aesthetics.txt" />
-  </ItemGroup>
-
 </Project>
