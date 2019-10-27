@@ -269,3 +269,12 @@ Resolution: Create Secret Key
 2. In VS Code terminal, Solution level
 -p : specify startup project
 dotnet user-secrets set "TokenKey" "super secret key" -p API/
+
+
+++++++++++++++UPDATE REPO TO REFLECT .gitignore++++++++++++++
+
+The copy/paste answer is git rm --cached -r .; git add .; git status
+
+This command will ignore the files that have already been committed to a Git repository but now we have added them to .gitignore.
+
+https://stackoverflow.com/questions/1274057/how-to-make-git-forget-about-a-file-that-was-tracked-but-is-now-in-gitignore/1274447#1274447
