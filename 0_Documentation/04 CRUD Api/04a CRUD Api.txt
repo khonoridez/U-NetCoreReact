@@ -39,7 +39,7 @@ public static void SeedData(DataContext context)
     {
         var activities = new List<Activity> { _
 		...
-- Under code base, drop reactivities.code-snippets file to the .vscode folder in VsCode
+- Under code base, copy reactivities.code-snippets file to the /solution root/.vscode folder in VsCode
 - inside VsCode type prefix S_3.3 and the file will automatically populate with Activity data
 
 7. Add to context

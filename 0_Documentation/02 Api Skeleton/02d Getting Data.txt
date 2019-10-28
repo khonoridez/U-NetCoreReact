@@ -40,4 +40,4 @@ public async Task<ActionResult<Value>> Get(int id)
 }
 
 5. Postman settings
-- Drop Reactivities.postman_collection.json on Postman (Import)
+- Copy Reactivities.postman_collection.json on Postman (File/Import)
