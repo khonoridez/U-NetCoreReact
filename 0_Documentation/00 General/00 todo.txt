@@ -55,3 +55,14 @@ In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecyc
 `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
 
 Please update the following components: Uncontrolled(DateTimePicker)
+
+++++++++++++++Register Form validation UserName, Email already exist not triggering both++++++++++++++
+In Register Command:
+public async Task<User> Handle(Command request, CancellationToken cancellationToken)
+{
+    if (await _context.Users.Where(x => x.Email == request.Email).AnyAsync())
+        throw new RestException(HttpStatusCode.BadRequest, new { Email = "Email already exist" });
+
+    if (await _context.Users.Where(x => x.UserName == request.UserName).AnyAsync())
+        throw new RestException(HttpStatusCode.BadRequest, new { UserName = "Username already exist" });
+	...

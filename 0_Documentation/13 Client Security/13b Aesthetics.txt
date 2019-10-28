@@ -298,3 +298,30 @@ Password: ["Password must contain 1 uppercase letter", "Password must contain a 
 ex. output
 Bad Request
 {"Email":["'Email' must not be empty."],"Password":["'Password' must not be empty."],"UserName":["'User Name' must not be empty."],"DisplayName":["'Display Name' must not be empty."]}
+
++++++++++++++Format Validation Errors+++++++++++++
+- Flatten error list to a single array
+
+1. Modify ErrorMessage.tsx
+- we used .flat() to get all sub-array elements and then .map to render it as Message List
+
+<Message error>
+    <Message.Header>{error.statusText}</Message.Header>
+    {error.data && Object.keys(error.data.errors).length > 0 && (
+    <Message.List>
+        {Object.values(error.data.errors)
+        .flat()
+        .map((err, i) => (
+            <Message.Item key={i}>{err}</Message.Item>
+        ))}
+    </Message.List>
+    )}
+    {text && <Message.Content content={text} />}
+</Message>
+
+- this should  now show up as a bulledlist
+Bad Request
+- 'Email' must not be empty.
+- 'Password' must not be empty.
+- 'User Name' must not be empty.
+- 'Display Name' must not be empty.

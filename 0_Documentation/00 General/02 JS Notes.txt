@@ -264,3 +264,25 @@ export class ActivityFormValues implements IActivityFormValues {
 24. Promise.reject()
 - The Promise.reject() method returns a Promise object that is rejected with a given reason.
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/reject
+
+25. Object.values.flat and .map
+- Used in Validation errors to render as bulleted list
+- The flat() method creates a new array with all sub-array elements concatenated into it recursively up to the specified depth.
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+- The map() method creates a new array with the results of calling a function for every array element.
+https://www.w3schools.com/jsref/jsref_map.asp
+<Message error>
+    <Message.Header>{error.statusText}</Message.Header>
+    {error.data && Object.keys(error.data.errors).length > 0 && (
+    <Message.List>
+        {Object.values(error.data.errors)
+        .flat()
+        .map((err, i) => (
+            <Message.Item key={i}>{err}</Message.Item>
+        ))}
+    </Message.List>
+    )}
+    {text && <Message.Content content={text} />}
+</Message>
+
+

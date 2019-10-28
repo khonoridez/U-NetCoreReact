@@ -9,9 +9,9 @@ import { combineValidators, isRequired } from "revalidate";
 import ErrorMessage from "../../app/common/form/ErrorMessage";
 
 const validate = combineValidators({
-  email: isRequired("Email"),
   username: isRequired("User Name"),
   displayName: isRequired("Display Name"),
+  email: isRequired("Email"),
   password: isRequired("Password")
 });
 
@@ -26,7 +26,7 @@ const RegisterForm = () => {
           [FORM_ERROR]: error
         }))
       }
-      //validate={validate}
+      validate={validate}
       render={({
         handleSubmit,
         submitting,
@@ -42,7 +42,6 @@ const RegisterForm = () => {
             color="teal"
             textAlign="center"
           />
-          <Field name="email" component={TextInput} placeholder="Email" />
           <Field
             name="username"
             component={TextInput}
@@ -53,6 +52,7 @@ const RegisterForm = () => {
             component={TextInput}
             placeholder="Display Name"
           />
+          <Field name="email" component={TextInput} placeholder="Email" />
           <Field
             name="password"
             component={TextInput}
@@ -60,10 +60,7 @@ const RegisterForm = () => {
             type="password"
           />
           {submitError && !dirtySinceLastSubmit && (
-            <ErrorMessage
-              error={submitError}
-              text={JSON.stringify(submitError.data.errors)}
-            />
+            <ErrorMessage error={submitError} />
           )}
           <Button
             disabled={invalid && (!dirtySinceLastSubmit || pristine)}
