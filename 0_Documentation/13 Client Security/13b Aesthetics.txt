@@ -222,3 +222,79 @@ const ErrorMessage: React.FC<IProps> = ({ error, text }) => {
 />
 )}
 
++++++++++++++Register Form+++++++++++++
+
+1. Create new file Register Form
+- copy contents of LoginForm and paste, rename
+- src/features/user/RegisterForm.tsx
+
+2. Create register method in userStore
+- after pasing to the register method we will already have a token available
+- also set the modal to close before redirecting
+ @action register = async (values: IUserFormValues) => {
+    try {
+      const user = await agent.User.register(values);
+      this.rootStore.commonStore.setToken(user.token);
+      this.rootStore.modalStore.closeModal();
+      history.push("/activities");
+    } catch (error) {
+      throw error;
+    }
+  };
+
+3. Adjust RegisterForm
+- add register form fields and validation
+...
+const validate = combineValidators({
+  ...
+  username: isRequired("User Name"),
+  displayName: isRequired("Display Name"),
+});
+...
+<Field
+    name="username"
+    component={TextInput}
+    placeholder="User Name"
+    />
+    <Field
+    name="displayName"
+    component={TextInput}
+    placeholder="Display Name"
+    />
+
+4. Comment out validate to verify validation errors receiving from server
+<FinalForm
+    ...
+    //validate={validate}
+...
+
+5. Handle RegisterForm on REgister Button in homepage
+<Button
+    onClick={() => openModal(<RegisterForm />)}
+    size="huge"
+    inverted
+>
+    Register
+</Button>
+
+6. Verify validation errors under dev tools > Network > Preview Tab
+ex. 
+errors: {Email: ["'Email' is not a valid email address."],…}
+Email: ["'Email' is not a valid email address."]
+	0: "'Email' is not a valid email address."
+Password: ["Password must contain 1 uppercase letter", "Password must contain a number",…]
+	0: "Password must contain 1 uppercase letter"
+	1: "Password must contain a number"
+	2: "Password must contain non alphanumeric"
+
+7. Modify error message temporarily to display these list of errors
+{submitError && !dirtySinceLastSubmit && (
+    <ErrorMessage
+        error={submitError}
+        text={JSON.stringify(submitError.data.errors)}
+    />
+    )}
+
+ex. output
+Bad Request
+{"Email":["'Email' must not be empty."],"Password":["'Password' must not be empty."],"UserName":["'User Name' must not be empty."],"DisplayName":["'Display Name' must not be empty."]}
