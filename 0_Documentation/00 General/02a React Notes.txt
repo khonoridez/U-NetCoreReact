@@ -582,4 +582,8 @@ Reaction
 	- specify what we want to react on (this.token)
 	- next is the effect, what we want to do if the token is changed
 
++++++++++++Mobx Decorators+++++++++++
+https://mobx.js.org/refguide/modifiers.html
 
+observable.shallow: Can only used in combination with collections. Turns any assigned collection into an observable, 
+but the values of that collection will be treated as-is.

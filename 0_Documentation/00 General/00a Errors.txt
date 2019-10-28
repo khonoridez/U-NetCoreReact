@@ -285,3 +285,17 @@ https://github.com/Microsoft/TypeScript/issues/25460
 
 Resolution: Workaround: deleted file, commit, recreated file
 
+
+++++++++++++++Error modal store++++++++++++++
+
+mobx.module.js:117 Uncaught Error: [mobx] Since strict-mode is enabled, changing observed observable values outside actions is 
+not allowed. Please wrap the code in an `action` if this change is intended. Tried to modify: ModalStore@6.modal.body._store.validated
+
+- When we created an observable object, the observable is attempting to observe deeply inside the body
+  @observable modal = {
+    open: false,
+    body: null
+  };
+
+Resolution: We go only one level deep by specifying @observable.shallow
+https://mobx.js.org/refguide/modifiers.html

@@ -72,3 +72,153 @@ const NavBar: React.FC = () => {
 )}
 
 !! Refreshing the page resets the store and loses the user
+
++++++++++++++Login Form Modal+++++++++++++
+https://react.semantic-ui.com/modules/modal/
+- Modals can live anywhere in the application
+- Control opening and closing of modal from mobx store
+
+1. Copy sample from semanti-ui  and setup a new file for the modal
+- src/app/common/modals/ModalContainer.tsx
+
+const ModalContainer = () => {
+  return (
+    <Modal>
+      <Modal.Content>Component will go here</Modal.Content>
+    </Modal>
+  );
+};
+
+2. Create src/app/stores/modalStore.ts
+- Inject in rootStore
+
+export default class ModalStore {
+  rootStore: RootStore;
+
+  constructor(rootStore: RootStore) {
+    this.rootStore = rootStore;
+  }
+...
+export class RootStore {
+ ...
+  modalStore: ModalStore;
+
+  constructor() {
+    ...
+    this.modalStore = new ModalStore(this);
+  }
+
+3. Create observables for modal and modal functions (open, close)
+export default class ModalStore {
+...
+   @observable modal = {
+    open: false,
+    body: null
+  };
+
+  @action openModal = (content: any) => {
+    this.modal.open = true;
+    this.modal.body = content;
+  };
+
+  @action closeModal = () => {
+    this.modal.open = false;
+    this.modal.body = null;
+  };
+  ...
+
+4.  Implement in ModalContainer
+- Get modalStore from rootStore
+- Set ModalContainer as observer
+
+const ModalContainer = () => {
+  const rootStore = useContext(RootStoreContext);
+  const {
+    modal: { open, body },
+    closeModal
+  } = rootStore.modalStore;
+
+  return (
+    <Modal open={open} onClose={closeModal} size="mini">
+      <Modal.Content>Component will go here</Modal.Content>
+    </Modal>
+  );
+  ...
+export default observer(ModalContainer);
+
+5. Declare modal high up in application
+- App.tsx
+...
+return (
+    <Fragment>
+      <ModalContainer />
+	  ...
+
+6. Handle in Home Page onClick
+
+const HomePage = () => {
+  ...
+  const { openModal } = rootStore.modalStore;
+  ...
+  <Button onClick={() => openModal("test")} size="huge" inverted>
+    Login
+</Button>
+- Test if modal shows
+
+7. Set content inside modal
+...
+<Button
+    onClick={() => openModal(<LoginForm />)}
+    size="huge"
+
+8. Set observable modal to shallow
+https://mobx.js.org/refguide/modifiers.html
+
+@observable.shallow modal = {
+    open: false,
+    body: null
+  };
+
+9. Style LoginForm.tsx
+- Add Header, Set Button to fluid
+- Remove the JSON.stringify content
+<Form onSubmit={handleSubmit}>
+    <Header
+    as="h2"
+    content="Login to Reactivities"
+    color="teal"
+    textAlign="center"
+    />
+	...
+
+	<Button
+    ...
+    fluid
+    />
+
++++++++++++++Validation Error Message+++++++++++++
+https://react.semantic-ui.com/collections/message/
+- Negative/Error: A message may be formatted to display a negative message.
+1. Create new file /src/app/common/form/ErrorMessage.tsx
+interface IProps {
+  error: AxiosResponse;
+  text?: string;
+}
+
+const ErrorMessage: React.FC<IProps> = ({ error, text }) => {
+  return (
+    <Message error>
+      <Message.Header>{error.statusText}</Message.Header>
+      {text && <Message content={text} />}
+    </Message>
+  );
+};
+
+2. Implement in LoginForm.tsx
+{submitError && !dirtySinceLastSubmit && (
+<ErrorMessage
+    error={submitError}
+    text="Invalid  username or password"
+/>
+)}
+
