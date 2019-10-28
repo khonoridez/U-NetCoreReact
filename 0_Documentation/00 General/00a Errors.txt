@@ -287,3 +287,14 @@ public ICollection<AttendeeDto> UserActivities { get; set; }
 
 https://stackoverflow.com/questions/8424151/json-net-serializer-ignoring-jsonproperty
 
+Reesolution:
+Json.NET support
+https://docs.microsoft.com/en-us/aspnet/core/migration/22-to-30?view=aspnetcore-3.0&tabs=visual-studio
+As part of the work to improve the ASP.NET Core shared framework, Json.NET has been removed from the ASP.NET Core shared framework.
+
+To use Json.NET in an ASP.NET Core 3.0 project:
+- Add a package reference to Microsoft.AspNetCore.Mvc.NewtonsoftJson.
+- Update Startup.ConfigureServices to call AddNewtonsoftJson.
+
+services.AddControllers()
+    .AddNewtonsoftJson();
