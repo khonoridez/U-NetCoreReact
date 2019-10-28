@@ -12,6 +12,12 @@
 - Pop up window form
 - But cannot access toast error message
 
++++++++++++++FAQ+++++++++++++
+
+1. Is it safe to store our token in Local Storage
+- Depends, We will look at securing our application at the end
+- Attacker can get the token via Cross-site scripting attack
+- We will address this later on the end of course
 
 +++++++++++++Configuration+++++++++++++
 - Create corresponding interface coming from Api (From User.cs in Application project)
