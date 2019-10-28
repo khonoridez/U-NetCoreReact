@@ -100,3 +100,37 @@ CreateMap<UserActivity, AttendeeDto>()
 	.ForMember(d => d.Username, o => o.MapFrom(s => s.AppUser.UserName))
 	.ForMember(d => d.DisplayName, o => o.MapFrom(s => s.AppUser.DisplayName));
 
+++++++++++++Implement Lazy Loading+++++++++++++
+
+1. Add package EF Proxies
+- Microsoft.EntityFrameworkCore.Proxies 3.0
+- Install same as EF Core (3.0) packages installed
+- Add to Persistence Project
+
+2. Configure in Startup.cs
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddDbContext<DataContext>(opt =>
+    {
+        opt.UseLazyLoadingProxies();
+        ...
+    });
+	...
+
+3. Add virtual keyword wherever we're using related data
+- /Domain/Activity.cs
+public virtual ICollection<UserActivity> UserActivities { get; set; }
+
+- /Domain/AppUser.cs
+public virtual ICollection<UserActivity> UserActivities { get; set; }
+
+- /Domain/UserActivity.cs
+public virtual AppUser AppUser { get; set; }
+public virtual Activity Activity { get; set; }
+
+4. Remove include statements where this was called
+- /Application/Activities/Details.cs
+var activity = await _context.Activities.FindAsync(request.Id);
+
+- /Application/Activities/List.cs
+var activities = await _context.Activities.ToListAsync();

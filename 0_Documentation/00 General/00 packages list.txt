@@ -9,6 +9,11 @@ Microsoft.EntityFrameworkCore 3.0.0
 Microsoft.EntityFrameworkCore.Sqlite 3.0.0
 - Add to Persistence Project
 
+1.1 Lazy Loading
+- Microsoft.EntityFrameworkCore.Proxies 3.0.0
+- Install same as EF Core (3.0) packages installed
+- Add to Persistence Project
+
 2. MediatR
 https://github.com/jbogard/MediatR/wiki
 MediatR.Extensions.Microsoft.DependencyInjection 7.0
