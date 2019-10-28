@@ -110,6 +110,27 @@ https://learning.getpostman.com/docs/postman/environments_and_globals/variables/
 {{$guid}} : Adds a v4 style guid
 https://stackoverflow.com/questions/37851383/what-is-guid-used-for-in-postman
 
+++++++++++++DEBUGGING IN VS CODE++++++++++++++
+1. Verify in .vscode/launch.json
+{
+    "name": ".NET Core Attach",
+    "type": "coreclr",
+    "request": "attach",
+    "processId": "${command:pickProcess}"
+}
+
+2. In Debug Tab, select .Net Core Attach in dropdown
+- .Net Core Launch will start a new instance
+
+3. Debug. Search for Api.dll, api.exe
+
+4. Note on [ApiController] attribute
+- This throws its own errors hence breakpoitn might not trigger
+- comment out [ApiController] for verification
+
+5. Verify values under Variables/Locals/
+
+
 ++++++++++++API SECURITY++++++++++++++
 
 1. TokenValidationParameters
@@ -129,3 +150,12 @@ https://docs.microsoft.com/en-us/dotnet/api/microsoft.identitymodel.tokens.token
 -p : specify startup project
 dotnet user-secrets set "TokenKey" "super secret key" -p API/
 
+++++++++++++AutoMapper++++++++++++++
+https://automapper.org/
+- same author as MediatR
+- AutoMapper.Extensions.Microsoft.DependencyInjection 7.0.0
+
+ex. CreateMap<Activity, ActivityDto>();
+- Convention based, 
+- any properties that has the same name, will automatically be mapped
+- no code needed

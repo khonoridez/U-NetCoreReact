@@ -66,3 +66,13 @@ public async Task<User> Handle(Command request, CancellationToken cancellationTo
     if (await _context.Users.Where(x => x.UserName == request.UserName).AnyAsync())
         throw new RestException(HttpStatusCode.BadRequest, new { UserName = "Username already exist" });
 	...
+
+
+++++++++++++++Injecting Assemblies++++++++++++++
+- In both MediatR and AutoMapper, 
+- passing in values of typeof(List.Handler).Assembly is used
+- This means I am passing the Assembly where List.Handler is located
+- What are other options to pass correct assemblies?
+
+services.AddMediatR(typeof(List.Handler).Assembly);
+services.AddAutoMapper(typeof(List.Handler).Assembly);

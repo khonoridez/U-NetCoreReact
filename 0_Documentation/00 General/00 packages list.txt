@@ -27,6 +27,19 @@ https://fluentvalidation.net/start
 System.IdentityModel.Tokens.Jwt 5.6.0
 Microsoft.AspNetCore.Authentication.JwtBearer
 
+6. Automapper
+https://automapper.org/
+- same author as MediatR
+- AutoMapper.Extensions.Microsoft.DependencyInjection 7.0.0
+- Add to Application Project
+
+7. Newtonsoft Json
+https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_JsonPropertyAttribute.htm
+- Newtonsoft.Json 12.0.2
+- used in setting DTO property names
+[JsonProperty("attendees")]
+public ICollection<AttendeeDto> UserActivities { get; set; }
+
 +++++++++++React Packages+++++++++++
 
 > cd client-app
