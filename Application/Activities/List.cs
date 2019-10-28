@@ -33,10 +33,7 @@ namespace Application.Activities
                     .ThenInclude(a => a.AppUser)
                     .ToListAsync();
 
-                var actvitiesToReturn = _mapper.Map<List<Activity>, List<ActivityDto>>(activities);
-
-
-                return actvitiesToReturn;
+                return _mapper.Map<List<Activity>, List<ActivityDto>>(activities);
             }
         }
     }
