@@ -1,0 +1,61 @@
+﻿
++++++++++++++Outline+++++++++++++
+
+1. EF Relationships
+2. DTO
+3. Automapper
+4. Eager / Lazy Loading related data
+5. Types
+- One to one (User - Address)
+- One to many (User - Photos)
+- Many to many (User-UserActivities-Activities)
+6. Many to many
+- using join table (UserActivities)
+- UserActivities
+	AppUserId
+	ActivityId
+	DateJoined
+	IsHost
+
++++++++++++++UserActivity Entity+++++++++++++
+
+1. Under Domain Prject, create join table class UserActivity.cs
+public class UserActivity
+{
+    public string AppUserId { get; set; }
+    public AppUser AppUser { get; set; }
+    public Guid ActivityId { get; set; }
+    public Activity Activity { get; set; }
+    public DateTime DateJoined { get; set; }
+    public bool IsHost { get; set; }
+}
+
+- EF is convention based, recognize the Id and the corresponding object (AppUser, Activity)
+
+2. Attach UserActivity to both AppUser and Activity
+public class Activity
+{
+    ...
+    public ICollection<UserActivity> UserActivities { get; set; }
+}
+
+3. Configure in DataContext File in Persistence Project
+public DbSet<UserActivity> UserActivities { get; set; }
+...
+
+- define relationship OnModelCreating
+builder.Entity<UserActivity>(x => x.HasKey(ua => new { ua.AppUserId, ua.ActivityId }));
+
+builder.Entity<UserActivity>()
+    .HasOne(u => u.AppUser)
+    .WithMany(a => a.UserActivities)
+    .HasForeignKey(u => u.AppUserId);
+
+builder.Entity<UserActivity>()
+    .HasOne(a => a.Activity)
+    .WithMany(u => u.UserActivities)
+    .HasForeignKey(a => a.ActivityId);
+
+4. Create new migration
+dotnet ef migrations add "UserActivityAdded" -p Persistence/ -s API/
+
