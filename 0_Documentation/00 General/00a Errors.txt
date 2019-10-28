@@ -64,26 +64,6 @@ https://stackoverflow.com/questions/49699067/property-has-no-initializer-and-is-
 - Set to null upon declaration
 @observable activity: IActivity | null = null;
 
-++++++++++++DEBUGGING IN VS CODE++++++++++++++
-1. Verify in .vscode/launch.json
-{
-    "name": ".NET Core Attach",
-    "type": "coreclr",
-    "request": "attach",
-    "processId": "${command:pickProcess}"
-}
-
-2. In Debug Tab, select .Net Core Attach in dropdown
-- .Net Core Launch will start a new instance
-
-3. Debug. Search for Api.dll, api.exe
-
-4. Note on [ApiController] attribute
-- This throws its own errors hence breakpoitn might not trigger
-- comment out [ApiController] for verification
-
-5. Verify values under Variables/Locals/
-
 
 !!!!Error
 - On submitting ActivityForm
@@ -299,3 +279,11 @@ not allowed. Please wrap the code in an `action` if this change is intended. Tri
 
 Resolution: We go only one level deep by specifying @observable.shallow
 https://mobx.js.org/refguide/modifiers.html
+
+++++++++++++++JsonProperty on DTO not reflecting on Api++++++++++++++
+
+[JsonProperty("attendees")]
+public ICollection<AttendeeDto> UserActivities { get; set; }
+
+https://stackoverflow.com/questions/8424151/json-net-serializer-ignoring-jsonproperty
+
