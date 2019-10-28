@@ -1,0 +1,67 @@
+﻿
+++++++++++++Attend Activity+++++++++++++
+
+1. Add Command Handler Activity/Attend
+- /Application/Activities/Attend.cs
+- type chandler snippet
+
+2. Inject IUserAccessor for the user token
+...
+private readonly IUserAccessor _userAccessor;
+
+public Handler(DataContext context, IUserAccessor userAccessor)
+{
+    ...
+    _userAccessor = userAccessor;
+}
+
+3. Implement Attend Handle method
+- Get activity
+var activity = await _context.Activities.FindAsync(request.Id);
+- Get user from token
+var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == _userAccessor.GetCurrentUserName());
+- Check if already attending
+var attendance = await _context.UserActivities.SingleOrDefaultAsync(ua => ua.ActivityId == activity.Id && ua.AppUserId == user.Id);
+
+if (attendance != null) 
+	throw new RestException(HttpStatusCode.BadRequest, new { Attendance = "Already attending this activity" });
+- Create new attendance
+
+4. Add Api method ActivitiesController.cs
+[HttpPost("{id}/attend")]
+public async Task<ActionResult<Unit>> Attend(Guid id)
+{
+    return await Mediator.Send(new Attend.Command { Id = id });
+}
+
+5. Test in Postman
+- Add attendance as Bob
+- Should return 200 Ok and save to db
+
+++++++++++++Unattend Activity+++++++++++++
+
+1. Add Command Handler Activity/Unattend
+- /Application/Activities/Unattend.cs
+- type chandler snippet
+
+2. Copy Handle in Join method
+3. Modify attendance conditional
+- we could also throw a RestError
+if (attendance == null)
+	return Unit.Value;
+
+4. Create condtional for IsHost
+if (attendance.IsHost)
+	throw new RestException(HttpStatusCode.BadRequest, 
+		new { Attendance = "You cannot remove yourself as host" });
+
+5. Add Api method ActivitiesController.cs
+[HttpDelete("{id}/attend")]
+public async Task<ActionResult<Unit>> Unattend(Guid id)
+{
+    return await Mediator.Send(new Unattend.Command { Id = id });
+}
+
+6. Test in Postman
+- Remove attendance for user
+- Remove attendance for user who is host should fail
