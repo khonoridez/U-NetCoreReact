@@ -68,6 +68,48 @@ dotnet watch run
 2. Creating Collections
 https://learning.getpostman.com/docs/postman/collections/intro_to_collections/
 
+3. Postman Tests
+https://learning.getpostman.com/docs/postman/scripts/test_examples/
+
+3.1. ex. Module 14 Login as bob and save token to env
+- Under test tab
+const user = pm.response.json();
+
+pm.test("Has properties", function () {
+    pm.expect(user).to.have.property('displayName');
+    pm.expect(user).to.have.property('username');
+    pm.expect(user).to.have.property('image');
+    pm.expect(user).to.have.property('token');
+});
+
+if (pm.test("Has properties")) {
+    pm.globals.set('token', user.token);
+}
+
+pm.test("Global token has been set", function() {
+    var token = pm.globals.get('token');
+    pm.expect(token).to.eql(user.token);
+});
+
+- This would set a global variable in Postman if it does not exist
+
+3.2. Under the settings button upper right (Environment), Globals button
+- we can access the global variables that were set
+
+3.3. sending the request will trigger the script
+
+3.4 Usage: 
+Get Activities
+{{url}}/api/activities
+- in Headers tab we have value for the Authorization key as: 
+Bearer {{token}}
+
+4. Dynamic variables
+- Used in create Activity
+https://learning.getpostman.com/docs/postman/environments_and_globals/variables/#dynamic-variables
+{{$guid}} : Adds a v4 style guid
+https://stackoverflow.com/questions/37851383/what-is-guid-used-for-in-postman
+
 ++++++++++++API SECURITY++++++++++++++
 
 1. TokenValidationParameters
@@ -86,3 +128,4 @@ https://docs.microsoft.com/en-us/dotnet/api/microsoft.identitymodel.tokens.token
 2. In VS Code terminal, Solution level
 -p : specify startup project
 dotnet user-secrets set "TokenKey" "super secret key" -p API/
+
