@@ -176,3 +176,69 @@ var uploadParams = new ImageUploadParams
     .Height(500).Width(500)
     .Crop("fill").Gravity("face")
 };
+
++++++++++++++Delete Photo+++++++++++++
+
+1. Implement delete method in PhotoAccessor
+public string DeletePhoto(string publicId)
+{
+    var deleteParams = new DeletionParams(publicId);
+
+    var result = _cloudinary.Destroy(deleteParams);
+
+    return result.Result == "ok" ? result.Result : null;
+}
+
+2. Create Delete Handler (Command)
+- /Application/Photos/Delete.cs
+- typde chandler for Command Handler snippet
+
+3. Inject IUsetAccessor, IPHotAccessor
+private readonly DataContext _context;
+private readonly IUserAccessor _userAccessor;
+private readonly IPhotoAccessor _photoAccessor;
+
+public Handler(DataContext context, IUserAccessor userAccessor, IPhotoAccessor photoAccessor)
+{
+    _context = context;
+    _userAccessor = userAccessor;
+    _photoAccessor = photoAccessor;
+}
+
+4. Implement Handler
+- get User
+- get Photo
+- set condition to not delete if it is main photo
+
+public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+{
+    var user = await _context.Users.SingleOrDefaultAsync(
+        u => u.UserName == _userAccessor.GetCurrentUserName());
+
+    var photo = _context.Photos.FirstOrDefault(p => p.Id == request.Id);
+
+    if (photo == null)
+        throw new RestException(HttpStatusCode.NotFound, new { Photo = "Not Found" });
+
+    if (photo.IsMain)
+        throw new RestException(HttpStatusCode.BadRequest,
+            new { Photo = "You cannot delete your main photo" });
+
+    var result = _photoAccessor.DeletePhoto(photo.Id);
+
+    if (result == null)
+        throw new Exception("Problem deleting the photo");
+
+    var success = await _context.SaveChangesAsync() > 0;
+
+    if (success) return Unit.Value;
+
+    throw new Exception("Problem saving changes");
+}
+
+5. Create Controller Api Endpoint
+[HttpDelete("{id}")]
+public async Task<ActionResult<Unit>> Delete(string id)
+{
+	return await Mediator.Send(new Delete.Command { Id = id });
+}
