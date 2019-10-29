@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Persistence;
 using System;
 using System.Linq;
@@ -27,12 +26,12 @@ namespace Infrastructure.Security
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
             IsHostRequirement requirement)
         {
-            if (context.Resource is AuthorizationFilterContext authContext)
+            if (context.Resource is Endpoint endpoint)
             {
                 var currentUserName = _httpContextAccessor.HttpContext.User?.Claims?
                     .SingleOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-                var activityId = Guid.Parse(authContext.RouteData.Values["id"].ToString());
+                var activityId = Guid.Parse(_httpContextAccessor.HttpContext.Request?.RouteValues?["id"].ToString());
                 var activity = _context.Activities.FindAsync(activityId).Result;
 
                 var host = activity.UserActivities.FirstOrDefault(ua => ua.IsHost);

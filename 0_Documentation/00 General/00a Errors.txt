@@ -298,3 +298,11 @@ To use Json.NET in an ASP.NET Core 3.0 project:
 
 services.AddControllers()
     .AddNewtonsoftJson();
+
+++++++++++++++AuthorizationFilterContext is no longer available in HandleRequirementAsync()++++++++++++++
+!!Error - in /Infrastructure/Security/IsHostRequirement.cs code not triggering this conditional statement
+if (context.Resource is AuthorizationFilterContext mvcContext) // in 3.0 results in null
+https://github.com/aspnet/AspNetCore.Docs/issues/12564
+
+1. Implement workaround by getting the RouteValues in id in HttpContext until further notice
+var activityId = Guid.Parse(_httpContextAccessor.HttpContext.Request?.RouteValues?["id"].ToString());

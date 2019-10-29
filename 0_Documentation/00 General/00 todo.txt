@@ -76,3 +76,8 @@ public async Task<User> Handle(Command request, CancellationToken cancellationTo
 
 services.AddMediatR(typeof(List.Handler).Assembly);
 services.AddAutoMapper(typeof(List.Handler).Assembly);
+
+++++++++++++++AuthorizationFilterContext is no longer available in HandleRequirementAsync()++++++++++++++
+!!Error - in /Infrastructure/Security/IsHostRequirement.cs code not triggering this conditional statement
+if (context.Resource is AuthorizationFilterContext mvcContext) // in 3.0 results in null
+https://github.com/aspnet/AspNetCore.Docs/issues/12564

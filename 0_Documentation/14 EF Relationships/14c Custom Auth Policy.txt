@@ -66,5 +66,14 @@ public async Task<ActionResult<Unit>> Edit(Guid id, Edit.Command command)
 public async Task<ActionResult<Unit>> Delete(Guid id)
 ...
 
-!!Error - code not triggering this conditional statement
-if (context.Resource is AuthorizationFilterContext authContext)
+++++++++++++Error code not triggering this conditional statement+++++++++++++
+!!Error - in /Infrastructure/Security/IsHostRequirement.cs code not triggering this conditional statement
+if (context.Resource is AuthorizationFilterContext mvcContext) // in 3.0 results in null
+https://github.com/aspnet/AspNetCore.Docs/issues/12564
+
+1. Implement workaround by getting the RouteValues in id in HttpContext until further notice
+var activityId = Guid.Parse(_httpContextAccessor.HttpContext.Request?.RouteValues?["id"].ToString());
+
+2. Test in Postman
+- Edit/Delete Activity Bob as host
+- Edit/Delete Activity Tom not host
