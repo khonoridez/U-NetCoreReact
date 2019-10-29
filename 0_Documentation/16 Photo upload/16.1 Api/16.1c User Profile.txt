@@ -111,3 +111,40 @@ public async Task<ActionResult<Unit>> SetMain(string id)
 {
     return await Mediator.Send(new SetMain.Command { Id = id });
 }
+
++++++++++++++Populate Image Url+++++++++++++
+1. Set in Login Handler
+- In /Application/User/Login.cs
+
+if (result.Succeeded)
+{
+    return new User
+    {
+        ...
+        Image = user.Photos.FirstOrDefault(p => p.IsMain)?.Url
+    };
+}
+
+2. Set in Register Handler
+- In /Application/User/Register.cs
+- No facility yet in Register UI to upload photo
+
+if (result.Succeeded)
+{
+    return new User
+    {
+        ...
+        Image = user.Photos.FirstOrDefault(p => p.IsMain)?.Url
+    };
+}
+
+3. Current User Handler
+- In /Application/User/CurrentUser.cs
+
+4. AttendeeDTO
+- In /Application/Activities/MappingProfile.cs
+	CreateMap<UserActivity, AttendeeDto>()
+		.ForMember(d => d.Image, o => o.MapFrom(s => s.AppUser.Photos.FirstOrDefault(p => p.IsMain).Url));
+
+5. Test in Postman, 
+- Get Activities, Attendees should show image url
