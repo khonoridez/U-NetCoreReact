@@ -84,3 +84,95 @@ public DbSet<Photo> Photos { get; set; }
 dotnet ef migrations add "PhotoEntityAdded" -p Persistence/ -s API/
 
 - Re run Api , to reflect migration
+
++++++++++++++Create Photo Handler+++++++++++++
+1. Create file /Application/Photos/Add.cs
+- type chandler for Command Handler snippet
+- even though this will be a command we have to send back a Photo from this command handler
+- client will have difficulty getting this on Client Side
+...
+public class Handler : IRequestHandler<Photo>
+...
+
+2. Add Property for this Command
+public class Command : IRequest<Photo>
+{
+    public IFormFile File { get; set; }
+}
+
+3. Inject datacontext, useraccessor, photo accessor
+private readonly DataContext _context;
+private readonly IUserAccessor _userAccessor;
+private readonly IPhotoAccessor _photoAccessor;
+
+public Handler(DataContext context, IUserAccessor userAccessor, IPhotoAccessor photoAccessor)
+{
+    _context = context;
+    _userAccessor = userAccessor;
+    _photoAccessor = photoAccessor;
+}
+
+4. Implement Handle function
+- Get the photoUploadResult  from the Photo Upload Service (Will throw Error Messages if unsuccesful)
+- Get the user properties of the Current Logged in user
+- Create a Photo object that we wil save from database
+- Set Photo IsMain if User photo list is empty
+
+public async Task<Photo> Handle(Command request, CancellationToken cancellationToken)
+{
+    var photoUploadResult = _photoAccessor.AddPhoto(request.File);
+
+    var user = await _context.Users.SingleOrDefaultAsync(
+        u => u.UserName == _userAccessor.GetCurrentUserName());
+
+    var photo = new Photo
+    {
+        Url = photoUploadResult.Url,
+        Id = photoUploadResult.PublicId
+    };
+
+    if (!user.Photos.Any(p => p.IsMain))
+        photo.IsMain = true;
+
+    user.Photos.Add(photo);
+
+    var success = await _context.SaveChangesAsync() > 0;
+
+    if (success) return photo;
+
+    throw new Exception("Problem saving changes");
+}
+
++++++++++++++Create Photo Api Endpoint+++++++++++++
+1. Create new file /API/Controllers/PhotosController.cs
+[HttpPost]
+public async Task<ActionResult<Photo>> Add(Add.Command command)
+{
+    return await Mediator.Send(command);
+}
+
+2. Test in Postman (Module 16)
+- Login as bob and save token
+- Add Photo Postman Request
+	Verify under Body Tab, form-data radio button is selected
+	This will enable us to attach files
+	Key Should be of the same value that the Command Parameter is named
+	ex. IFormFile File, then key in Postman should be named "File"
+- For png and jpg
+
+3. Apply attribute inside Controller parameter From Form
+!!!Error "title": "Unsupported Media Type", "status": 415,
+
+public async Task<ActionResult<Photo>> Add([FromForm]Add.Command command)
+
+- This should now upload properly
+
+4. Add Transformation in ImageUpload Parameters
+- In /Infrastructure/Photos/PhotoAccessor.cs
+var uploadParams = new ImageUploadParams
+{
+    ...
+    Transformation = new Transformation()
+    .Height(500).Width(500)
+    .Crop("fill").Gravity("face")
+};

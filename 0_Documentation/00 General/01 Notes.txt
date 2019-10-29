@@ -110,6 +110,14 @@ https://learning.getpostman.com/docs/postman/environments_and_globals/variables/
 {{$guid}} : Adds a v4 style guid
 https://stackoverflow.com/questions/37851383/what-is-guid-used-for-in-postman
 
+5. Attaching Files (Photos)
+ex. (Module 16)
+- Add Photo Postman Request
+Verify under Body Tab, form-data radio button is selected
+	This will enable us to attach files
+	Key Should be of the same value that the Command Parameter is named
+	ex. IFormFile File, then key in Postman should be named "File"
+
 ++++++++++++DEBUGGING IN VS CODE++++++++++++++
 1. Verify in .vscode/launch.json
 {
