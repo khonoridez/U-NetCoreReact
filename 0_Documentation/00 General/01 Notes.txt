@@ -168,3 +168,6 @@ ex. CreateMap<Activity, ActivityDto>();
 https://stackoverflow.com/questions/55706344/what-is-correct-order-to-addcors-into-net-core
 
 As a general rule, the MVC middleware almost always should come last.
+
+https://docs.microsoft.com/en-us/aspnet/core/migration/22-to-30?view=aspnetcore-3.0&tabs=visual-studio#startup-changes
+For most apps, calls to UseAuthentication, UseAuthorization, and UseCors must appear between the calls to UseRouting and UseEndpoints to be effective.
