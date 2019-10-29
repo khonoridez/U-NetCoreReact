@@ -1,0 +1,244 @@
+﻿
++++++++++++++Configure Photo Service+++++++++++++
+- Acess Cloudinary settings
+- create new instance Cloudinary
+
+1. Inject config in PhotoAccessor.cs to get values from user-secrets
+- CloudinarySettings will be stringly-typed to values in user-secrets (verify that user-secretes has same property names)
+private readonly Cloudinary _cloudinary;
+
+public PhotoAccessor(IOptions<CloudinarySettings> config)
+{
+	...
+
+2. Create account in construcctor and pss to private Cloudinary object
+
+public PhotoAccessor(IOptions<CloudinarySettings> config)
+{
+    var acc = new Account(
+        config.Value.CloudName,
+        config.Value.ApiKey,
+        config.Value.ApiSecret
+        );
+
+    _cloudinary = new Cloudinary(acc);
+}
+
+3. Implement AddPhoto method
+- Create instance of UploadResult
+- Pass new file params
+- Call _cloudinary.Upload(...)
+
+
+public PhotoUploadResult AddPhoto(IFormFile file)
+{
+    var uploadResult = new ImageUploadResult();
+
+    if (file.Length > 0)
+    {
+        using (var stream = file.OpenReadStream())
+        {
+            var uploadParams = new ImageUploadParams
+            {
+                File = new FileDescription(file.FileName, stream)
+            };
+            uploadResult = _cloudinary.Upload(uploadParams);
+        }
+    }
+
+    return new PhotoUploadResult
+    {
+        PublicId = uploadResult.PublicId,
+        Url = uploadResult.SecureUri.AbsoluteUri
+    };
+	...
+
++++++++++++++Create Photo Entity+++++++++++++
+
+1. Create new Entity Photo.cs
+-  /Domain/Photo.cs
+
+ public class Photo
+{
+    public string Id { get; set; }
+    public string Url { get; set; }
+    public bool IsMain { get; set; }
+}
+
+2. Create Relationship with AppUser
+- Set to virtual for Lazy loading
+
+public class AppUser : IdentityUser
+{
+    ...
+    public virtual ICollection<Photo> Photos { get; set; }
+
+3. Add to DataContext
+- /Persistence/DataContext.cs
+- Just add DbSet no need for other configurations (one to many)
+
+public DbSet<Photo> Photos { get; set; }
+
+4. Add new migration
+- Vs Code, solution level
+dotnet ef migrations add "PhotoEntityAdded" -p Persistence/ -s API/
+
+- Re run Api , to reflect migration
+
++++++++++++++Create Photo Handler+++++++++++++
+1. Create file /Application/Photos/Add.cs
+- type chandler for Command Handler snippet
+- even though this will be a command we have to send back a Photo from this command handler
+- client will have difficulty getting this on Client Side
+...
+public class Handler : IRequestHandler<Photo>
+...
+
+2. Add Property for this Command
+public class Command : IRequest<Photo>
+{
+    public IFormFile File { get; set; }
+}
+
+3. Inject datacontext, useraccessor, photo accessor
+private readonly DataContext _context;
+private readonly IUserAccessor _userAccessor;
+private readonly IPhotoAccessor _photoAccessor;
+
+public Handler(DataContext context, IUserAccessor userAccessor, IPhotoAccessor photoAccessor)
+{
+    _context = context;
+    _userAccessor = userAccessor;
+    _photoAccessor = photoAccessor;
+}
+
+4. Implement Handle function
+- Get the photoUploadResult  from the Photo Upload Service (Will throw Error Messages if unsuccesful)
+- Get the user properties of the Current Logged in user
+- Create a Photo object that we wil save from database
+- Set Photo IsMain if User photo list is empty
+
+public async Task<Photo> Handle(Command request, CancellationToken cancellationToken)
+{
+    var photoUploadResult = _photoAccessor.AddPhoto(request.File);
+
+    var user = await _context.Users.SingleOrDefaultAsync(
+        u => u.UserName == _userAccessor.GetCurrentUserName());
+
+    var photo = new Photo
+    {
+        Url = photoUploadResult.Url,
+        Id = photoUploadResult.PublicId
+    };
+
+    if (!user.Photos.Any(p => p.IsMain))
+        photo.IsMain = true;
+
+    user.Photos.Add(photo);
+
+    var success = await _context.SaveChangesAsync() > 0;
+
+    if (success) return photo;
+
+    throw new Exception("Problem saving changes");
+}
+
++++++++++++++Create Photo Api Endpoint+++++++++++++
+1. Create new file /API/Controllers/PhotosController.cs
+[HttpPost]
+public async Task<ActionResult<Photo>> Add(Add.Command command)
+{
+    return await Mediator.Send(command);
+}
+
+2. Test in Postman (Module 16)
+- Login as bob and save token
+- Add Photo Postman Request
+	Verify under Body Tab, form-data radio button is selected
+	This will enable us to attach files
+	Key Should be of the same value that the Command Parameter is named
+	ex. IFormFile File, then key in Postman should be named "File"
+- For png and jpg
+
+3. Apply attribute inside Controller parameter From Form
+!!!Error "title": "Unsupported Media Type", "status": 415,
+
+public async Task<ActionResult<Photo>> Add([FromForm]Add.Command command)
+
+- This should now upload properly
+
+4. Add Transformation in ImageUpload Parameters
+- In /Infrastructure/Photos/PhotoAccessor.cs
+var uploadParams = new ImageUploadParams
+{
+    ...
+    Transformation = new Transformation()
+    .Height(500).Width(500)
+    .Crop("fill").Gravity("face")
+};
+
++++++++++++++Delete Photo+++++++++++++
+
+1. Implement delete method in PhotoAccessor
+public string DeletePhoto(string publicId)
+{
+    var deleteParams = new DeletionParams(publicId);
+
+    var result = _cloudinary.Destroy(deleteParams);
+
+    return result.Result == "ok" ? result.Result : null;
+}
+
+2. Create Delete Handler (Command)
+- /Application/Photos/Delete.cs
+- typde chandler for Command Handler snippet
+
+3. Inject IUsetAccessor, IPHotAccessor
+private readonly DataContext _context;
+private readonly IUserAccessor _userAccessor;
+private readonly IPhotoAccessor _photoAccessor;
+
+public Handler(DataContext context, IUserAccessor userAccessor, IPhotoAccessor photoAccessor)
+{
+    _context = context;
+    _userAccessor = userAccessor;
+    _photoAccessor = photoAccessor;
+}
+
+4. Implement Handler
+- get User
+- get Photo
+- set condition to not delete if it is main photo
+
+public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+{
+    var user = await _context.Users.SingleOrDefaultAsync(
+        u => u.UserName == _userAccessor.GetCurrentUserName());
+
+    var photo = _context.Photos.FirstOrDefault(p => p.Id == request.Id);
+
+    if (photo == null)
+        throw new RestException(HttpStatusCode.NotFound, new { Photo = "Not Found" });
+
+    if (photo.IsMain)
+        throw new RestException(HttpStatusCode.BadRequest,
+            new { Photo = "You cannot delete your main photo" });
+
+    var result = _photoAccessor.DeletePhoto(photo.Id);
+
+    if (result == null)
+        throw new Exception("Problem deleting the photo");
+
+    var success = await _context.SaveChangesAsync() > 0;
+
+    if (success) return Unit.Value;
+
+    throw new Exception("Problem saving changes");
+}
+
+5. Create Controller Api Endpoint
+[HttpDelete("{id}")]
+public async Task<ActionResult<Unit>> Delete(string id)
+{
+	return await Mediator.Send(new Delete.Command { Id = id });
+}
