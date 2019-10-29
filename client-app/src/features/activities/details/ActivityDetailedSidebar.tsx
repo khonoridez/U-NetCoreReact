@@ -7,7 +7,6 @@ import { observer } from "mobx-react-lite";
 interface IProps {
   attendees: IAttendee[];
 }
-const isHost = false;
 
 const ActivityDetailedSidebar: React.FC<IProps> = ({ attendees }) => {
   return (
@@ -26,7 +25,7 @@ const ActivityDetailedSidebar: React.FC<IProps> = ({ attendees }) => {
         <List relaxed divided>
           {attendees.map(attendee => (
             <Item key={attendee.username} style={{ position: "relative" }}>
-              {isHost && (
+              {attendee.isHost && (
                 <Label
                   style={{ position: "absolute" }}
                   color="orange"
