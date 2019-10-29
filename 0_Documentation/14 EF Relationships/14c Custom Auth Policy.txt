@@ -1,0 +1,70 @@
+﻿
+++++++++++++Setting Custom Authorization Policy+++++++++++++
+- Create a custom auth policy for delete
+- can only be deleted for User Created activity, if user is the host of the event
+
+1. Create new file /Infrastructure/Security/IsHostRequirement.cs
+public class IsHostRequirement : IAuthorizationRequirement
+{
+}
+
+public class IsHostRequirementHandler : AuthorizationHandler<IsHostRequirement>
+{
+	...
+
+2. Inject DataContext and IHttpContextAccessor
+- For getting User and Activity
+public class IsHostRequirementHandler : AuthorizationHandler<IsHostRequirement>
+{
+    private readonly DataContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public IsHostRequirementHandler(DataContext context, IHttpContextAccessor httpContextAccessor)
+    {
+        _context = context;
+        _httpContextAccessor = httpContextAccessor;
+    }
+	...
+
+3. Configure HandleRequirementAsync method
+- Notes under 00General/01Notes
+- Check if the resource is an AuthorizationFilterContext
+if (context.Resource is AuthorizationFilterContext authContext)
+
+- Get Current username in HttpContext claims
+var currentUserName = _httpContextAccessor.HttpContext.User?.Claims?
+                    .SingleOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+- Get Activity in Route Values
+var activityId = authContext.RouteData.Values["id"].ToString();
+var activity = _context.Activities.FindAsync(activityId).Result;
+
+- Get host user
+var host = activity.UserActivities.FirstOrDefault(ua => ua.IsHost);
+
+if (host?.AppUser.UserName == currentUserName)
+	context.Succeed(requirement);
+
+4. Add this Custom Authorization Policy in Startup.cs, under identityBuilder
+services.AddAuthorization(opt =>
+{
+    opt.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+
+    opt.AddPolicy("IsActivityHost", policy => policy.Requirements.Add(new IsHostRequirement()));
+});
+
+5. Use in Controller as Authoriza Attribute
+[HttpPut("{id}")]
+[Authorize(Policy = "IsActivityHost")]
+public async Task<ActionResult<Unit>> Edit(Guid id, Edit.Command command)
+...
+
+[HttpDelete("{id}")]
+[Authorize(Policy = "IsActivityHost")]
+public async Task<ActionResult<Unit>> Delete(Guid id)
+...
+
+!!Error - code not triggering this conditional statement
+if (context.Resource is AuthorizationFilterContext authContext)

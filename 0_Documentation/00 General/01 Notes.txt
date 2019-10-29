@@ -171,3 +171,42 @@ As a general rule, the MVC middleware almost always should come last.
 
 https://docs.microsoft.com/en-us/aspnet/core/migration/22-to-30?view=aspnetcore-3.0&tabs=visual-studio#startup-changes
 For most apps, calls to UseAuthentication, UseAuthorization, and UseCors must appear between the calls to UseRouting and UseEndpoints to be effective.
+
+++++++++++++Notes from IsHostRequirementHandler.cs++++++++++++++
+
+++++++++Authorization Handler++++++++
+https://jakeydocs.readthedocs.io/en/latest/security/authorization/policies.html?highlight=authorizationhandler
+An authorization handler is responsible for the evaluation of any properties of a requirement. The authorization 
+handler must evaluate them against a provided AuthorizationContext to decide if authorization is allowed.
+
+++++++++IHttpContextAccessor usage++++++++
+http://rion.io/2016/01/04/accessing-identity-info-using-dependency-injection-in-net-5/
+https://www.c-sharpcorner.com/article/using-httpcontext-outside-an-mvc-controller-in-net-core-2-1/
+https://www.c-sharpcorner.com/article/a-better-approach-to-access-httpcontext-outside-a-controller-in-net-core-2-1/
+
+1. Getting username from claims inside httpcontext 
+private readonly IHttpContextAccessor _httpContextAccessor;
+
+public UserAccessor(IHttpContextAccessor httpContextAccessor)
+{
+    _httpContextAccessor = httpContextAccessor;
+}
+...
+public string GetCurrentUserName()
+{
+    var username = _httpContextAccessor.HttpContext.User?.Claims?
+        .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+    return username;
+}
+
+++++++++Use HttpContext from custom components++++++++
+https://docs.microsoft.com/en-us/aspnet/core/fundamentals/http-context?view=aspnetcore-3.0#use-httpcontext-from-custom-components
+
+++++++++Getting values via RouteData in AuthorizationFilterContext++++++++
+https://jakeydocs.readthedocs.io/en/latest/security/authorization/policies.html
+- 
+if (context.Resource is AuthorizationFilterContext authContext) {
+	...
+	var activityId = authContext.RouteData.Values["id"].ToString();
+	var activity = _context.Activities.FindAsync(activityId).Result;
+	...
