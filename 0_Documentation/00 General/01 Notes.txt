@@ -138,7 +138,11 @@ https://docs.microsoft.com/en-us/dotnet/api/microsoft.identitymodel.tokens.token
 - ValidateAudience - Validation of the audience, mitigates forwarding attacks. For example, a site that receives a token, could not replay it to another side.
 - ValidateIssuer - Gets or sets a String that represents a valid issuer that will be used to check against the token's issuer.
 
-++++++++++++++Set User Secrets++++++++++++++
+2. Policy-based authorization
+- Used in /Infrastructure/Security/IsHostRequirement.cs
+https://docs.microsoft.com/en-us/aspnet/core/security/authorization/policies?view=aspnetcore-3.0
+
+++++++++++++++User Secrets++++++++++++++
 1. In the Api.csproj file add User Secrets id
 - ex. copy existing Guid from an Activity id
 <PropertyGroup>
@@ -159,3 +163,8 @@ ex. CreateMap<Activity, ActivityDto>();
 - Convention based, 
 - any properties that has the same name, will automatically be mapped
 - no code needed
+
+++++++++++++Ordering of Services in ConfigureServices++++++++++++++
+https://stackoverflow.com/questions/55706344/what-is-correct-order-to-addcors-into-net-core
+
+As a general rule, the MVC middleware almost always should come last.
