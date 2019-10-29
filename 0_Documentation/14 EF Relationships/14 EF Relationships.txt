@@ -119,3 +119,8 @@ _context.UserActivities.Add(attendee);
 }
 
 - This will now create the UserActivity, verify if entry was saved in database
+
++++++++++++++Re Seed Data+++++++++++++
+- To include attendees
+1. Type snippet s_14.10.1
+2. drop database, rerun Api
