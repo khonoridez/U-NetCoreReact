@@ -1,0 +1,86 @@
+﻿
++++++++++++++Configure Photo Service+++++++++++++
+- Acess Cloudinary settings
+- create new instance Cloudinary
+
+1. Inject config in PhotoAccessor.cs to get values from user-secrets
+- CloudinarySettings will be stringly-typed to values in user-secrets (verify that user-secretes has same property names)
+private readonly Cloudinary _cloudinary;
+
+public PhotoAccessor(IOptions<CloudinarySettings> config)
+{
+	...
+
+2. Create account in construcctor and pss to private Cloudinary object
+
+public PhotoAccessor(IOptions<CloudinarySettings> config)
+{
+    var acc = new Account(
+        config.Value.CloudName,
+        config.Value.ApiKey,
+        config.Value.ApiSecret
+        );
+
+    _cloudinary = new Cloudinary(acc);
+}
+
+3. Implement AddPhoto method
+- Create instance of UploadResult
+- Pass new file params
+- Call _cloudinary.Upload(...)
+
+
+public PhotoUploadResult AddPhoto(IFormFile file)
+{
+    var uploadResult = new ImageUploadResult();
+
+    if (file.Length > 0)
+    {
+        using (var stream = file.OpenReadStream())
+        {
+            var uploadParams = new ImageUploadParams
+            {
+                File = new FileDescription(file.FileName, stream)
+            };
+            uploadResult = _cloudinary.Upload(uploadParams);
+        }
+    }
+
+    return new PhotoUploadResult
+    {
+        PublicId = uploadResult.PublicId,
+        Url = uploadResult.SecureUri.AbsoluteUri
+    };
+	...
+
++++++++++++++Create Photo Entity+++++++++++++
+
+1. Create new Entity Photo.cs
+-  /Domain/Photo.cs
+
+ public class Photo
+{
+    public string Id { get; set; }
+    public string Url { get; set; }
+    public bool IsMain { get; set; }
+}
+
+2. Create Relationship with AppUser
+- Set to virtual for Lazy loading
+
+public class AppUser : IdentityUser
+{
+    ...
+    public virtual ICollection<Photo> Photos { get; set; }
+
+3. Add to DataContext
+- /Persistence/DataContext.cs
+- Just add DbSet no need for other configurations (one to many)
+
+public DbSet<Photo> Photos { get; set; }
+
+4. Add new migration
+- Vs Code, solution level
+dotnet ef migrations add "PhotoEntityAdded" -p Persistence/ -s API/
+
+- Re run Api , to reflect migration
