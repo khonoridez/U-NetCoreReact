@@ -81,3 +81,7 @@ services.AddAutoMapper(typeof(List.Handler).Assembly);
 !!Error - in /Infrastructure/Security/IsHostRequirement.cs code not triggering this conditional statement
 if (context.Resource is AuthorizationFilterContext mvcContext) // in 3.0 results in null
 https://github.com/aspnet/AspNetCore.Docs/issues/12564
+
+++++++++++++++SetMain Photo API++++++++++++++
+- Getting 500 Internal Server Error when setting main photo to a main photo
+

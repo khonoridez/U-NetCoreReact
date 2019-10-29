@@ -55,3 +55,59 @@ public class ProfilesController : BaseController
 6. Test in Postman (Module 16)
 - Get Profile, {{url}}/api/profiles/bob
 - Verify colection of Photos
+
++++++++++++++Set Main Photo+++++++++++++
+
+1. Create Handler /Application/Photos/SetMain.cs
+- type chandler for snippet
+- add Id as parameter
+public class Command : IRequest
+{
+    public string Id { get; set; }
+}
+
+2. Inject user accessor
+private readonly DataContext _context;
+private readonly IUserAccessor _userAccessor;
+
+public Handler(DataContext context, IUserAccessor userAccessor)
+{
+    _context = context;
+    _userAccessor = userAccessor;
+}
+
+3. Implement handler method
+- Get user
+- Get Photo
+- Get current main photo
+- set current main to false
+- set new photo main to true
+
+public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+{
+    var user = await _context.Users.SingleOrDefaultAsync(
+        u => u.UserName == _userAccessor.GetCurrentUserName());
+
+    var photo = user.Photos.FirstOrDefault(p => p.Id == request.Id);
+
+    if (photo == null)
+        throw new RestException(HttpStatusCode.NotFound, new { Photo = "Not found" });
+
+    var currentMain = user.Photos.FirstOrDefault(p => p.IsMain);
+    currentMain.IsMain = false;
+    photo.IsMain = true;
+
+    var success = await _context.SaveChangesAsync() > 0;
+
+    if (success) return Unit.Value;
+
+    throw new Exception("Problem saving changes");
+}
+
+4. Create Api Endpoing in Controller
+PhotosController.cs
+[HttpPost("{id}/setmain")]
+public async Task<ActionResult<Unit>> SetMain(string id)
+{
+    return await Mediator.Send(new SetMain.Command { Id = id });
+}
