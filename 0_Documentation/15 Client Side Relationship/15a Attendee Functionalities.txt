@@ -1,0 +1,104 @@
+﻿
++++++++++++++Button Functionalities+++++++++++++
+
+1. Apply isHost, isGoing flags on the Buttons
+<Segment clearing attached="bottom">
+    {activity.isHost ? (...Manage Event) : 
+		activity.isGoing ? (...Cancel) : 
+			(...Join)}
+</Segment>
+
+!create activity object and push to the array (Temporary only later we will be using  via  Api)
+2. Create a util function createAttendee (/src/app/common/util/util.ts)
+export const createAttendee = (user: IUser): IAttendee => {
+  return {
+    displayName: user.displayName,
+    isHost: false,
+    username: user.username,
+    image: user.image!
+  };
+};
+
+3. Add action in activityStore, attendActivity
+@action attendActivity = () => {
+    const attendee = createAttendee(this.rootStore.userStore.user!);
+    if (this.activity) {
+      this.activity.attendees.push(attendee);
+      this.activity.isGoing = true;
+      this.activityRegistry.set(this.activity.id, this.activity);
+    }
+  };
+
+4. Add action in activityStore, cancelAttendance
+@action cancelAttendance = () => {
+    if (this.activity) {
+      this.activity.attendees = this.activity.attendees.filter(
+        a => a.username !== this.rootStore.userStore.user!.username
+      );
+      this.activity.isGoing = false;
+      this.activityRegistry.set(this.activity.id, this.activity);
+    }
+  };
+
+5. Use in Activity Detail Header (ActivityDetailHeader.tsx)
+- get destructured props from rootStore.ActivityStore
+const rootStore = useContext(RootStoreContext);
+const { attendActivity, cancelAttendance } = rootStore.activityStore;
+
+- handle in onClick event
+...
+) : activity.isGoing ? (
+    <Button onClick={cancelAttendance}>Cancel attendance</Button>
+) : (
+    <Button onClick={attendActivity} color="teal">
+    Join Activity
+    </Button>
+)}
+...
+
+6. Set ActivityDetailedSidebar as observer
+export default observer(ActivityDetailedSidebar);
+
++++++++++++++Saving to Api+++++++++++++
+
+1. Create new methods in /app/api/agent.ts
+const Activities = {
+  ...
+  attend: (id: string) => requests.post(`/activities/${id}/attend`, {}),
+  unattend: (id: string) => requests.del(`/activities/${id}/attend`)
+};
+
+2. Create another loading observable for activityStore
+@observable loading = false;
+
+3. Use new Api propeprties in activityStore
+- set async
+- wrap observables in runInAction
+
+@action attendActivity = async () => {
+    const attendee = createAttendee(this.rootStore.userStore.user!);
+    this.loading = true;
+    try {
+      await agent.Activities.attend(this.activity!.id);
+      runInAction(() => {
+        if (this.activity) {
+          this.activity.attendees.push(attendee);
+          this.activity.isGoing = true;
+          this.activityRegistry.set(this.activity.id, this.activity);
+          this.loading = false;
+        }
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+      toast.error("Problem signing up to activity");
+    }
+  };
+
+4. use loading in ActivityDetailedHeader.tsx
+- destrucutre loading and use in Buttons
+...
+const { ...loading } = rootStore.activityStore;
+...
+<Button loading={loading}...

@@ -1,0 +1,188 @@
+﻿
++++++++++++++Outline+++++++++++++
+
+1. Adding attendances to client
+2. More Typescript interfaces
+
+
++++++++++++++Output Attendees+++++++++++++
+
++++++++++++++Activity List+++++++++++++
+
+1. Create attendee interface inside activity.ts
+- /src/app/models/activity.ts
+
+export interface IAttendee {
+  username: string;
+  displayName: string;
+  image: string;
+  isHost: boolean;
+}
+
+2. Add attendees array to activities
+export interface IActivity {
+  ...
+  attendees: IAttendee[];
+}
+
+3. Create component for Attendees, ActivityListItemAttendees.tsx
+- /src/app/features/activities/dashboard/ActivityListItemAttendees.tsx
+...
+const ActivityListItemAttendees = () => {
+  return (
+    <List horizontal>
+		<List.Item>
+			<Image size="mini" circular src={"/assets/user.png"} />
+			...
+
+4. Use in ActivityListItem.tsx, pass in attendees as Props
+<Segment secondary>
+	<ActivityListItemAttendees attendees={activity.attendees} />
+</Segment>
+...
+interface IProps {
+  attendees: IAttendee[];
+}
+
+const ActivityListItemAttendees: React.FC<IProps> = ({ attendees }) => {
+
+5. Loop through attendees and display list items
+{attendees.map(attendee => (
+<List.Item key={attendee.username}>
+    <Image
+    size="mini"
+    circular
+    src={attendee.image || "/assets/user.png"}
+    />
+</List.Item>
+))}
+
+6. Add popover on the images (Semantic ui Popup)
+- place Image inside Popup
+<Popup
+    header={attendee.displayName}
+    trigger={
+        <Image
+        size="mini"
+        circular
+        src={attendee.image || "/assets/user.png"}
+        />
+    }
+    />
+
++++++++++++++Activity Details+++++++++++++
+
+- To Sidebar
+1. Add attendees as Props and pass from ActivityDetails.tsx
+<ActivityDetailedSidebar attendees={activity.attendees} />
+
+2. Catch as Props in ActivityDetailedSidebar.tsx
+interface IProps {
+  attendees: IAttendee[];
+}
+
+const ActivityDetailedSidebar: React.FC<IProps> = ({ attendees }) => {
+
+3. Configure looping of attendees
+- For the "X number of people going"
+{attendees.length} {attendees.length === 1 ? "Person" : "People"} Going
+
+- Loop through attendees
+{attendees.map(attendee => (
+    <Item key={attendee.username} style={{ position: "relative" }}>
+        {isHost && (
+        <Label
+            style={{ position: "absolute" }}
+            color="orange"
+            ribbon="right"
+        >
+            Host
+        </Label>
+        )}
+        <Image size="tiny" src={attendee.image || "/assets/user.png"} />
+        <Item.Content verticalAlign="middle">
+        <Item.Header as="h3">
+            <Link to={`/profile/${attendee.username}`}>
+            {attendee.displayName}
+            </Link>
+        </Item.Header>
+        <Item.Extra style={{ color: "orange" }}>Following</Item.Extra>
+        </Item.Content>
+    </Item>
+    ))}
+
++++++++++++++isHost Functionality+++++++++++++
+1. Add additional flags inside Activity interface
+isGoing
+isHost
+
+! set these properties inside activityStore, set these flags inside the activityRegistry upon loading
+2. get user from rootStore
+const user = this.rootStore.userStore.user!;
+
+3. Create a utility method to sepcify setting the flags
+- under /App/Common/util/util.ts
+export const setActivityProps = (activity: IActivity, user: IUser) => {
+  activity.date = new Date(activity.date);
+  activity.isGoing = activity.attendees.some(a => a.username === user.username);
+  activity.isHost = activity.attendees.some(
+    a => a.username === user.username && a.isHost
+  );
+
+  return activity;
+};
+
+2. Use in loadActivities and loadActivity, when we receive activities set the flags and 
+other props declared in utility method setActivityProps
+...
+runInAction("getting activity", () => {
+    setActivityProps(activity, this.rootStore.userStore.user!);
+    this.activityRegistry.set(activity.id, activity);
+	...
+});
+...
+
+4. Implement in ActivityListItem.tsx
+4.1 Apply isHost flag in ActivityListItem.tsx for displaying label
+{activity.isHost && (
+    <Item.Description>
+        <Label
+        basic
+        color="orange"
+        content="You are hosting this activity"
+        />
+    </Item.Description>
+    )}
+
+4.2 Apply isGoing flag in ActivityListItem.tsx for displaying label
+{activity.isGoing && !activity.isHost && (
+    <Item.Description>
+        <Label
+        basic
+        color="green"
+        content="You are going to this activity"
+        />
+    </Item.Description>
+    )}
+
+4.3 Declare variable for host
+...
+const ActivityListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
+  const host = activity.attendees.filter(a => a.isHost)[0];
+  ...
+
+4.4 Apply variables to static texts
+- On Image
+<Item.Image
+    size="tiny"
+    circular
+    src={host.image || "/assets/user.png"}
+/>
+
+- Title Link
+<Item.Header as={Link} to={`/activities/${activity.id}`}>
+	{activity.title}
+</Item.Header>
+
+- Host name
+<Item.Description>Hosted by {host.displayName}</Item.Description>

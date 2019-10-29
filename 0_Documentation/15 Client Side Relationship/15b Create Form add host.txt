@@ -1,0 +1,20 @@
+﻿
++++++++++++++Create Activity+++++++++++++
+
+- Add Client side functionality, Add Current user as host
+1. Create array and add to the Activity in createActivity
+
+@action createActivity = async (activity: IActivity) => {
+    this.submitting = true;
+    try {
+      await agent.Activities.create(activity);
+
+      const attendee = createAttendee(this.rootStore.userStore.user!);
+      attendee.isHost = true;
+      let attendees = [];
+      attendees.push(attendee);
+      activity.attendees = attendees;
+      activity.isHost = true;
+	  ...
+  };
+
