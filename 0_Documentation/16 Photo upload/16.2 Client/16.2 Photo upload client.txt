@@ -7,3 +7,27 @@
 4. React Dropzone
 5. React Cropper
 6. Setting main/delete photos
+
++++++++++++++Upload Widget+++++++++++++
+- Enable only if you are looking at your own profile
+- Get the current logged in user in userStore
+- Then get the user in profileStore, if both match then enable edit
+
+1. In profileStore declare a computed property isCurrentUser
+@computed get isCurrentUser() {
+    if (this.rootStore.userStore.user && this.profile) {
+      return this.rootStore.userStore.user.username === this.profile.username;
+    } else {
+      return false;
+    }
+  }
+
+2. Implement Upload in ProfilePhotos
+const { profile, isCurrentUser } = rootStore.profileStore;
+const [addPhotoMode, setAddPhotoMode] = useState(false);
+
+3. Adjust Styles
+- Utilize Grid
+<Grid>
+    <Grid.Column width={16} style={{ paddingBottom: 0 }}>
+        <Header floated="left" icon="image" content="Photos" />
