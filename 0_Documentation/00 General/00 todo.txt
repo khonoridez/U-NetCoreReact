@@ -85,3 +85,8 @@ https://github.com/aspnet/AspNetCore.Docs/issues/12564
 ++++++++++++++SetMain Photo API++++++++++++++
 - Getting 500 Internal Server Error when setting main photo to a main photo
 
+++++++++++++++End Point URL magic numbers on client side++++++++++++++
+- look for resolution on magic numbers
+ex. unattend: (id: string) => requests.del(`/activities/${id}/attend`)
+
+

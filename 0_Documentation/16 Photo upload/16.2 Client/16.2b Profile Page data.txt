@@ -1,0 +1,113 @@
+﻿
++++++++++++++Profile Page Data+++++++++++++
+
+1. Create profile and photo interface
+- /src/app/models/profile.ts
+
+export interface IProfile {
+  displayName: string;
+  username: string;
+  bio: string;
+  image: string;
+  photos: IPhoto[];
+}
+
+export interface IPhoto {
+  id: string;
+  url: string;
+  isMain: boolean;
+}
+
+2. Create object in agent.ts for Profile Apis
+const Profile = {
+  get: (username: string): Promise<IProfile> =>
+    requests.get(`/profiles/${username}`)
+};
+
+3. Create profileStore
+- /src/app/stores/profileStore.ts
+- inject to and from rootStore
+
+export default class UserStore {
+  rootStore: RootStore;
+
+  constructor(rootStore: RootStore) {
+    this.rootStore = rootStore;
+  }
+}
+...
+export class RootStore {
+  ...
+  profileStore: ProfileStore;
+
+  constructor() {
+    ...
+    this.profileStore = new ProfileStore(this);
+  }
+  ...
+
+4. Create observables in profileStore
+@observable profile: IProfile | null = null;
+@observable loadingProfile = true; // initialize to true so props passed to child components after LoadingComponent
+will trigger
+
+5. Create loadProfile action
+@action loadProfile = async (username: string) => {
+    this.loadingProfile = true;
+    try {
+      const profile = await agent.Profiles.get(username);
+      runInAction(() => {
+        this.profile = profile;
+        this.loadingProfile = false;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.loadingProfile = false;
+      });
+      console.log(error);
+    }
+  };
+
+6. Use in Profile Page
+- get observable profile in profileStore
+- get rootStoreContext
+- destrcuture properties from rootStore.profileStore;
+
+const rootStore = useContext(RootStoreContext);
+const { loadingProfile, profile, loadProfile } = rootStore.profileStore;
+
+7. loadProfile by calling a useEffect
+  useEffect(() => {
+    loadProfile(...username goes here);
+  }, []);
+
+!! However to get username we have to get as route paramaters
+7.1 Create interface with username: string
+interface RouteParams {
+  username: string;
+}
+
+7.2 Create IProps (RouteComponentProps) with the type of the created interface RouteParams
+interface IProps extends RouteComponentProps<RouteParams> {}
+
+7.3 inherit ProfilePage with Reac.FC to destrcuture "match"
+const ProfilePage: React.FC<IProps> = ({ match }) => { ...
+
+7.4 The parameters (match.params.username) we need are inside the match property
+- Both [loadProfile, match] should be injected as dependency
+  useEffect(() => {
+    loadProfile(match.params.username);
+  }, [loadProfile, match]);
+
+8. Call loading component
+if (loadingProfile) return <LoadingComponent content="Loading profile..." />;
+
+9. Pass observable profile to the child component
+<ProfileHeader profile={profile} />
+
+10. Catch in ProfileHeader
+- IProps
+- Destructure in declaration (React.FC)
+
+11. Make Profile Page and ProfileHeader as observer
+export default observer(ProfileHeader);
