@@ -587,3 +587,11 @@ https://mobx.js.org/refguide/modifiers.html
 
 observable.shallow: Can only used in combination with collections. Turns any assigned collection into an observable, 
 but the values of that collection will be treated as-is.
+
++++++++++++Semantic UI+++++++++++
+
+- Statistic
+https://react.semantic-ui.com/views/statistic/
+
+- Reveal
+https://react.semantic-ui.com/elements/reveal/

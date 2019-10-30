@@ -1,0 +1,106 @@
+﻿
++++++++++++++Profile Page and Route+++++++++++++
+
+1. Style ActivityListItem.tsx
+- Put marginBottom
+<Item.Image
+    size="tiny"
+    circular
+    src={host.image || "/assets/user.png"}
+    style={{ marginBottom: 3 }}
+/>
+
+- Put Link to profile/username
+<Item.Description>
+	Hosted by
+	<Link to={`profile/${host.username}`}> {host.displayName}</Link>
+</Item.Description>
+
+- In NavBar.tsx sepcify Link
+<Dropdown.Item
+    as={Link}
+    to={`/profile/${user.username}`}
+    text="My profile"
+    icon="user"
+/>
+
+- In ActivityDetailedHeader.tsx get host from activity
+- Set host link
+const host = activity.attendees.filter(a => a.isHost)[0];
+...
+<p>
+    Hosted by{" "}
+    <Link to={`/profile/${host.username}`}>
+    <strong>{host.displayName}</strong>
+    </Link>
+</p>
+
+2. Create new component ProfilePage
+- src/features/profiles/ProfilePage.tsx
+- type rafc for component snippet
+
+3. Create Route for ProfilePage in App.tsx
+<Route path="/profile/:username" component={ProfilePage} />
+
+4. We can remove the Route for login because Login page is now inside a modal
+//<Route path="/login" component={LoginForm} />
+
++++++++++++++Profile Page Header+++++++++++++
+1. Create file /src/features/profiles/ProfileHeader.tsx
+- type snippet s_17.4.1
+
+- Statistic
+https://react.semantic-ui.com/views/statistic/
+
+- Reveal
+https://react.semantic-ui.com/elements/reveal/
+
+2. Set in ProfilePage.tsx
+const ProfilePage = () => {
+  return (
+    <Grid>
+      <Grid.Column width={16}>
+        <ProfileHeader />
+      </Grid.Column>
+    </Grid>
+  );
+};
+
++++++++++++++Profile Page Content+++++++++++++
+1. Create file /src/features/profiles/ProfileContent.tsx
+- type rafc for snippet
+
+2. Create panes variable for sections
+const panes = [
+  { menuItem: "About", render: () => <TabPane>About Content</TabPane> },
+  { menuItem: "Photos", render: () => <TabPane>Photos Content</TabPane> },
+  {
+    menuItem: "Activities",
+    render: () => <TabPane>Activities Content</TabPane>
+  },
+  { menuItem: "Followers", render: () => <TabPane>Followers Content</TabPane> },
+  { menuItem: "Following", render: () => <TabPane>Following Content</TabPane> }
+];
+
+3. Use in ProfileContent as Tab panes
+const ProfileContent = () => {
+  return (
+    <Tab
+      menu={{ fluid: true, vertical: true }}
+      menuPosition="right"
+      panes={panes}
+    />
+  );
+};
+
+4. Use in ProfilePage.tsx
+const ProfilePage = () => {
+  return (
+    <Grid>
+      <Grid.Column width={16}>
+        <ProfileHeader />
+        <ProfileContent />
+      </Grid.Column>
+    </Grid>
+  );
+};
