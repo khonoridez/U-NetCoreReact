@@ -8,7 +8,9 @@
 5. React Cropper
 6. Setting main/delete photos
 
-+++++++++++++Upload Widget+++++++++++++
++++++++++++++Upload+++++++++++++
+
++++++++++++++Button, View Toggles+++++++++++++
 - Enable only if you are looking at your own profile
 - Get the current logged in user in userStore
 - Then get the user in profileStore, if both match then enable edit
@@ -31,3 +33,29 @@ const [addPhotoMode, setAddPhotoMode] = useState(false);
 <Grid>
     <Grid.Column width={16} style={{ paddingBottom: 0 }}>
         <Header floated="left" icon="image" content="Photos" />
+
++++++++++++++Photo Upload Widget+++++++++++++
+1. Create file /src/app/common/photoUpload/PhotoUpload.tsx
+- type s_17.8.1 snippet
+- Grid Columns, containing 3 steps
+- Remove export on named import (on top)
+- export default is at bottom
+Step 1 - Add Photo
+Step 2 - Resize image
+Step 3 - Preview & Upload
+
+2. Add Photo Widget to ProfilePhotos
+{addPhotoMode ? (
+    <PhotoUploadWidget />
+    ) : (
+
+3. Implement an Active Index on tab under Profile Content
+<Tab
+    menu={{ fluid: true, vertical: true }}
+    menuPosition="right"
+    panes={panes}
+    activeIndex={1}
+/>
+
+4. Default setAddPhotoMode to true (temporarily for dev)
+const [addPhotoMode, setAddPhotoMode] = useState(true);
