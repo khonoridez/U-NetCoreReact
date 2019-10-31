@@ -285,4 +285,12 @@ https://www.w3schools.com/jsref/jsref_map.asp
     {text && <Message.Content content={text} />}
 </Message>
 
-
+26. URL.createObjectURL..
+https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
+const onDrop = useCallback(acceptedFiles => {
+    setFiles(
+      acceptedFiles.map((file: object) =>
+        Object.assign(file, { preview: URL.createObjectURL(file) })
+      )
+    );
+  }, []);

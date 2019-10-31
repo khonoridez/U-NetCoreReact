@@ -59,3 +59,88 @@ Step 3 - Preview & Upload
 
 4. Default setAddPhotoMode to true (temporarily for dev)
 const [addPhotoMode, setAddPhotoMode] = useState(true);
+
++++++++++++++React Dropzone+++++++++++++
+1. Install React Dropzone
+- cd client-app
+- npm install react-dropzone
+
+2. Add new file /src/app/common/photoUpload/PhotoWidgetdropzone.tsx
+copy paste code from sample Usage
+https://github.com/react-dropzone/react-dropzone
+- rename fields, properties
+
+3. Pass files coming from PhotoWidgetDropzone (acceptedFiles) to PhotoUploadWidget
+3.1 In PhotoUploadWidget create local variables via useState
+- files will represent the "acceptedFiles" that was dropped
+const PhotoUploadWidget = () => {
+	const [files, setFiles] = useState([]);
+	...
+3.2 Pass this to the PhotoWidgetDropzone
+<PhotoWidgetDropzone setFiles={setFiles} />
+
+3.3 Catch in PhotoWidgetDropzone via IProps
+interface IProps {
+  setFiles: (files: object[]) => void;
+}
+
+const PhotoWidgetDropzone: React.FC<IProps> = ({ setFiles }) => {
+...
+
+3.4 Use in onDrop change
+- setFiles will get all files that was dropped and via map, will set a new property "preview" using 
+URL.createObjectURL(..)
+https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
+
+const onDrop = useCallback(acceptedFiles => {
+    setFiles(
+      acceptedFiles.map((file: object) =>
+        Object.assign(file, { preview: URL.createObjectURL(file) })
+      )
+    );
+  }, []);
+
+3.5. Place this inside an <Image /> back to PhotoUploadWidget
+<Grid.Column width={4}>
+    ...
+    {files.length > 0 && <Image src={files[0].preview} />}
+</Grid.Column>
+
++++++++++++++Styling React Dropzone+++++++++++++
+- Style Box and icon inside
+1. declare dropzone styles in a variable
+const dropzoneStyles = {
+  border: "dashed 3px",
+  borderColor: "#eee",
+  borderRadius: "5px",
+  paddingTop: "30px",
+  textAlign: "center",
+  height: "200px"
+};
+
+const dropzoneActive = {
+  borderColor: "green"
+};
+
+2. Implement in the first div
+- if isDragActive then spread all props from dropzoneStyles and then spread all props from dropzoneActive
+- if not just get dropzoneStyles
+<div
+    {...getRootProps()}
+    style={
+    isDragActive ? { ...dropzoneStyles, ...dropzoneActive } : dropzoneStyles
+    }
+>
+...
+
+!!! Error Type '{ textAlign: string;...... }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+ Resolution: add  as "center"
+ const dropzoneStyles = {
+  ...
+  textAlign: "center" as "center",
+};
+
++++++++++++++Clear Memory Leak on URL.createObjectURL(file)+++++++++++++
+- Use an equivalent on class component, componentWillUnmount
+1. Create useEffect for cleanup

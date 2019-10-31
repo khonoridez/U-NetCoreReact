@@ -73,12 +73,10 @@ npm install uuid
 
 4. State Management
 MobX-Lite (Functional Components only, no Class Components support)
-
 npm install mobx mobx-react-lite
 
 5. Routing
 https://reacttraining.com/react-router/
-
 npm install react-router-dom
 
 6. Toastify
@@ -132,8 +130,10 @@ declare module "react-widgets-date-fns";
 Could not find a declaration file for module 'react-widgets'.
 Try npm install @types/react-widgets
 
-
 9. Form Validation
 https://github.com/jfairbank/revalidate
 npm install revalidate
 
+10. React Drop Zone
+https://github.com/react-dropzone/react-dropzone
+npm install react-dropzone
