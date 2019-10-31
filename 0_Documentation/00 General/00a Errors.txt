@@ -306,3 +306,12 @@ https://github.com/aspnet/AspNetCore.Docs/issues/12564
 
 1. Implement workaround by getting the RouteValues in id in HttpContext until further notice
 var activityId = Guid.Parse(_httpContextAccessor.HttpContext.Request?.RouteValues?["id"].ToString());
+
+++++++++++++++ textAlign: string;...... }' is not assignable to type 'CSSProperties'.++++++++++++++
+!!! Error Type '{ textAlign: string;...... }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+ Resolution: add  as "center"
+ const dropzoneStyles = {
+  ...
+  textAlign: "center" as "center",
+};
