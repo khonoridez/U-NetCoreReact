@@ -137,3 +137,7 @@ npm install revalidate
 10. React Drop Zone
 https://github.com/react-dropzone/react-dropzone
 npm install react-dropzone
+
+11. React Cropper
+https://github.com/roadmanfong/react-cropper
+npm install react-cropper
