@@ -268,3 +268,29 @@ getCroppedCanvas() now showing up in tutorial
 cd client-app
 npm install @types/cropperjs
 
++++++++++++++Temporary Workaround in Cropper+++++++++++++
+- It appears that the React-Cropper along with cropperjs updates altered behaviors with the inheritance
+
+Current Cropper settings (as of 11/1/2019):
+"@types/cropperjs": "^1.1.5",
+ "cropperjs": "^1.5.6",
+ "react-cropper": "^1.3.0",
+...
+"dependencies": {
+    "babel-core": "7.0.0-bridge.0",
+    "cropperjs": "^1.5.5",
+    "prop-types": "^15.5.8"
+  },
+
+Tutorials Cropper settings:
+"@types/cropperjs": "^1.1.5",
+"react-cropper": "^1.2.0",
+...
+"dependencies": {
+    "babel-core": "7.0.0-bridge.0",
+    "cropperjs": "v1.0.0-rc.3",
+    "prop-types": "^15.5.8"
+
+Resolution:
+npm install react-cropper@1.2.0
+
