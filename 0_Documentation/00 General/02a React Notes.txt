@@ -470,6 +470,9 @@ useEffect(() => {
 
 - return a function inside useEffect
 
++++++++++useRef+++++++++
+useRef returns a mutable ref object whose .current property is initialized to the passed argument (initialValue). 
+The returned object will persist for the full lifetime of the component.
 
 +++++++++++Scroll Restoration+++++++++++
 - Scrolling issue with Routing to Homepage
@@ -587,3 +590,37 @@ https://mobx.js.org/refguide/modifiers.html
 
 observable.shallow: Can only used in combination with collections. Turns any assigned collection into an observable, 
 but the values of that collection will be treated as-is.
+
++++++++++++Semantic UI+++++++++++
+
+- Statistic
+https://react.semantic-ui.com/views/statistic/
+
+- Reveal
+https://react.semantic-ui.com/elements/reveal/
+
++++++++++++++Isolate Button loading (for lists with buttons)+++++++++++++
+- Track the name being clicked, give the button name property
+
+1. Set a new variable for button name
+const [target, setTarget] = useState<string | undefined>(undefined);
+
+2. Inside Button's onClick set the Target as well as the Button's click behavior3
+- set name to an entity id (ex. name=photo.id)
+- set the parameter as (e: event) to set target: setTarget(e.currentTarget.name);
+From:
+<Button
+	...
+	loading={loading}
+	onClick={() => setMainPhoto(photo)}
+	/>
+To: 
+<Button
+	...
+    name={photo.id}
+    loading={loading && target === photo.id}
+    onClick={e => {
+		setMainPhoto(photo);
+		setTarget(e.currentTarget.name);
+    }}
+/>

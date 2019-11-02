@@ -1,0 +1,247 @@
+﻿
++++++++++++++Upload Save Functions+++++++++++++
+1. Create new function on requests agent.ts
+const requests = {
+  ...
+  postForm: (url: string, file: Blob) => {
+    let formData = new FormData();
+    formData.append("File", file);
+    return axios
+      .post(url, formData, {
+        headers: { "Content-type": "multipart/formdata" }
+      })
+      .then(responseBody);
+  }
+};
+...
+1.1 Add to Profiles methods
+const Profiles = {
+  ...
+  setMain: (id: string) => requests.post(`/photos/${id}/setmain`, {})
+};
+
+2. Add action in profileStore for uploading photo
+2.1 Create another observable for the loading behavior
+2.2 Check profile exist then push Photo to the array
+2.3 check if photo is main, if yes 
+	then check if user is in userstore
+	set user in rootstore's image
+2.4 set loading behavior to false
+
+@action uploadPhoto = async (file: Blob) => {
+    this.uploadingPhoto = true;
+    try {
+      const photo = await agent.Profiles.uploadPhoto(file);
+      runInAction(() => {
+        if (this.profile) {
+          this.profile.photos.push(photo);
+          if (photo.isMain && this.rootStore.userStore.user) {
+            this.rootStore.userStore.user.image = photo.url;
+            this.profile.image = photo.url;
+          }
+        }
+        this.uploadingPhoto = false;
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("Problem uploading photo");
+      runInAction(() => {
+        this.uploadingPhoto = false;
+      });
+    }
+  };
+
++++++++++++++Use the Save functions in pages+++++++++++++
+1. Destructure @action uploadPhoto, @observable uploadingPhoto in ProfilePhotos.tsx
+- /src/features/profiles/ProfilePhotos.tsx
+const {
+    profile,
+    isCurrentUser,
+    uploadPhoto,
+    uploadingPhoto
+  } = rootStore.profileStore;
+
+2. Pass these to PhotoUploadWidget
+<PhotoUploadWidget
+    uploadPhoto={uploadPhoto}
+    loading={uploadingPhoto}
+/>
+...
+
+3. Catch in PhotoUploadWidget
+- \src\app\common\photoUpload\PhotoUploadWidget.tsx
+interface IProps {
+  uploadPhoto: (file: Blob) => void;
+  loading: boolean;
+}
+
+const PhotoUploadWidget: React.FC<IProps> = ({
+  uploadPhoto,
+  loading
+}) => {
+...
+
+4. Create Button and handle loading and onClick to use these properties
+{files.length > 0 && (
+    <Fragment>
+        <div
+        className="img-preview"
+        style={{ minHeight: "200px", overflow: "hidden" }}
+        />
+        <Button.Group>
+        <Button
+            positive
+            icon="check"
+            loading={loading}
+            onClick={() => uploadPhoto(image!)}
+        />
+        </Button.Group>
+    </Fragment>
+    )}
+
+5. Add a cancel button
+<Button
+    icon="close"
+    disabled={loading}
+    onClick={() => setFiles([])}
+/>
+
+6. Set observer to export default ProfilePhotos;
+export default observer(ProfilePhotos);
+
+7. Close the Upload Widget upon saving
+- addPhotoMode is inside ProfilePhotos, we have to trigger this in PhotoUploadWidget
+- Create handler for uploadPhoto and pass to PhotoUploadWidget to trigger addPhotoMode
+
+ const handleUploadImage = (photo: Blob) => {
+    uploadPhoto(photo).then(() => setAddPhotoMode(false));
+  };
+
+- This is what we will pass in PhotoUploadWidget widget
+From:
+<PhotoUploadWidget
+    uploadPhoto={uploadPhoto}
+    loading={uploadingPhoto}
+/>
+To:
+<PhotoUploadWidget
+    uploadPhoto={handleUploadImage}
+    loading={uploadingPhoto}
+/>
+
++++++++++++++Set Main Photo and Delete Functionality+++++++++++++
+1. Create new function on requests agent.ts
+const requests = {
+  ...
+  const Profiles = {
+  ...
+	setMain: (id: string) => requests.post(`/photos/${id}/setmain`, {}),
+	deletePhoto: (id: string) => requests.del(`/photos/${id}`)
+	};
+  }
+};
+
+2. Add action in profileStore for setting main photo
+- Also set properties
+	userStore object
+	photos array in the Profile
+	update Profile Image
+@action setMainPhoto = async (photo: IPhoto) => {
+    this.loading = true;
+    try {
+      await agent.Profiles.setMain(photo.id);
+      runInAction(() => {
+        this.rootStore.userStore.user!.image = photo.url;
+        this.profile!.photos.find(p => p.isMain)!.isMain = false;
+        this.profile!.photos.find(p => p.id === photo.id)!.isMain = true;
+        this.profile!.image = photo.url;
+        this.loading = false;
+      });
+    } catch (error) {
+      toast.error("Problem setting photo as main");
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  };
+
+3. Destructure @action setMainPhoto, @observable loading in ProfilePhotos.tsx
+const {
+    ...
+    setMainPhoto,
+    loading
+  } = rootStore.profileStore;
+
+4. Use in <Button main
+<Button
+    basic
+    positive
+    content="Main"
+    loading={loading}
+    onClick={() => setMainPhoto(photo)}
+></Button>
+
++++++++++++++Isolate Button loading (for lists with buttons)+++++++++++++
+1. Set a new variable for button name (see React notes under 00 General)
+const [target, setTarget] = useState<string | undefined>(undefined);
+
+<Button
+	...
+	loading={loading}
+	onClick={() => setMainPhoto(photo)}
+	/>
+To: 
+<Button
+	...
+    name={photo.id}
+    loading={loading && target === photo.id}
+    onClick={e => {
+		setMainPhoto(photo);
+		setTarget(e.currentTarget.name);
+    }}
+/>
+
+2. Add disabled if photo isMain
+
++++++++++++++Handle Delete Functionality+++++++++++++
+1. Add delete action in profileStore
+- Remove photo from photos array, filter !==, all the photos except
+- No need to check isMain, we will disable the button if photo isMain
+
+@action deletePhoto = async (photo: IPhoto) => {
+    this.loading = true;
+    try {
+      await agent.Profiles.deletePhoto(photo.id);
+      runInAction(() => {
+        this.profile!.photos = this.profile!.photos.filter(
+          p => p.id !== photo.id
+        );
+        this.loading = false;
+      });
+    } catch (error) {
+      toast.error("Problem deleting the photo");
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  };
+
+2. Use in Delete Button onClick
+- Set a different target flag id for button's loading indicator
+...
+const [deleteTarget, setDeleteTarget] = useState<string | undefined>(
+    undefined
+  );
+...
+<Button
+    name={photo.id}
+    loading={loading && deleteTarget === photo.id}
+    onClick={e => {
+    deletePhoto(photo);
+    setDeleteTarget(e.currentTarget.name);
+    }}
+    disabled={photo.isMain}
+    basic
+    negative
+    icon="trash"
+/>

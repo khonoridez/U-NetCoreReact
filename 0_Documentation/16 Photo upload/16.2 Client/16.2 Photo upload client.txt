@@ -1,0 +1,295 @@
+﻿
++++++++++++++Outline+++++++++++++
+
+1. Profile page
+2. Displaying user photos
+3. Photo upload widget
+4. React Dropzone
+5. React Cropper
+6. Setting main/delete photos
+
++++++++++++++Upload+++++++++++++
+
++++++++++++++Button, View Toggles+++++++++++++
+- Enable only if you are looking at your own profile
+- Get the current logged in user in userStore
+- Then get the user in profileStore, if both match then enable edit
+
+1. In profileStore declare a computed property isCurrentUser
+@computed get isCurrentUser() {
+    if (this.rootStore.userStore.user && this.profile) {
+      return this.rootStore.userStore.user.username === this.profile.username;
+    } else {
+      return false;
+    }
+  }
+
+2. Implement Upload in ProfilePhotos
+const { profile, isCurrentUser } = rootStore.profileStore;
+const [addPhotoMode, setAddPhotoMode] = useState(false);
+
+3. Adjust Styles
+- Utilize Grid
+<Grid>
+    <Grid.Column width={16} style={{ paddingBottom: 0 }}>
+        <Header floated="left" icon="image" content="Photos" />
+
++++++++++++++Photo Upload Widget+++++++++++++
+1. Create file /src/app/common/photoUpload/PhotoUpload.tsx
+- type s_17.8.1 snippet
+- Grid Columns, containing 3 steps
+- Remove export on named import (on top)
+- export default is at bottom
+Step 1 - Add Photo
+Step 2 - Resize image
+Step 3 - Preview & Upload
+
+2. Add Photo Widget to ProfilePhotos
+{addPhotoMode ? (
+    <PhotoUploadWidget />
+    ) : (
+
+3. Implement an Active Index on tab under Profile Content
+<Tab
+    menu={{ fluid: true, vertical: true }}
+    menuPosition="right"
+    panes={panes}
+    activeIndex={1}
+/>
+
+4. Default setAddPhotoMode to true (temporarily for dev)
+const [addPhotoMode, setAddPhotoMode] = useState(true);
+
++++++++++++++React Dropzone+++++++++++++
+1. Install React Dropzone
+- cd client-app
+- npm install react-dropzone
+
+2. Add new file /src/app/common/photoUpload/PhotoWidgetdropzone.tsx
+copy paste code from sample Usage
+https://github.com/react-dropzone/react-dropzone
+- rename fields, properties
+
+3. Pass files coming from PhotoWidgetDropzone (acceptedFiles) to PhotoUploadWidget
+3.1 In PhotoUploadWidget create local variables via useState
+- files will represent the "acceptedFiles" that was dropped
+const PhotoUploadWidget = () => {
+	const [files, setFiles] = useState([]);
+	...
+3.2 Pass this to the PhotoWidgetDropzone
+<PhotoWidgetDropzone setFiles={setFiles} />
+
+3.3 Catch in PhotoWidgetDropzone via IProps
+interface IProps {
+  setFiles: (files: object[]) => void;
+}
+
+const PhotoWidgetDropzone: React.FC<IProps> = ({ setFiles }) => {
+...
+
+3.4 Use in onDrop change
+- setFiles will get all files that was dropped and via map, will set a new property "preview" using 
+URL.createObjectURL(..)
+https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
+
+const onDrop = useCallback(acceptedFiles => {
+    setFiles(
+      acceptedFiles.map((file: object) =>
+        Object.assign(file, { preview: URL.createObjectURL(file) })
+      )
+    );
+  }, []);
+
+3.5. Place this inside an <Image /> back to PhotoUploadWidget
+<Grid.Column width={4}>
+    ...
+    {files.length > 0 && <Image src={files[0].preview} />}
+</Grid.Column>
+
++++++++++++++Styling React Dropzone+++++++++++++
+- Style Box and icon inside
+1. declare dropzone styles in a variable
+const dropzoneStyles = {
+  border: "dashed 3px",
+  borderColor: "#eee",
+  borderRadius: "5px",
+  paddingTop: "30px",
+  textAlign: "center",
+  height: "200px"
+};
+
+const dropzoneActive = {
+  borderColor: "green"
+};
+
+2. Implement in the first div
+- if isDragActive then spread all props from dropzoneStyles and then spread all props from dropzoneActive
+- if not just get dropzoneStyles
+<div
+    {...getRootProps()}
+    style={
+    isDragActive ? { ...dropzoneStyles, ...dropzoneActive } : dropzoneStyles
+    }
+>
+...
+
+!!! Error Type '{ textAlign: string;...... }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+ Resolution: add  as "center"
+ const dropzoneStyles = {
+  ...
+  textAlign: "center" as "center",
+};
+
++++++++++++++Clear Memory Leak on URL.createObjectURL(file)+++++++++++++
+- Use an equivalent on class component, componentWillUnmount
+1. Create useEffect for cleanup
+
++++++++++++++React Cropper+++++++++++++
+https://github.com/roadmanfong/react-cropper
+
+1. Install React Cropper
+
+- cd client-app
+- npm install react-cropper
+- npm install @types/react-cropper
+
+2. Create component PhotoWidgetCropper.tsx
+- /src/app/common/photoUpload/PhotoWidgetCropper.tsx
+- type rafc snippet
+
+3. Configure Cropper via example
+  _crop(){
+    // image in dataUrl
+    console.log(this.refs.cropper.getCroppedCanvas().toDataURL());
+  }
+
+- get getCroppedCanvas
+- either convert it to a dataURL or blob
+- then Send this image to the server
+- access the image via ref in the DOM
+<Cropper
+      ref={cropper}
+	  ...
+
+4. Create state for the Cropper in PhotoUploadWidget
+- Pass to Cropper component, we will pass the preview image as well
+const [image, setImage] = useState<Blob | null>(null);
+...
+<Header sub color="teal" content="Step 2 - Resize image" />
+	{files.length > 0 && (
+            <PhotoWidgetCropper
+              setImage={setImage}
+              imagePreview={files[0].preview}
+            />
+          )}
+	...
+
+5. Set parameters (interface IProps) in PhotoWidgetCropper
+interface IProps {
+  setImage: (file: Blob) => void;
+  imagePreview: string;
+}
+
+const PhotoWidgetCropper: React.FC<IProps> = ({ setImage, imagePreview }) => {
+
+6. use imagePreview as the src= of Cropper
+<Cropper
+      ref=".."
+      src={imagePreview}
+      style={{ height: 400, width: "100%" }}
+      // Cropper.js options
+      aspectRatio={16 / 9}
+      guides={false}
+    />
+
+7. Use the useRef hook to set Cropper's ref variable
+- get a reference of the Cropper input element from DOM
+const cropper = useRef(null);
+...
+return (
+    <Cropper
+      ref={cropper}
+	  ...
+
+!! Error   Type 'MutableRefObject<null>' is not assignable to type 'string | .....
+
+8. Set Cropper styles
+style={{ height: 200, width: "100%" }}
+
+- Set crop to square
+aspectRatio={1 / 1}
+
+guides={false}
+viewMode={1}
+dragMode="move"
+scalable={true}
+cropBoxMovable={true}
+cropBoxResizable={true}
+
+9. Configure crop method
+<Cropper
+    ...
+    crop={cropImage}
+/>
+...
+const cropImage = () => {
+    if (
+      cropper.current &&
+      typeof cropper.current.getCroppedCanvas() === "undefined"
+    ) {
+      return;
+    }
+    cropper &&
+      cropper.current &&
+      cropper.current.getCroppedCanvas().toBlob((blob: any) => {
+        setImage(blob);
+      }, "image/jpeg");
+  };
+
++++++++++++++Error in Cropper (Type Defintion)+++++++++++++
+WORKAROUND: Create a custom type definition file inside custom typings folder
+- Property 'getCroppedCanvas' does not exist on type 'ReactCropper'
+- Type definition error in tutorial
+
+1. Create file react-cropper.d.ts, copy Cropper's type definition file
+2. Uninstall @types from Cropper
+npm uninstall @types/react-cropper
+3. Wrap all code from new react-cropper.d.ts inside a declare module..
+declare module "react-cropper" { ....
+4. Restart client-app
+npm start
+!! Error
+./src/app/common/photoUpload/PhotoWidgetCropper.tsx       
+  Line 27:6:  'Cropper' is not defined  react/jsx-no-undef
+getCroppedCanvas() now showing up in tutorial
+
+5. Install types for cropperjs
+cd client-app
+npm install @types/cropperjs
+
++++++++++++++Temporary Workaround in Cropper+++++++++++++
+- It appears that the React-Cropper along with cropperjs updates altered behaviors with the inheritance
+
+Current Cropper settings (as of 11/1/2019):
+"@types/cropperjs": "^1.1.5",
+ "cropperjs": "^1.5.6",
+ "react-cropper": "^1.3.0",
+...
+"dependencies": {
+    "babel-core": "7.0.0-bridge.0",
+    "cropperjs": "^1.5.5",
+    "prop-types": "^15.5.8"
+  },
+
+Tutorials Cropper settings:
+"@types/cropperjs": "^1.1.5",
+"react-cropper": "^1.2.0",
+...
+"dependencies": {
+    "babel-core": "7.0.0-bridge.0",
+    "cropperjs": "v1.0.0-rc.3",
+    "prop-types": "^15.5.8"
+
+Resolution:
+npm install react-cropper@1.2.0
