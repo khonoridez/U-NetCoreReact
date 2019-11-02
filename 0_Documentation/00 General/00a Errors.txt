@@ -341,3 +341,10 @@ Tutorials Cropper settings:
 
 Resolution:
 npm install react-cropper@1.2.0
+
++++++++++++++Bugs in Photo Set Main and Delete Loader+++++++++++++
+1. Change Main Photo
+2. Delete a Photo
+
+Bug: Both Delete Button of target and Set Main Button of new main photo is loading
+Resolution: Not reusing @observable loadding and created new @observable boolean
