@@ -1,0 +1,37 @@
+﻿
++++++++++++++++++Edit Profile+++++++++++++++++
+1. PUT method
+Fields
+displayName
+bio
+- validation
+- must not be empty
+
+2. Get Profile method
+displayName
+username
+image
+bio
+photos
+
+3. Client
+Edit Profile requriements
+- Toggle Edit Form, Cancel
+- Update Profile
+	Update in About
+	Update in header
+	Update in Navbar
+
+Steps:
+Api
+- Handler
+- Controller
+- Validation
+- Postman Test
+
+Client
+- agent.ts
+- profileStore.ts
+- ProfileDescription.tsx
+- ProfileEditForm.tsx
+

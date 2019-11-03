@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { TabPane, Header, Card, Image, Button, Grid } from "semantic-ui-react";
+import { Tab, Header, Card, Image, Button, Grid } from "semantic-ui-react";
 import { RootStoreContext } from "../../app/stores/rootStore";
 import PhotoUploadWidget from "../../app/common/photoUpload/PhotoUploadWidget";
 import { observer } from "mobx-react-lite";
@@ -27,7 +27,7 @@ const ProfilePhotos = () => {
   };
 
   return (
-    <TabPane>
+    <Tab.Pane>
       <Grid>
         <Grid.Column width={16} style={{ paddingBottom: 0 }}>
           <Header floated="left" icon="image" content="Photos" />
@@ -86,7 +86,7 @@ const ProfilePhotos = () => {
           )}
         </Grid.Column>
       </Grid>
-    </TabPane>
+    </Tab.Pane>
   );
 };
 

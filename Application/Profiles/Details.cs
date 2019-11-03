@@ -1,7 +1,9 @@
-﻿using MediatR;
+﻿using Application.Errors;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,6 +28,9 @@ namespace Application.Profiles
             public async Task<Profile> Handle(Query request, CancellationToken cancellationToken)
             {
                 var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == request.Username);
+
+                if (user == null)
+                    throw new RestException(HttpStatusCode.NotFound, new { user = "Not Found" });
 
                 return new Profile
                 {
