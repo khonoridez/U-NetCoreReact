@@ -1,0 +1,92 @@
+﻿
++++++++++++++++++Setup SignalR+++++++++++++++++
+https://docs.microsoft.com/en-us/aspnet/core/tutorials/signalr?view=aspnetcore-3.0&tabs=visual-studio
+- SignalR is located in Microsoft.AspNetCore.App
+- We just need to add SignnalR in Startup.cs
+
+1. Add SignalR in Startup.cs
+- AddSignalR or AddSignalRCore
+- AddSignalRCore has the bare minimu
+- we will be using AddSignalR
+
+public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddSignalR();
+	...
+
+2. Add to endpoint
+- ChatHub is like the ApiController controller
+- root that we will specify is ("/chatHub")
+- Clients will connect to the ChatHub
+- Methods inside ChatHub will be invoked in client
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ChatHub>("/chatHub");
+    ...
+});
+
+3. Create ChatHub
+- /API/SignalR/ChatHub.cs
+
+4. Inject IMediator
+...
+private readonly IMediator _mediator;
+
+public ChatHub(IMediator mediator)
+{
+    _mediator = mediator;
+}
+...
+
+5. Create method SendComment
+Note:
+- In ApiController name of the method does not matter, what matters is the root in the attribute for access
+	[HttpGet("{id}")]
+	public async Task<ActionResult<ActivityDto>> Details(Guid id) ...
+
+public async Task SendComment(Create.Command command) {
+...
+
+6. Configure SendComment
+- Get username from hub "Context" (not yet available)
+- send this username ot the Command
+- send Create.Command via MediatR
+- send created comment to all clients via method name "ReceiveComment"
+public async Task SendComment(Create.Command command)
+{
+    var username = Context.User?.Claims?.FirstOrDefault(
+        c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+    command.Username = username;
+
+    var comment = await _mediator.Send(command);
+
+    await Clients.All.SendAsync("ReceiveComment", comment);
+}
+
+7. Add token to Hub Context, under AddAuthentication
+public void ConfigureServices(IServiceCollection services)
+{
+...
+services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opt =>
+    {
+       ...
+        opt.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/chat")))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+- 
