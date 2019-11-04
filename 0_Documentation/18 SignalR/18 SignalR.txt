@@ -19,6 +19,9 @@ https://docs.microsoft.com/en-us/aspnet/core/signalr/introduction?view=aspnetcor
 3. @aspnet/signalr
 - for the client
 
++++++++++++++++++Extending+++++++++++++++++
+1. Private message system
+
 +++++++++++++++++Setup+++++++++++++++++
 - Chat thread will be seen for everyone connected to the activity
 - Add domain entity for comments

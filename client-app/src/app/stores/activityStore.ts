@@ -37,7 +37,7 @@ export default class ActivityStore {
       .catch(error => console.log("Error establishing connection: ", error));
 
     this.hubConnection.on("ReceiveComment", comment => {
-      this.activity!.comments.push(comment);
+      runInAction(() => this.activity!.comments.push(comment));
     });
   };
 
@@ -136,6 +136,7 @@ export default class ActivityStore {
       let attendees = [];
       attendees.push(attendee);
       activity.attendees = attendees;
+      activity.comments = [];
       activity.isHost = true;
 
       runInAction("create activity", () => {
