@@ -116,3 +116,9 @@ Tutorials Cropper settings:
 Resolution:
 npm install react-cropper@1.2.0
 
+++++++++++++++Updating Profile, Comments section does not update++++++++++++++
+- When profile is modified, profile detailes in comment section does not update
+- photo, displayName
+
+++++++++++++++Logging Information for chat system++++++++++++++
+- This is active as per tutorial

@@ -50,6 +50,10 @@ public ICollection<AttendeeDto> UserActivities { get; set; }
 - CloudinaryDotNet 1.8.0
 - Add to Infrastructure Project
 
+9. SignalR
+inside Microsoft.AspNetCore.App
+https://docs.microsoft.com/en-us/aspnet/core/tutorials/signalr?view=aspnetcore-3.0&tabs=visual-studio
+
 +++++++++++React Packages+++++++++++
 
 > cd client-app
@@ -141,3 +145,6 @@ npm install react-dropzone
 11. React Cropper
 https://github.com/roadmanfong/react-cropper
 npm install react-cropper
+
+12. Client side SignalR
+npm install @aspnet/signalr

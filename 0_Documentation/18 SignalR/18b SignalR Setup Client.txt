@@ -1,0 +1,221 @@
+﻿
++++++++++++++++++Setup SignalR Client+++++++++++++++++
+
+1. Install SignalR client package
+cd client-app
+npm install @aspnet/signalr
+
+2. Create observable reference for hub connection in activityStore
+- only observes the references but does not try to turn the assigned value as an observable
+
+import { HubConnection } from "@aspnet/signalr";
+...
+@observable.ref hubConnection: HubConnection | null = null;
+
+3. Create action for createHubConnection
+3.1 Setup hubConnection
+- Specify "/chat" url
+- same string specified in Startup.cs
+... if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/chat")))
+... endpoints.MapHub<ChatHub>("/chat");
+- Get access tokenn from common store
+- Initialize hubConnection using start()
+@action createHubConnection = () => {
+    this.hubConnection = new HubConnectionBuilder()
+      .withUrl("http://localhost:5000/chat", {
+        accessTokenFactory: () => this.rootStore.commonStore.token!
+      })
+      .configureLogging(LogLevel.Information)
+      .build();
+
+    this.hubConnection
+      .start()
+      .then(() => console.log(this.hubConnection!.state))
+      .catch(error => console.log("Error establishing connection: ", error));
+
+    ...
+  };
+
+3.2 Create comment interface add to IActivty
+export interface IActivity {
+  ...
+  comment: IComment[];
+}
+
+export interface IComment {
+  id: string;
+  createdAt: Date;
+  body: string;
+  username: string;
+  displayName: string;
+  image: string;
+}
+
+3.3 Set handler in createHubConnection for receiving messages
+- "ReceiveComment" string is the same string in SendComment Api 
+- await Clients.All.SendAsync("ReceiveComment", comment);
+
+this.hubConnection.on("ReceiveComment", comment => {
+      this.activity!.comments.push(comment);
+    });
+
+3.4 Create action for stop hub connection
+@action stopHubConnection = () => {
+	this.hubConnection!.stop();
+};
+
++++++++++++++++++Usage client side+++++++++++++++++
+
+1. Create action to add comment
+- invoke hubConnection passing exact name of method from Api
+- public async Task SendComment(Create.Command command)
+@action addComment = async (values: any) => {
+    values.activityId = this.activity!.id;
+    try {
+      await this.hubConnection!.invoke("SendComment", values);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+2. Use in ActivityDetailedChat
+- client-app\src\features\activities\details\ActivityDetailedChat.tsx
+2.1 Destructure the Hub methods, properties from rootStore
+const ActivityDetailedChat = () => {
+  const rootStore = useContext(RootStoreContext);
+  const {
+    createHubConnection,
+    stopHubConnection,
+    addComment,
+    activity
+  } = rootStore.activityStore;
+
+2.2 Use useEffect to trigger hubConnection
+  useEffect(() => {
+    createHubConnection();
+    return () => {
+      stopHubConnection();
+    };
+  }, [createHubConnection, stopHubConnection]);
+
+- return stopHubConnection for the cleanup
+
+2.3 Test run in browser produced CORS error
+ccess to XMLHttpRequest at 'http://localhost:5000/chat/negotiate' from origin 'http://localhost:3000' has been 
+blocked by CORS policy: Response to preflight request doesn't pass access control check: The value of the 
+'Access-Control-Allow-Credentials' header in the response is '' which must be 'true' when the request's credentials 
+mode is 'include'. The credentials mode of requests initiated by the XMLHttpRequest is controlled by the 
+withCredentials attribute.
+
+- SignalR sends authentication differently
+- Add AllowCredentials in CORS configuration
+
+services.AddCors(opt =>
+{
+    opt.AddPolicy("CorsPolicy", policy =>
+    {
+        policy
+		....
+        .AllowCredentials();
+    });
+});
+
+2.4 Test will now show in console (f12)
+- Connected over websocket protocol
+- Sending access_token in query string
+[2019-11-04T16:31:42.954Z] Information: WebSocket connected to ws://localhost:5000/chat
+?id=....
+&access_token=....
+
++++++++++++++++++Usage in Component+++++++++++++++++
+- client-app\src\features\activities\details\ActivityDetailedChat.tsx
+1. import FinalForm
+import { Form as FinalForm, Field } from "react-final-form";
+
+2. Loop over activity comments under Comment.Group
+<Comment.Group>
+{activity &&
+	activity.comments &&
+	activity.comments.map(comment => (...
+
+3. Add comment.id as key on Comment component
+...
+activity.comments.map(comment => (
+	<Comment key={comment.id}>
+	...
+
+4. Set Comment Author as Link (react-router-dom)
+<Comment.Author as={Link} to={`/profile/${comment.username}`}>
+	{comment.displayName}
+</Comment.Author>
+
+5. Create FinalForm
+- attach addComment for onSubmit
+- destrcuture properties from FinalForm ({ handleSubmit, submitting, form })
+- add existing Form inside FinalForm's render
+ <FinalForm
+    onSubmit={addComment}
+    render={({ handleSubmit, submitting, form }) => (
+		<Form reply>
+                <Form.TextArea />
+                <Button
+                  content="Add Reply"
+                  labelPosition="left"
+                  icon="edit"
+                  primary
+                />
+              </Form>
+	...
+
+6. Set the onSubmit property of the inner Form
+- after submitting the form, reset the form values
+<Form onSubmit={() => handleSubmit()!.then(() => form.reset())}>
+
+7. Set other Form's properties
+...
+ <Field
+    name="body"
+    component={TextAreaInput}
+    rows={2}
+    placeholder="Add your comment"
+ />
+ <Button
+    content="Add Reply"
+    labelPosition="left"
+    icon="edit"
+    primary
+    loading={submitting}
+ />
+</Form>
+
+8. Set component as observer, otherwise we wont see chat added
+export default observer(ActivityDetailedChat);
+
+9. Error upon test
+[mobx] Since strict-mode is enabled, changing observed observable values outside actions is not allowed. 
+Please wrap the code in an `action` if this change is intended. Tried to modify: ActivityStore@11.activity.comments
+  39 |    this.hubConnection.on("ReceiveComment", comment => {
+> 40 |      this.activity!.comments.push(comment);
+     | ^  41 |    });
+
+- Have to add runInAction, because we are updating an observable
+@action createHubConnection = () => {
+    ...
+    this.hubConnection.on("ReceiveComment", comment => {
+      runInAction(() => this.activity!.comments.push(comment));
+    });
+  };
+
++++++++++++++++++Formatting+++++++++++++++++
+1. Parse date from ISO format
+- date-fns formatDistance
+- ex. "about 1 month"
+<Comment.Metadata>
+	<div>{formatDistance(comment.createdAt, new Date())}</div>
+</Comment.Metadata>
+
++++++++++++++++++Cleanups+++++++++++++++++
+1. Initialize empty array of comments in createActivity
+@action createActivity = async (activity: IActivity) => {
+...
+activity.comments = [];

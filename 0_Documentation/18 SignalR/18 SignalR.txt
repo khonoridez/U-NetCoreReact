@@ -1,0 +1,153 @@
+﻿
++++++++++++++++++Outline+++++++++++++++++
+- For chat function
+https://docs.microsoft.com/en-us/aspnet/core/signalr/introduction?view=aspnetcore-3.0
+
+1. What is SignalR
+- Adds realtime web functionality to apps
+- Connected clients receive content instantly
+- Ideal for: chat apps, dashboard, monitoring
+- Transports
+	- WebSockets
+	- Server-Sent events
+	- Long polling
+- clients connect to a SignalR Hub, instead of an Api endpoint
+
+
+2. AspNet Core SignalR
+
+3. @aspnet/signalr
+- for the client
+
++++++++++++++++++Extending+++++++++++++++++
+1. Private message system
+
++++++++++++++++++Setup+++++++++++++++++
+- Chat thread will be seen for everyone connected to the activity
+- Add domain entity for comments
+- Activity will have many comments
+- Create handler for comments
+
++++++++++++++++++Domain Model and Migration+++++++++++++++++
+1. Create new class Comment.cs
+- /Domain/Comment.cs
+- Set virtual on domain properties to enable lazy loading
+public class Comment
+{
+    public Guid Id { get; set; }
+    public string Body { get; set; }
+    public virtual AppUser Author { get; set; }
+    public virtual Activity Activity { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
+2. Add Comment to /Domain/Activity.cs
+public class Activity
+{
+    ...
+    public virtual ICollection<Comment> Comments { get; set; }
+}
+
+3. Add to /Persistence/DataContext.cs
+public class DataContext : IdentityDbContext<AppUser>
+{
+    public DataContext(DbContextOptions options) : base(options)
+    {
+    }
+	...
+    public DbSet<Comment> Comments { get; set; }
+	...
+
+4. Create migrations
+dotnet ef migrations add "AddedCommentEntity" -p Persistence/ -s API/
+
+5. Restart Api to apply migration
+
++++++++++++++++++DTO and mapping+++++++++++++++++
+6. Create Comment DTO and mapping
+/Application/Comments/CommentDto.cs
+public class CommentDto
+{
+    public Guid Id { get; set; }
+    public string Body { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public string Username { get; set; }
+    public string DisplayName { get; set; }
+    public string Image { get; set; }
+}
+
+7. Create mapping (/Application/Comments/MappingProfile.cs)
+public class MappingProfile : Profile
+{
+    public MappingProfile()
+    {
+        CreateMap<Comment, CommentDto>()
+            .ForMember(d => d.Username, o => o.MapFrom(s => s.Author.UserName))
+            .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.Author.DisplayName))
+            .ForMember(d => d.Image, o => o.MapFrom(
+                s => s.Author.Photos.FirstOrDefault(p => p.IsMain).Url));
+    }
+}
+
+8. Add CommentDto to ActivityDto
+public class ActivityDto
+{
+    ...
+    public ICollection<CommentDto> Comments { get; set; }
+}
+
++++++++++++++++++Handlers+++++++++++++++++
+9. Create add handler for Comments
+/Application/Comments/Create.cs
+- type chandler for snippet
+- For this particular "Command" we will be returning the comment, so everyone connected will be receiving this comment
+
+- Add type CommentDto for Command as well as Handler
+public class Command : IRequest<CommentDto> {
+...
+public class Handler : IRequestHandler<Command, CommentDto> {
+...
+public async Task<CommentDto> Handle(Command request, CancellationToken cancellationToken)
+
+10. Set Parameters for the Handler
+- We will not be using an http request, We cant use UserAccessor (reliant on HttpContext)
+- We will be using websockets
+- we will be getting the username in a different way
+public class Command : IRequest<CommentDto>
+{
+    public string Body { get; set; }
+    public Guid ActivityId { get; set; }
+    public string Username { get; set; }
+}
+
+11. Implement handler 
+- Inject IMapper
+- We have to pass userName property
+- We will not be using an http request, We cant use UserAccessor (reliant on HttpContext)
+- We will be using websockets
+public async Task<CommentDto> Handle(Command request, CancellationToken cancellationToken)
+{
+    var activity = await _context.Activities.FindAsync(request.ActivityId);
+
+    if (activity == null)
+        throw new RestException(HttpStatusCode.NotFound, new { Activity = "Not found" });
+
+    var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == request.Username);
+
+    var comment = new Comment
+    {
+        Author = user,
+        Activity = activity,
+        Body = request.Body,
+        CreatedAt = DateTime.Now
+    };
+
+    activity.Comments.Add(comment);
+
+    var success = await _context.SaveChangesAsync() > 0;
+
+    if (success) return _mapper.Map<CommentDto>(comment);
+
+    throw new Exception("Problem saving changes");
+}
+
