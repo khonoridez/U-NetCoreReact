@@ -1,0 +1,171 @@
+﻿
++++++++++++++++++Setup Follower Feature+++++++++++++++++
+-  Since the new properties have MappingProfile already set via AutoMapper, this will just work with no configurations
+
+1. Add following properties in IProfile and IAttendee model
+export interface IProfile {
+  ...
+  following: boolean;
+  followersCount: boolean;
+  followingCount: boolean;
+}
+...
+export interface IAttendee {
+  ...
+  following?: boolean;
+}
+
+2. Implement attendee.following boolean ActivityDetailedSidebar.tsx
+\client-app\src\features\activities\details\ActivityDetailedSidebar.tsx
+
+{attendee.following && (
+    <Item.Extra style={{ color: "orange" }}>Following</Item.Extra>
+)}
+
+3. Implement attendee.following boolean on user avatars in ActivityListItemAttendees.tsx
+3.1 Specify style (border in avatar that signifies user is following the user)
+const styles = {
+  borderColor: "orange",
+  borderWidth: 2
+};
+
+3.2 Set style conditionally
+<Image
+    size="mini"
+    circular
+    src={attendee.image || "/assets/user.png"}
+    bordered
+    style={attendee.following ? styles : null}
+    />
+
+4. Implement attendee.following boolean in ProfileHeader.tsx
+...
+<Statistic label="Followers" value={profile.followersCount} />
+<Statistic label="Following" value={profile.followingCount} />
+...
+
++++++++++++++++++Follow Unfollow Functionality+++++++++++++++++
+1. Add api methods to agent.ts
+const Profiles = {
+  ...
+  follow: (username: string) =>
+    requests.post(`/profiles/${username}/follow`, {}),
+  unfollow: (username: string) => requests.del(`/profiles/${username}/follow`)
+};
+
+2. Add action in profileStore for these 2 actions
+ @action follow = async (username: string) => {
+    this.loading = true;
+    try {
+      await agent.Profiles.follow(username);
+      runInAction(() => {
+        this.profile!.following = true;
+        this.profile!.followersCount++;
+        this.loading = false;
+      });
+    } catch (error) {
+      toast.error("Problem following user");
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  };
+
+  @action unfollow = async (username: string) => {
+    this.loading = true;
+    try {
+      await agent.Profiles.unfollow(username);
+      runInAction(() => {
+        this.profile!.following = false;
+        this.profile!.followersCount--;
+        this.loading = false;
+      });
+    } catch (error) {
+      toast.error("Problem unfollowing user");
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  };
+
++++++++++++++++++Follow Unfollow Gui+++++++++++++++++
+- In ProfileHeader, we are receiving {profile} in the parent ProfilePage
+- We can also pass in const rootStore = useContext(RootStoreContext); in ProfileHeader but we will just be passing 
+the additional properties/actions to the child
+
+1. Destrcuture the new properties in ProfilePage
+- Bringing in isCurrentUser to disable functionality if looing at own profile
+const {
+    ...
+    follow,
+    unfollow,
+    isCurrentUser,
+    loading
+  } = rootStore.profileStore;
+
+2. Pass these properties and catch in ProfileHeader
+ProfilePage.tsx:
+<ProfileHeader
+    profile={profile!}
+    isCurrentUser={isCurrentUser}
+    follow={follow}
+    unfollow={unfollow}
+    loading={loading}
+/>
+...
+ProfileHeader.tsx:
+interface IProps {
+  profile: IProfile;
+  isCurrentUser: boolean;
+  follow: (username: string) => Promise<void>;
+  unfollow: (username: string) => Promise<void>;
+  loading: boolean;
+}
+
+const ProfileHeader: React.FC<IProps> = ({
+  profile,
+  isCurrentUser,
+  follow,
+  unfollow,
+  loading
+}) => {
+
+3. Implement isCurrentUser in Reveal component
+{isCurrentUser && (
+    <Reveal animated="move">
+	...
+
+4. Implement/toggle in buttons
+<Reveal.Content visible style={{ width: "100%" }}>
+<Button
+    ...
+    content={profile.following ? "Following" : "Not Following"}
+/>
+</Reveal.Content>
+<Reveal.Content hidden>
+<Button
+    ...
+	loading={loading}
+    color={profile.following ? "red" : "green"}
+    content={profile.following ? "Unfollow" : "Follow"}
+/>
+</Reveal.Content>
+
+5. Handle button's onClick
+- if profile.following then unfollow, else follow
+<Button
+    fluid
+    basic
+    color={profile.following ? "red" : "green"}
+    content={profile.following ? "Unfollow" : "Follow"}
+    onClick={
+    profile.following
+        ? () => unfollow(profile.username)
+        : () => follow(profile.username)
+    }
+/>
+
+6. Verify that the components are set as observer
+!!!If we have observables we have to set the compoenent as observer to reflect the changes
+export default observer(ProfilePage);
+export default observer(ProfileHeader);
