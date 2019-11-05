@@ -158,3 +158,32 @@ const handleGetNext = () => {
 if (loadingInitial && page === 0)
     return <LoadingComponent content="Loading Activities ..." />;
 
++++++++++++++++++Infinite Scrolling+++++++++++++++++
+- react-infinite-scroller
+https://www.npmjs.com/package/react-infinite-scroller
+1. install react-infinite-scroller
+npm install react-infinite-scroller
+- warning
+- npm audit fix
+npm install @types/react-infinite-scroller
+
+2. Use in ActivityDashboard
+- hasMore - check if not int he process of loading and th enext page is not the last page
+...
+import InfiniteScroll from "react-infinite-scroller";
+...
+<InfiniteScroll
+    pageStart={0}
+    loadMore={handleGetNext}
+    hasMore={!loadingNext && page + 1 < totalPages}
+    initialLoad={false}
+>
+    <ActivityList />
+</InfiniteScroll>
+
+3. Set Loader at the bottom of the Grid
+	...
+	<GridColumn width="10">
+		<Loader active={loadingNext} />
+    </GridColumn>
+</Grid>
