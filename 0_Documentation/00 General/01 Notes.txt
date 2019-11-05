@@ -172,6 +172,9 @@ ex. CreateMap<Activity, ActivityDto>();
 - any properties that has the same name, will automatically be mapped
 - no code needed
 
+++++++++++++++Custom Value Resolver++++++++++++++
+https://docs.automapper.org/en/stable/Custom-value-resolvers.html
+
 ++++++++++++Ordering of Services in ConfigureServices++++++++++++++
 https://stackoverflow.com/questions/55706344/what-is-correct-order-to-addcors-into-net-core
 

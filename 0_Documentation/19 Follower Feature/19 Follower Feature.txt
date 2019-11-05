@@ -283,3 +283,51 @@ public async Task<ActionResult<List<Profile>>> GetFollowings(string username, st
 - Usage: 
 {{url}}/api/profiles/bob/follow?predicate=following
 {{url}}/api/profiles/tom/follow?predicate=followers
+
++++++++++++++++++Implement FollowingResolver+++++++++++++++++
+- Following on Attendees (DTO)
+- Retrieving the Activity as <user>, Attendees should include flag IsFollowing
+
+1. Add property on AttendeeDto
+- Application/Activities/AttendeeDto.cs
+
+public bool Following { get; set; }
+
+2. Create FollowingResolver to be used in MappingProfile
+- This is because AutoMapper doesnt have a facility to map user
+- Hence we create a Custom Value Resolver
+https://docs.automapper.org/en/stable/Custom-value-resolvers.html
+
+public class FollowingResolver : IValueResolver<UserActivity, AttendeeDto, bool>
+{
+    public bool Resolve(UserActivity source, AttendeeDto destination, bool destMember, ResolutionContext context)
+    {
+	...
+
+3. Inject datacontext, userAccessor
+private readonly DataContext _context;
+private readonly IUserAccessor _userAccessor;
+
+public FollowingResolver(DataContext context, IUserAccessor userAccessor)
+{
+    _context = context;
+    _userAccessor = userAccessor;
+}
+
+4. Implement Resolve method
+4.1 Get current user
+- We cant set the method to async as it strcitly implements a return of bool
+- We have to specify .Result at the end of query
+var currentUser = _context.Users.SingleOrDefaultAsync(
+                u => u.UserName == _userAccessor.GetCurrentUserName()).Result;
+4.2 Check if currentUser is following the attendee (UserActivity source)
+if (currentUser.Followings.Any(f => f.TargetId == source.AppUserId))
+    return true;
+
+return false;
+
+5. Add in MappingProfile
+CreateMap<UserActivity, AttendeeDto>()
+	...
+	.ForMember(d => d.Following, o => o.MapFrom<FollowingResolver>());\
+
