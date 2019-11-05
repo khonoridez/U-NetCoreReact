@@ -218,3 +218,6 @@ if (context.Resource is AuthorizationFilterContext authContext) {
 	var activityId = authContext.RouteData.Values["id"].ToString();
 	var activity = _context.Activities.FindAsync(activityId).Result;
 	...
+
+++++++++Web based Data Modeler++++++++
+https://www.vertabelo.com/

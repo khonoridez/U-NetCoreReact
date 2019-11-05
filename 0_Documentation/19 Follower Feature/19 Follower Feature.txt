@@ -1,0 +1,128 @@
+﻿
++++++++++++++++++Outline+++++++++++++++++
+1. Implement Follower feature end-to-end
+2. Self referencing many to many relationship
+- Join table with the same table (AspNetUsers)
+
++++++++++++++++++Entity Setup+++++++++++++++++
+1. Create Join Class (table) UserFollowing
+- AppUser will be following many AppUser and be followed by many AppUser
+
+public class UserFollowing
+{
+    public string ObserverId { get; set; }
+    public virtual AppUser Observer { get; set; }
+    public string TargetId { get; set; }
+    public virtual AppUser Target { get; set; }
+}
+
+2. Add Collection of Following and Followers in AppUser
+public class AppUser : IdentityUser
+{
+    ...
+    public virtual ICollection<UserFollowing> Followings { get; set; }
+	public virtual ICollection<UserFollowing> Followers { get; set; }
+}
+
+3. Set DbSet in DataContext
+public DbSet<UserFollowing> Followings { get; set; }
+
+4. Set relationship in DataContext
+builder.Entity<UserFollowing>(b =>
+{
+    b.HasKey(k => new { k.ObserverId, k.TargetId });
+
+    b.HasOne(u => u.Observer)
+    .WithMany(a => a.Followings)
+    .HasForeignKey(u => u.ObserverId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+    b.HasOne(u => u.Target)
+    .WithMany(a => a.Followers)
+    .HasForeignKey(u => u.TargetId)
+    .OnDelete(DeleteBehavior.Restrict);
+});
+
+5. Add migration
+dotnet ef migrations add "AddedFollowingEntity" -p Persistence/ -s API/
+
++++++++++++++++++Add Handler+++++++++++++++++
+1. Create Handler Add
+- /Application/Followers/Add.cs
+- type chandler for snippet
+
+2. Set Username parameter, inject UserAccessor
+- This is because we are getting both users, the logged in user and the target user
+public class Command : IRequest
+{
+    public string Username { get; set; }
+}
+
+public class Handler : IRequestHandler<Command>
+{
+    private readonly DataContext _context;
+    private readonly IUserAccessor _userAccessor;
+
+    public Handler(DataContext context, IUserAccessor userAccessor)
+    {
+        _context = context;
+        _userAccessor = userAccessor;
+    }
+	...
+
+3. Get currentUser and targetUser
+ var observer = await _context.Users.SingleOrDefaultAsync(
+                    u => u.UserName == _userAccessor.GetCurrentUserName());
+
+var target = await _context.Users.SingleOrDefaultAsync(u => u.UserName == request.Username);
+
+if (target == null)
+    throw new RestException(HttpStatusCode.NotFound, new { User = "Not Found" });
+
+4. Check if followinng exist
+if (following != null)
+    throw new RestException(HttpStatusCode.BadRequest, new { User = "You are already following this user" });
+
+if (following == null)
+{
+    following = new UserFollowing
+    {
+        Observer = observer,
+        Target = target
+    };
+}
+
++++++++++++++++++Delete Handler+++++++++++++++++
+1. Create Handler Delete
+- /Application/Followers/Delete.cs
+- type chandler for snippet
+
+2. Copy code from Add and modify for Delete
+if (following == null)
+    throw new RestException(HttpStatusCode.BadRequest, new { User = "You are not following this user" });
+
+if (following != null)
+    _context.Followings.Remove(following);
+
++++++++++++++++++Create Api Controller+++++++++++++++++
+1. Create FollowersController.cs
+
+2. Set Route [Route("api/profiles")]
+3. Create follow and unfollow methods passing username as parameter
+
+[Route("api/profiles")]
+public class FollowersController : BaseController
+{
+    [HttpPost("{username}/follow")]
+    public async Task<ActionResult<Unit>> Follow(string username)
+    {
+        return await Mediator.Send(new Add.Command { Username = username });
+    }
+
+    [HttpDelete("{username}/follow")]
+    public async Task<ActionResult<Unit>> Unfollow(string username)
+    {
+        return await Mediator.Send(new Delete.Command { Username = username });
+    }
+}
+
