@@ -576,7 +576,6 @@ https://final-form.org/docs/react-final-form/api/Form#3-do-something-with-handle
       )}
     />
 
-
 +++++++++++Mobx Reactions+++++++++++
 https://mobx.js.org/refguide/reaction.html
 
@@ -584,6 +583,10 @@ Reaction
 	- accepts expression
 	- specify what we want to react on (this.token)
 	- next is the effect, what we want to do if the token is changed
+
+Used in
+1. In commonStore, for setting jwt token in window.localStorage
+2. In profileStore, for followers/followings tab change
 
 +++++++++++Mobx Decorators+++++++++++
 https://mobx.js.org/refguide/modifiers.html

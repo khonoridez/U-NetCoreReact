@@ -58,6 +58,31 @@ dotnet ef database drop -p Persistence/ -s API/
 3. Re run Api since we have migration setup in startup
 dotnet watch run
 
+++++++++++++Newtonsoft Json++++++++++++++
+https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_JsonPropertyAttribute.htm
+- Newtonsoft.Json 12.0.2
+
+Note on camelCase:
+- Classes in /Domain/ have properties in PascalCase, 
+- this automatically serializes to camelCase when passed out of the Api endpoint
+- this is due to the default setting of AddNewtonsoftJson() in the ConfigureServices under startup
+services.AddControllers()
+    .AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Create>())
+    .AddNewtonsoftJson();
+- We can modify this behavior by setting a JsonProperty Attribute on the property
+ex:
+[JsonProperty("attendees")]
+public ICollection<AttendeeDto> UserActivities { get; set; }
+
+- Or we set the SerializerSettings ContractResolver to DefaultContractResolver
+https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Serialization_DefaultContractResolver.htm
+services.AddControllers()
+    .AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Create>())
+    .AddNewtonsoftJson(opt =>
+    {
+        opt.SerializerSettings.ContractResolver = new DefaultContractResolver();
+    });
+
 ++++++++++++POSTMAN FEATURES++++++++++++++
 1. Variables
 - under collections > edit
@@ -138,7 +163,18 @@ Verify under Body Tab, form-data radio button is selected
 
 5. Verify values under Variables/Locals/
 
-
+++++++++++++DEBUGGING Client Side++++++++++++++
+1. Debugger for Chrome 4.12.1
+added under .vscode\launch.json
+"configurations": [
+    {
+      "name": "Chrome Debugger",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/src"
+    },
+	...
 ++++++++++++API SECURITY++++++++++++++
 
 1. TokenValidationParameters
@@ -171,6 +207,9 @@ ex. CreateMap<Activity, ActivityDto>();
 - Convention based, 
 - any properties that has the same name, will automatically be mapped
 - no code needed
+
+++++++++++++++Custom Value Resolver++++++++++++++
+https://docs.automapper.org/en/stable/Custom-value-resolvers.html
 
 ++++++++++++Ordering of Services in ConfigureServices++++++++++++++
 https://stackoverflow.com/questions/55706344/what-is-correct-order-to-addcors-into-net-core
@@ -218,3 +257,6 @@ if (context.Resource is AuthorizationFilterContext authContext) {
 	var activityId = authContext.RouteData.Values["id"].ToString();
 	var activity = _context.Activities.FindAsync(activityId).Result;
 	...
+
+++++++++Web based Data Modeler++++++++
+https://www.vertabelo.com/
