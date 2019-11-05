@@ -126,3 +126,160 @@ public class FollowersController : BaseController
     }
 }
 
++++++++++++++++++Profile Reader and Helper Class+++++++++++++++++
+1. Create new interface IProfileReader.cs
+/Application/Profiles/IProfileReader.cs
+public interface IProfileReader
+{
+    Task<Profile> ReadProfile(string username);
+}
+
+2. Create concrete class ProfileReader.cs
+/Application/Profiles/ProfileReader.cs
+- Inject DataContext and UserAccessor
+public class ProfileReader : IProfileReader
+{
+    private readonly DataContext _dataContext;
+    private readonly IUserAccessor _userAccessor;
+
+    public ProfileReader(DataContext dataContext, IUserAccessor userAccessor)
+    {
+        _dataContext = dataContext;
+        _userAccessor = userAccessor;
+    }
+	...
+
+3. Add additional properties in Profile.cs
+[JsonProperty("following")]
+public bool IsFollowed { get; set; }
+public int FollowersCount { get; set; }
+public int FollowingCount { get; set; }
+
+4. Implement ReadProfile
+- Get current user and target user
+- Set the additional properties values (FollowersCount, FollowingCount)
+- set .IsFollowed if currentUser is Following target user
+
+public async Task<Profile> ReadProfile(string username)
+{
+    var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == username);
+
+    if (user == null)
+        throw new RestException(HttpStatusCode.NotFound, new { User = "Not found" });
+
+    var currentUser = await _context.Users.SingleOrDefaultAsync(
+        u => u.UserName == _userAccessor.GetCurrentUserName());
+
+    var profile = new Profile
+    {
+        DisplayName = user.DisplayName,
+        Username = user.UserName,
+        Image = user.Photos.FirstOrDefault(p => p.IsMain)?.Url,
+        Photos = user.Photos,
+        Bio = user.Bio,
+        FollowersCount = user.Followers.Count(),
+        FollowingCount = user.Followings.Count()
+    };
+
+    if (currentUser.Followings.Any(f => f.TargetId == user.Id))
+        profile.IsFollowed = true;
+
+    return profile;
+}
+
+5. Map interface in Startup.cs
+services.AddScoped<IProfileReader, ProfileReader>();
+
+6. Inject IProfileReader and modify Details.cs to call ReadProfile
+/Application/Profiles.Details.cs
+
+public class Handler : IRequestHandler<Query, Profile>
+{
+    private readonly IProfileReader _profileReader;
+
+    public Handler(IProfileReader profileReader)
+    {
+        _profileReader = profileReader;
+    }
+
+    public async Task<Profile> Handle(Query request, CancellationToken cancellationToken)
+    {
+        return await _profileReader.ReadProfile(request.Username);
+    }
+}
+
++++++++++++++++++List of Followers and Followings+++++++++++++++++
+1. Create new class List.cs (Query Handler)
+- /Application/Followers/List.cs
+- type qhandler for snippet
+- Change type to IRequest<List<Profile>>
+
+2. Inject IProfileReader
+private readonly DataContext _context;
+private readonly IProfileReader _profileReader;
+
+public Handler(DataContext context, IProfileReader profileReader)
+{
+    _context = context;
+    _profileReader = profileReader;
+}
+
+3. Assign 2 parameters
+- Predicate will specify if the Query is for followers or following
+public class Query : IRequest<List<Profile>>
+{
+    public string Username { get; set; }
+    public string Predicate { get; set; }
+}
+
+4. Implement handle method
+4.1 Get Followings as queryable and filter base on Predicate
+var queryable = _context.Followings.AsQueryable();
+
+var userFollowings = new List<UserFollowing>();
+var profiles = new List<Profile>();
+
+4.2 For followers, 
+- Get all user's followers (Target)
+- For all the result, create Profile object of the followers (Observer) by passing to ReadProfile
+case "followers":
+{
+    userFollowings = await queryable.Where(
+        u => u.Target.UserName == request.Username).ToListAsync();
+
+    foreach (var follower in userFollowings)
+    {
+        profiles.Add(await _profileReader.ReadProfile(follower.Observer.UserName));
+    }
+}
+break;
+
+4.3 For following, 
+- Get all users the user is following (Observer)
+- For all the result, create Profile object of the users user is following (Target) by passing to ReadProfile
+case "following":
+{
+    userFollowings = await queryable.Where(
+        u => u.Observer.UserName == request.Username).ToListAsync();
+
+    foreach (var follower in userFollowings)
+    {
+        profiles.Add(await _profileReader.ReadProfile(follower.Target.UserName));
+    }
+}
+break;
+
+5. return profiles
+
+6. Create Api Controller
+[HttpGet("{username}/follow")]
+public async Task<ActionResult<List<Profile>>> GetFollowings(string username, string predicate)
+{
+    return await Mediator.Send(new List.Query { Username = username, Predicate = predicate });
+}
+
+7. Test in Postman
+- Module 20
+- Usage: 
+{{url}}/api/profiles/bob/follow?predicate=following
+{{url}}/api/profiles/tom/follow?predicate=followers
