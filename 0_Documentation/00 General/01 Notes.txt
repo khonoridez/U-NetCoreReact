@@ -260,3 +260,30 @@ if (context.Resource is AuthorizationFilterContext authContext) {
 
 ++++++++Web based Data Modeler++++++++
 https://www.vertabelo.com/
+
+
++++++++++++++++++IQueryable+++++++++++++++++
+
+1. Query variables stores query commands
+2. IQueryable<T>
+- Creates an expression tree
+3. Execution is deferred until iteration
+- Foreach loop
+- ToList(), ToArray(), ToDictionary()
+- Singleton queries (Count, Average etc)
+
+Queryable Example:
+- Build the query
+- Create an expression tree:
+var queryable = _context.Activities
+	.Where(x => x.Date >= request.StartDate)
+	.OrderBy(x => x.Date
+	.AsQueryable();
+
+- Use the queryable, we can add more expressions
+- in this case set: Skip 0 records, Take 3 records
+- Execute the queryable (using .ToListAsync())
+var activities = await queryable
+	.Skip(request.Offset ?? 0)
+	.Take(request.Limit ?? 3)
+	.ToListAsync();
