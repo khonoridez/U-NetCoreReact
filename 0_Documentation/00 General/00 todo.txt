@@ -67,7 +67,6 @@ public async Task<User> Handle(Command request, CancellationToken cancellationTo
         throw new RestException(HttpStatusCode.BadRequest, new { UserName = "Username already exist" });
 	...
 
-
 ++++++++++++++Injecting Assemblies++++++++++++++
 - In both MediatR and AutoMapper, 
 - passing in values of typeof(List.Handler).Assembly is used
@@ -122,3 +121,16 @@ npm install react-cropper@1.2.0
 
 ++++++++++++++Logging Information for chat system++++++++++++++
 - This is active as per tutorial
+
+++++++++++++++ProfileContent setActiveTab has type of any++++++++++++++
+interface IProps {
+  setActiveTab: (activeIndex: any) => void;
+}
+
+++++++++++++++Magic Numbers++++++++++++++
+1. activeTab on
+- ProfileFollowings
+- ProfileStore
+
+2. predicate on
+- ProfileStore

@@ -273,3 +273,81 @@ const ProfileCard: React.FC<IProps> = ({ profile }) => {
         </div>
       </Card.Content>
     </Card>
+
++++++++++++++++++Use MobX Reactions to replace useEffect for followers/following tab+++++++++++++++++
+
+- Replace hard-coded predicate for loadFollowings
+  useEffect(() => {
+    loadFollowings("following");
+  }, [loadFollowings]);
+- We will be using mobX to react to tab change as observables
+- load followings based on tab clicked
+
+++++++++++++Set Active Tab onClick++++++++++++
+1. Create observable in profileStore
+@observable activeTab: number = 0;
+
+2. Create new action to set activeTab
+  @action setActiveTab = (activeIndex: number) => {
+    this.activeTab - activeIndex;
+  };
+
+3. Since ProfilePage (parent) has the rootStore declaration, we will just destructure setActiveTab here and pass
+down to the childComponent (ProfileContent)
+<ProfileContent setActiveTab={setActiveTab} />
+
+4. Catch in ProfileContent as IProps
+interface IProps {
+  setActiveTab: (activeIndex: number) => void;
+}
+
+const ProfileContent: React.FC<IProps> = ({ setActiveTab }) => {
+...
+
+5. Handle setActiveTab in the Tab Component
+- onTabChange has 2 parameters (event and data)
+onTabChange={(e, data) => setActiveTab(data.activeIndex)}
+
+!! error Argument of type 'string | number | undefined' is not assignable to parameter of type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+
+Resolution: we'll just set activeIndex to any for now
+
+interface IProps {
+  setActiveTab: (activeIndex: any) => void;
+}
+
+++++++++++++React on Active Tab Changing++++++++++++
+1. Add reaction (mobX) in profileStore constructor
+constructor(rootStore: RootStore) {
+    this.rootStore = rootStore;
+
+    reaction(
+      () => this.activeTab,
+      activeTab => {
+        if (activeTab === 3 || activeTab === 4) {
+          const predicate = activeTab === 3 ? "followers" : "following";
+          this.loadFollowings(predicate);
+        } else {
+          this.followings = [];
+        }
+      }
+    );
+  }
+
+2. Remove useEffect in ProfileFollowings
+
+3. Modify conditional for the header text 
+- People following ...
+- People ... is following
+
+const { ... activeTab } = rootStore.profileStore;
+ <Header
+    floated="left"
+    icon="user"
+    content={
+        activeTab === 3
+        ? `People following ${profile!.displayName}`
+        : `People ${profile!.displayName} is following`
+    }
+	/>
