@@ -1,0 +1,360 @@
+﻿
++++++++++++++++++Filtering GUI+++++++++++++++++
+- Activity Filter in ActivityDashboard
+1. Create new file ActivityFilters.tsx
+- type snippet s_21.4.1
+
+2. Warning
+backend.js:6 Warning: componentWillMount has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details
+Please update the following components: Uncontrolled(Calendar)
+
+3. Use ActivityFilters to ActivityDashboard
+
++++++++++++++++++Filtering Api+++++++++++++++++
+1. Add properties for filter in Activity/List handler
+- Set startDate to .Now if it is null, to ensure that we return activities that are in the future by default
+public class Query : IRequest<ActivitiesEnvelope>
+{
+    public Query(int? limit, int? offset, bool isGoing, bool isHost, DateTime? startDate)
+    {
+        ...
+        IsGoing = isGoing;
+        IsHost = isHost;
+        StartDate = startDate ?? DateTime.Now;
+    }
+    ...
+    public bool IsGoing { get; set; }
+    public bool IsHost { get; set; }
+    public DateTime? StartDate { get; set; }
+}
+
+2. Implement startdate as query in handler method
+var queryable = _context.Activities
+        .Where(a => a.Date >= request.StartDate)
+        .OrderBy(a => a.Date)
+        .AsQueryable();
+
+3. Implement IsGoing IsHost filters
+3.1 Inject useraccessor
+...
+private readonly IUserAccessor _userAccessor;
+
+public Handler(..., IUserAccessor userAccessor)
+{
+    ...
+    _userAccessor = userAccessor;
+}
+
+3.2 Implement filter for user that is going but not the host
+- Return all activitties the logged in user is going to
+if (request.IsGoing && !request.IsHost)
+{
+    queryable = queryable
+    .Where(a => a.UserActivities
+    .Any(u => u.AppUser.UserName == _userAccessor.GetCurrentUserName()));
+}
+
+3.3 Implement filter for user that IsHost but not going
+- user will always go if he is the host
+if (request.IsHost && !request.IsGoing)
+{
+    queryable = queryable
+    .Where(a => a.UserActivities
+    .Any(u => u.AppUser.UserName == _userAccessor.GetCurrentUserName() && u.IsHost));
+}
+
+4. Update Api Controller to pass additional parameters
+[HttpGet]
+public async Task<ActionResult<List.ActivitiesEnvelope>> List(int? limit, int? offset, bool isGoing,
+    bool isHost, DateTime? startDate)
+{
+    return await Mediator.Send(new List.Query(limit, offset, isGoing, isHost, startDate));
+}
+
+5. Test in postman, module 20
+
++++++++++++++++++Filtering client side+++++++++++++++++
+- Pass the parameters as urlsearch parameters object and pass via axios as configuration options
+
+1. Create observable Map for predicate in activityStore
+@observable predicate = new Map();
+
+  @action setPredicate = (predicate: string, value: string | Date) => {
+    this.predicate.clear();
+    if (predicate != "all") {
+      this.predicate.set(predicate, value);
+    }
+  };
+
+2. Create a computed property for axiosParams to construct the parameter object
+- we have to set STRING(LIMIT) because URLSearchParams only acepts strings
+- offset will pass value depending on current page
+- loop through the predicate for the other parameters
+@computed get axiosParams() {
+    const params = new URLSearchParams();
+    params.append("limit", String(LIMIT));
+    params.append("offset", `${this.page ? this.page * LIMIT : 0}`);
+    this.predicate.forEach((value, key) => {
+      if (key === "startDate") {
+        params.append(key, value.toISOString());
+      } else {
+        params.append(key, value);
+      }
+    });
+    return params;
+  }
+
+3. Apply in loadActivities method
+3.1 Modify parameter in agent.ts
+from:
+const Activities = {
+  list: (limit?: number, page?: number): Promise<IActivitiesEnvelope> =>
+    requests.get(
+      `/activities?limit=${limit}&offset=${page ? page * limit! : 0}`
+    ),
+	...
+to:
+- configure .get and pass a params object (AxiosResponse<any>)
+const Activities = {
+  list: (params: URLSearchParams): Promise<IActivitiesEnvelope> =>
+    axios
+      .get(`/activities`, { params: params })
+      .then(sleep(1000))
+      .then(responseBody),
+	  ...
+
+3.2 Implement in loadActivities via mobX reaction
+- load activities by reacting to the predicate changing
+constructor(rootStore: RootStore) {
+   ...
+    reaction(
+      () => this.predicate.keys(),
+      () => {
+        this.page = 0;
+        this.activityRegistry.clear();
+        this.loadActivities();
+      }
+    );
+  }
+
+4. Apply filter in ActivityFilters.tsx
+4.1 replace parenthesis to curly braces
+from:
+const ActivityFilters = () => (
+  <Fragment>
+    ...
+);
+to:
+const ActivityFilters = () => {
+	return (
+	  <Fragment>
+		...
+	);
+}
+
+4.2 Destructure predicate and setPredicate in component
+...
+const ActivityFilters = () => {
+  const rootStore = useContext(RootStoreContext);
+  const { predicate, setPredicate } = rootStore.activityStore;
+  ...
+
+5. Implement setPredicate on objects
+- whenever predicate gets updated, current gets cleared, 
+- skips setting predicate when value is "all"
+  @action setPredicate = (predicate: string, value: string | Date) => {
+    this.predicate.clear();
+    if (predicate != "all") {
+      this.predicate.set(predicate, value);
+    }
+  };
+
+5.1 Default is All Activities
+<Menu.Item
+    active={predicate.size === 0}
+    onClick={() => setPredicate("all", "true")}
+    color={"blue"}
+    name={"all"}
+    content={"All Activities"}
+/>
+
+5.2 Set I'm going
+<Menu.Item
+    active={predicate.has("isGoing")}
+    onClick={() => setPredicate("isGoing", "true")}
+    color={"blue"}
+    name={"username"}
+    content={"I'm Going"}
+/>
+
+5.2 Set I'm hosting
+<Menu.Item
+    active={predicate.has("isHost")}
+    onClick={() => setPredicate("isHost", "true")}
+    color={"blue"}
+    name={"host"}
+    content={"I'm hosting"}
+/>
+
+5.3 Set on Calendar
+- handle onChange
+- get the filter date or get date today (new Date())
+<Calendar
+    onChange={date => setPredicate("startDate", date!)}
+    value={predicate.get("startDate") || new Date()}
+    />
+
+6. Set ActivityFilters as observer
+export default observer(ActivityFilters);
+
+
++++++++++++++++++Filtering on User Profile page+++++++++++++++++
+
+1. Create UserActivityDto.cs
+- \Application\Profiles\UserActivityDto.cs
+public class UserActivityDto
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; }
+    public string Category { get; set; }
+    public DateTime Date { get; set; }
+}
+
+2. Create handler for User Profile
+- \Application\Profiles\ListActivities.cs
+- type snippet s_21.10.1
+2.1 Query params returning UserActivityDto
+public class Query : IRequest<List<UserActivityDto>>
+{
+    public string Username { get; set; }
+    public string Predicate { get; set; }
+}
+
+2.2 In handle method
+- get target user from params
+var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == request.Username);
+
+- Initialize query
+var queryable = user.UserActivities
+        .OrderBy(a => a.Activity.Date)
+        .AsQueryable();
+
+- query per predicate
+switch (request.Predicate)
+{
+    case "past":
+        queryable = queryable.Where(a => a.Activity.Date <= DateTime.Now);
+        break;
+    case "hosting":
+        queryable = queryable.Where(a => a.IsHost);
+        break;
+    default:
+        queryable = queryable.Where(a => a.Activity.Date >= DateTime.Now);
+        break;
+}
+
+- map activities to activities dto
+var activities = queryable.ToList();
+var activitiesToReturn = new List<UserActivityDto>();
+
+foreach (var activity in activities)
+{
+    var userActivity = new UserActivityDto
+    {
+        Id = activity.Activity.Id,
+        Title = activity.Activity.Title,
+        Category = activity.Activity.Category,
+        Date = activity.Activity.Date
+    };
+
+    activitiesToReturn.Add(userActivity);
+}
+return activitiesToReturn;
+
+2.3 Create new Api under ProfilesController
+[HttpGet("{username}/activities")]
+public async Task<ActionResult<List<UserActivityDto>>> GetUserActivities(string username, string predicate)
+{
+    return await Mediator.Send(new ListActivities.Query { Username = username, Predicate = predicate });
+}
+
++++++++++++++++++Filtering on User Profile page Client side+++++++++++++++++
+!!! Setup from Api
+1. Create new request in agent.ts
+const Profiles = {
+  ...
+  listActivities: (username: string, predicate: string) =>
+    requests.get(`/profiles/${username}/activities?predicate=${predicate}`)
+};
+
+2. Create interface for IUserActivity in
+- client-app\src\app\models\profile.ts
+export interface IUserActivity {
+  id: string;
+  title: string;
+  category: string;
+  date: Date;
+}
+
+3. Create new observable in profileStore.ts and action to load UserActivity
+- predicate is optional
+- predicate?: string .... predicate!);
+@observable userActivities: IUserActivity[] = [];
+@observable loadingActivities = false;
+
+@action loadUserActivities = async (username: string, predicate?: string) => {
+    this.loadingActivities = true;
+    try {
+      const activities = await agent.Profiles.listActivities(
+        username,
+        predicate!
+      );
+      runInAction(() => {
+        this.userActivities = activities;
+        this.loadingActivities = false;
+      });
+    } catch (error) {
+      toast.error("Problem loading activities");
+      runInAction(() => {
+        this.loadingActivities = false;
+      });
+    }
+  };
+
+!!! GUI
+4. Create new file ProfileActivities.tsx
+4.1 type snippet s_21.11.1
+4.2 Tabs for past, hosting, future
+<Tab.Pane loading={loadingActivities}>
+
+4.3 Destructure from rootStore.profileStore
+  const rootStore = useContext(RootStoreContext);
+  const {
+    loadUserActivities,
+    profile,
+    loadingActivities,
+    userActivities
+  } = rootStore.profileStore!;
+
+4.4 load userActivities via useEffect, inject dependency
+  useEffect(() => {
+    loadUserActivities(profile!.username);
+  }, [loadUserActivities, profile]);
+
+4.5 handle tab change event to set predicate string
+
+4.6 loop through the activites and display via Card
+<Card.Group itemsPerRow={4}>
+    {userActivities.map((activity: IUserActivity) => (
+        <Card
+		...
+
+5. Set ProfileActivities component in parent component ProfileContent.tsx
+const panes = [
+  ...
+  {
+    menuItem: "Activities",
+    render: () => <ProfileActivities />
+  },
+  ...
+

@@ -1,0 +1,189 @@
+﻿
++++++++++++++++++Outline+++++++++++++++++
+1. Paging on the Api and Client
+- send initial batch of results and continously send results as user browse down
+2. Filtering on Api and Client
+3. Sorting on Api and Client
+
+!! Implement IQueryable<T>
+
++++++++++++++++++Paging+++++++++++++++++
+- Note: there are several ways to implement paging
+
+1. Implement paging under /Application/Activities/List, we need to pass in another property ActivityCount
+1.1 Create new class ActivitiesEnvelope with 2 properties
+public class ActivitiesEnvelope
+{
+    public List<ActivityDto> Activities { get; set; }
+    public int ActivityCount { get; set; }
+}
+
+1.2 Replace return type of List Handler to ActivitiesEnvelope
+public class Handler : IRequestHandler<Query, ActivitiesEnvelope>
+...
+
+1.3 Add optional parameters for List handler's query assign to constructor
+- This will serve as properties for paging count
+public class Query : IRequest<List<ActivitiesEnvelope>>
+{
+    public Query(int? limit, int? offset)
+    {
+        Limit = limit;
+        Offset = offset;
+    }
+
+    public int? Limit { get; set; }
+    public int? Offset { get; set; }
+}
+
+1.4 Create Queryable in Handler method
+var queryable = _context.Activities.AsQueryable();
+
+1.5 Call for activities and call skip and take based on query parameters
+- Skip how many records in the table (default 0)
+- Take the number of items (default 3)
+var activities = await queryable
+        .Skip(request.Offset ?? 0)
+        .Take(request.Limit ?? 3)
+        .ToListAsync();
+
+1.6 Instantiate and return new ActivitiesEnvelope
+return new ActivitiesEnvelope
+{
+    Activities = _mapper.Map<List<Activity>, List<ActivityDto>>(activities),
+    ActivityCount = queryable.Count()
+};
+
+1.7 Adjust in Api Controller
+- Replace Return type to List.ActivitiesEnvelope
+- Add and pass parameters limit and offset
+
+[HttpGet]
+public async Task<ActionResult<List.ActivitiesEnvelope>> List(int? limit, int? offset)
+{
+    return await Mediator.Send(new List.Query(limit, offset));
+}
+
+1.8 Test in Postman
+- Module 21
+
++++++++++++++++++Paging Client side+++++++++++++++++
+1. Modify activityStore
+1.1 Set constant for LIMIT
+const LIMIT = 2;
+
+export default class ActivityStore {
+...
+
+1.2 Create new observable for activityCount and page
+@observable activityCount = 0;
+@observable page = 0;
+
+1.3 Create computed property for getting number of pages
+@computed get totalPages() {
+return Math.ceil(this.activityCount / LIMIT);
+}
+
+1.4 Create an action to set page number
+@action setPage = (page: number) => {
+    this.page = page;
+  };
+
+1.5 Pass LIMIT and page in .list() in the loadActivities method
+@action loadActivities = async () => {
+    this.loadingInitial = true;
+    try {
+      const activities = await agent.Activities.list(LIMIT, this.page);
+	  ...
+
+2. Configure agent.ts to have these new parameters
+2.1 Create new model interface IActivitiesEnvelope, in client-app\src\app\models\activity.ts
+export interface IActivitiesEnvelope {
+  activities: IActivity[];
+  activityCount: number;
+}
+2.2 Add the new parameters in list method
+2.3 Change return type from Promise<IActivity[]> to Promise<IActivitiesEnvelope>
+const Activities = {
+  list: (limit?: number, page?: number): Promise<IActivitiesEnvelope> =>
+    requests.get(
+      `/activities?limit=${limit}&offset=${page ? page * limit! : 0}`
+    ),
+	...
+
+3. Modify loadActivities in activityStore since we are now getting an IActivitiesEnvelope
+- Destrcuture the properties
+const activitiesEnvelope = await agent.Activities.list(LIMIT, this.page);
+const { activities, activityCount } = activitiesEnvelope;
+      runInAction("loading activities", () => {
+		  ....
+
+4. Set activityCount to the observable
+runInAction("loading activities", () => {
+	...
+	});
+	this.activityCount = activityCount;
+
++++++++++++++++++Implement Paging in UI+++++++++++++++++
+1. Destructure page variables in ActivityDashboard from activityStore
+const {
+    ...
+    setPage,
+    page,
+    totalPages
+  } = rootStore.activityStore;
+
+2. Create local States for loadingNext batches
+const [loadingNext, setLoadingNext] = useState(false);
+
+3. Create handler to call loadingNext while setting page
+const handleGetNext = () => {
+    setLoadingNext(true);
+    setPage(page + 1);
+    loadActivities().then(() => setLoadingNext(false));
+  };
+
+4. !Temporary, Add a button to trigger
+- disabled={totalPages === page + 1} disable if there are no more pages left
+<Button
+    floated="right"
+    content="More..."
+    positive
+    disabled={totalPages === page + 1}
+    onClick={handleGetNext}
+    loading={loadingNext}
+/>
+
+5. Add conditional to loadingInitial to prevent from loading everytime
+if (loadingInitial && page === 0)
+    return <LoadingComponent content="Loading Activities ..." />;
+
++++++++++++++++++Infinite Scrolling+++++++++++++++++
+- react-infinite-scroller
+https://www.npmjs.com/package/react-infinite-scroller
+1. install react-infinite-scroller
+npm install react-infinite-scroller
+- warning
+- npm audit fix
+npm install @types/react-infinite-scroller
+
+2. Use in ActivityDashboard
+- hasMore - check if not int he process of loading and th enext page is not the last page
+...
+import InfiniteScroll from "react-infinite-scroller";
+...
+<InfiniteScroll
+    pageStart={0}
+    loadMore={handleGetNext}
+    hasMore={!loadingNext && page + 1 < totalPages}
+    initialLoad={false}
+>
+    <ActivityList />
+</InfiniteScroll>
+
+3. Set Loader at the bottom of the Grid
+	...
+	<GridColumn width="10">
+		<Loader active={loadingNext} />
+    </GridColumn>
+</Grid>

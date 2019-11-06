@@ -151,3 +151,14 @@ npm install react-cropper
 
 12. Client side SignalR
 npm install @aspnet/signalr
+
+13. React Infinite Scroller
+npm install react-infinite-scroller
+https://www.npmjs.com/package/react-infinite-scroller
+
++ react-infinite-scroller@1.2.4
+added 1 package from 1 contributor and audited 905274 packages in 66.128s
+found 1 moderate severity vulnerability
+  run `npm audit fix` to fix them, or `npm audit` for details
+  >>
+  Run  npm update handlebars --depth 7  to resolve 1 vulnerability

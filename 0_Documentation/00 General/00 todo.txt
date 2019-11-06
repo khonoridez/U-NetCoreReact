@@ -128,9 +128,31 @@ interface IProps {
 }
 
 ++++++++++++++Magic Numbers++++++++++++++
-1. activeTab on
+1. agent.ts
+
+2. activeTab on
 - ProfileFollowings
 - ProfileStore
 
-2. predicate on
+3. predicate on
 - ProfileStore
+
+4. filter strings (predicates)
+- ActivityStore
+- ActivityFilters
+- \Application\Profiles\ListActivities.cs
+- client-app\src\features\profiles\ProfileActivities.tsx
+
+5. toast messages, toast.error()
+- in all stores
+
+++++++++++++++Filters++++++++++++++
+1. Combine Filters
+- IsGoing + startDate
+
+++++++++++++++Console Log++++++++++++++
+- Magic numbers
+- In all Stores
+
+++++++++++++++User Activity Loader++++++++++++++
+- Adjust loader in content
