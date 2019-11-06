@@ -128,9 +128,20 @@ interface IProps {
 }
 
 ++++++++++++++Magic Numbers++++++++++++++
-1. activeTab on
+1. agent.ts
+
+2. activeTab on
 - ProfileFollowings
 - ProfileStore
 
-2. predicate on
+3. predicate on
 - ProfileStore
+
+4. filter strings (predicates)
+- ActivityStore
+- ActivityFilters
+
+
+++++++++++++++Filters++++++++++++++
+1. Combine Filters
+- IsGoing + startDate
