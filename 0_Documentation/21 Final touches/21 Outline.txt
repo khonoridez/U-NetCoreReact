@@ -1,0 +1,12 @@
+﻿
+++++++++++++++Outline++++++++++++++
+1. Finishing touches
+2. Bug fix for Safari
+3. Building production version of client-app
+4. Building production version of Api
+5. Adding additional DB Providers
+6. Publishing to Linux
+- Cloud server
+7. Security tightening
+- https://securityheaders.com/
+8. Publish to Azure

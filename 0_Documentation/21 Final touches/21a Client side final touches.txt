@@ -1,0 +1,28 @@
+﻿
+++++++++++++++Placeholder Loader++++++++++++++
+- using Semantic UI Placeholder
+- https://react.semantic-ui.com/elements/placeholder/
+1. Create file ActivityListItemPlaceholder.tsx
+client-app\src\features\activities\dashboard\ActivityListItemPlaceholder.tsx
+- type snippet s_22.1.0
+- structure of the Placeholder mimics a blank ActivityListItem
+<Segment...
+
+2. In ActivityDashboard.tsx
+- swap LoadingComponent with ActivityListItemPlaceholder
+- 
+<GridColumn width="10">
+{loadingInitial && page === 0 ? (
+    <ActivityListItemPlaceholder />
+) : (
+    <InfiniteScroll
+    pageStart={0}
+    loadMore={handleGetNext}
+    hasMore={!loadingNext && page + 1 < totalPages}
+    initialLoad={false}
+    >
+    <ActivityList />
+    </InfiniteScroll>
+)}
+</GridColumn>
+
