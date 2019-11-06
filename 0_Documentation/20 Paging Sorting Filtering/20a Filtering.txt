@@ -72,3 +72,137 @@ public async Task<ActionResult<List.ActivitiesEnvelope>> List(int? limit, int? o
 }
 
 5. Test in postman, module 20
+
++++++++++++++++++Filtering client side+++++++++++++++++
+- Pass the parameters as urlsearch parameters object and pass via axios as configuration options
+
+1. Create observable Map for predicate in activityStore
+@observable predicate = new Map();
+
+  @action setPredicate = (predicate: string, value: string | Date) => {
+    this.predicate.clear();
+    if (predicate != "all") {
+      this.predicate.set(predicate, value);
+    }
+  };
+
+2. Create a computed property for axiosParams to construct the parameter object
+- we have to set STRING(LIMIT) because URLSearchParams only acepts strings
+- offset will pass value depending on current page
+- loop through the predicate for the other parameters
+@computed get axiosParams() {
+    const params = new URLSearchParams();
+    params.append("limit", String(LIMIT));
+    params.append("offset", `${this.page ? this.page * LIMIT : 0}`);
+    this.predicate.forEach((value, key) => {
+      if (key === "startDate") {
+        params.append(key, value.toISOString());
+      } else {
+        params.append(key, value);
+      }
+    });
+    return params;
+  }
+
+3. Apply in loadActivities method
+3.1 Modify parameter in agent.ts
+from:
+const Activities = {
+  list: (limit?: number, page?: number): Promise<IActivitiesEnvelope> =>
+    requests.get(
+      `/activities?limit=${limit}&offset=${page ? page * limit! : 0}`
+    ),
+	...
+to:
+- configure .get and pass a params object (AxiosResponse<any>)
+const Activities = {
+  list: (params: URLSearchParams): Promise<IActivitiesEnvelope> =>
+    axios
+      .get(`/activities`, { params: params })
+      .then(sleep(1000))
+      .then(responseBody),
+	  ...
+
+3.2 Implement in loadActivities via mobX reaction
+- load activities by reacting to the predicate changing
+constructor(rootStore: RootStore) {
+   ...
+    reaction(
+      () => this.predicate.keys(),
+      () => {
+        this.page = 0;
+        this.activityRegistry.clear();
+        this.loadActivities();
+      }
+    );
+  }
+
+4. Apply filter in ActivityFilters.tsx
+4.1 replace parenthesis to curly braces
+from:
+const ActivityFilters = () => (
+  <Fragment>
+    ...
+);
+to:
+const ActivityFilters = () => {
+	return (
+	  <Fragment>
+		...
+	);
+}
+
+4.2 Destructure predicate and setPredicate in component
+...
+const ActivityFilters = () => {
+  const rootStore = useContext(RootStoreContext);
+  const { predicate, setPredicate } = rootStore.activityStore;
+  ...
+
+5. Implement setPredicate on objects
+- whenever predicate gets updated, current gets cleared, 
+- skips setting predicate when value is "all"
+  @action setPredicate = (predicate: string, value: string | Date) => {
+    this.predicate.clear();
+    if (predicate != "all") {
+      this.predicate.set(predicate, value);
+    }
+  };
+
+5.1 Default is All Activities
+<Menu.Item
+    active={predicate.size === 0}
+    onClick={() => setPredicate("all", "true")}
+    color={"blue"}
+    name={"all"}
+    content={"All Activities"}
+/>
+
+5.2 Set I'm going
+<Menu.Item
+    active={predicate.has("isGoing")}
+    onClick={() => setPredicate("isGoing", "true")}
+    color={"blue"}
+    name={"username"}
+    content={"I'm Going"}
+/>
+
+5.2 Set I'm hosting
+<Menu.Item
+    active={predicate.has("isHost")}
+    onClick={() => setPredicate("isHost", "true")}
+    color={"blue"}
+    name={"host"}
+    content={"I'm hosting"}
+/>
+
+5.3 Set on Calendar
+- handle onChange
+- get the filter date or get date today (new Date())
+<Calendar
+    onChange={date => setPredicate("startDate", date!)}
+    value={predicate.get("startDate") || new Date()}
+    />
+
+6. Set ActivityFilters as observer
+export default observer(ActivityFilters);
