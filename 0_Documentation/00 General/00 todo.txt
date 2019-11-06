@@ -146,6 +146,10 @@ interface IProps {
 5. toast messages, toast.error()
 - in all stores
 
+6. Loading App...
+- client-app\public\index.html
+- client-app\src\app\layout\App.tsx
+
 ++++++++++++++Filters++++++++++++++
 1. Combine Filters
 - IsGoing + startDate
