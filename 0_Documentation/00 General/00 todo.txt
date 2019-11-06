@@ -140,7 +140,7 @@ interface IProps {
 4. filter strings (predicates)
 - ActivityStore
 - ActivityFilters
-
+- \Application\Profiles\ListActivities.cs
 
 ++++++++++++++Filters++++++++++++++
 1. Combine Filters

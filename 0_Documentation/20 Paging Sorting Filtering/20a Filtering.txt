@@ -206,3 +206,74 @@ const ActivityFilters = () => {
 
 6. Set ActivityFilters as observer
 export default observer(ActivityFilters);
+
+
++++++++++++++++++Filtering on User Profile page+++++++++++++++++
+
+1. Create UserActivityDto.cs
+- \Application\Profiles\UserActivityDto.cs
+public class UserActivityDto
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; }
+    public string Category { get; set; }
+    public DateTime Date { get; set; }
+}
+
+2. Create handler for User Profile
+- \Application\Profiles\ListActivities.cs
+- type snippet s_21.10.1
+2.1 Query params returning UserActivityDto
+public class Query : IRequest<List<UserActivityDto>>
+{
+    public string Username { get; set; }
+    public string Predicate { get; set; }
+}
+
+2.2 In handle method
+- get target user from params
+var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == request.Username);
+
+- Initialize query
+var queryable = user.UserActivities
+        .OrderBy(a => a.Activity.Date)
+        .AsQueryable();
+
+- query per predicate
+switch (request.Predicate)
+{
+    case "past":
+        queryable = queryable.Where(a => a.Activity.Date <= DateTime.Now);
+        break;
+    case "hosting":
+        queryable = queryable.Where(a => a.IsHost);
+        break;
+    default:
+        queryable = queryable.Where(a => a.Activity.Date >= DateTime.Now);
+        break;
+}
+
+- map activities to activities dto
+var activities = queryable.ToList();
+var activitiesToReturn = new List<UserActivityDto>();
+
+foreach (var activity in activities)
+{
+    var userActivity = new UserActivityDto
+    {
+        Id = activity.Activity.Id,
+        Title = activity.Activity.Title,
+        Category = activity.Activity.Category,
+        Date = activity.Activity.Date
+    };
+
+    activitiesToReturn.Add(userActivity);
+}
+return activitiesToReturn;
+
+2.3 Create new Api under ProfilesController
+[HttpGet("{username}/activities")]
+public async Task<ActionResult<List<UserActivityDto>>> GetUserActivities(string username, string predicate)
+{
+    return await Mediator.Send(new ListActivities.Query { Username = username, Predicate = predicate });
+}
