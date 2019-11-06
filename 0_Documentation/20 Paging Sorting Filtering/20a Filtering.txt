@@ -11,4 +11,64 @@ Please update the following components: Uncontrolled(Calendar)
 3. Use ActivityFilters to ActivityDashboard
 
 +++++++++++++++++Filtering Api+++++++++++++++++
-1. 
+1. Add properties for filter in Activity/List handler
+- Set startDate to .Now if it is null, to ensure that we return activities that are in the future by default
+public class Query : IRequest<ActivitiesEnvelope>
+{
+    public Query(int? limit, int? offset, bool isGoing, bool isHost, DateTime? startDate)
+    {
+        ...
+        IsGoing = isGoing;
+        IsHost = isHost;
+        StartDate = startDate ?? DateTime.Now;
+    }
+    ...
+    public bool IsGoing { get; set; }
+    public bool IsHost { get; set; }
+    public DateTime? StartDate { get; set; }
+}
+
+2. Implement startdate as query in handler method
+var queryable = _context.Activities
+        .Where(a => a.Date >= request.StartDate)
+        .OrderBy(a => a.Date)
+        .AsQueryable();
+
+3. Implement IsGoing IsHost filters
+3.1 Inject useraccessor
+...
+private readonly IUserAccessor _userAccessor;
+
+public Handler(..., IUserAccessor userAccessor)
+{
+    ...
+    _userAccessor = userAccessor;
+}
+
+3.2 Implement filter for user that is going but not the host
+- Return all activitties the logged in user is going to
+if (request.IsGoing && !request.IsHost)
+{
+    queryable = queryable
+    .Where(a => a.UserActivities
+    .Any(u => u.AppUser.UserName == _userAccessor.GetCurrentUserName()));
+}
+
+3.3 Implement filter for user that IsHost but not going
+- user will always go if he is the host
+if (request.IsHost && !request.IsGoing)
+{
+    queryable = queryable
+    .Where(a => a.UserActivities
+    .Any(u => u.AppUser.UserName == _userAccessor.GetCurrentUserName() && u.IsHost));
+}
+
+4. Update Api Controller to pass additional parameters
+[HttpGet]
+public async Task<ActionResult<List.ActivitiesEnvelope>> List(int? limit, int? offset, bool isGoing,
+    bool isHost, DateTime? startDate)
+{
+    return await Mediator.Send(new List.Query(limit, offset, isGoing, isHost, startDate));
+}
+
+5. Test in postman, module 20
