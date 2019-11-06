@@ -277,3 +277,84 @@ public async Task<ActionResult<List<UserActivityDto>>> GetUserActivities(string 
 {
     return await Mediator.Send(new ListActivities.Query { Username = username, Predicate = predicate });
 }
+
++++++++++++++++++Filtering on User Profile page Client side+++++++++++++++++
+!!! Setup from Api
+1. Create new request in agent.ts
+const Profiles = {
+  ...
+  listActivities: (username: string, predicate: string) =>
+    requests.get(`/profiles/${username}/activities?predicate=${predicate}`)
+};
+
+2. Create interface for IUserActivity in
+- client-app\src\app\models\profile.ts
+export interface IUserActivity {
+  id: string;
+  title: string;
+  category: string;
+  date: Date;
+}
+
+3. Create new observable in profileStore.ts and action to load UserActivity
+- predicate is optional
+- predicate?: string .... predicate!);
+@observable userActivities: IUserActivity[] = [];
+@observable loadingActivities = false;
+
+@action loadUserActivities = async (username: string, predicate?: string) => {
+    this.loadingActivities = true;
+    try {
+      const activities = await agent.Profiles.listActivities(
+        username,
+        predicate!
+      );
+      runInAction(() => {
+        this.userActivities = activities;
+        this.loadingActivities = false;
+      });
+    } catch (error) {
+      toast.error("Problem loading activities");
+      runInAction(() => {
+        this.loadingActivities = false;
+      });
+    }
+  };
+
+!!! GUI
+4. Create new file ProfileActivities.tsx
+4.1 type snippet s_21.11.1
+4.2 Tabs for past, hosting, future
+<Tab.Pane loading={loadingActivities}>
+
+4.3 Destructure from rootStore.profileStore
+  const rootStore = useContext(RootStoreContext);
+  const {
+    loadUserActivities,
+    profile,
+    loadingActivities,
+    userActivities
+  } = rootStore.profileStore!;
+
+4.4 load userActivities via useEffect, inject dependency
+  useEffect(() => {
+    loadUserActivities(profile!.username);
+  }, [loadUserActivities, profile]);
+
+4.5 handle tab change event to set predicate string
+
+4.6 loop through the activites and display via Card
+<Card.Group itemsPerRow={4}>
+    {userActivities.map((activity: IUserActivity) => (
+        <Card
+		...
+
+5. Set ProfileActivities component in parent component ProfileContent.tsx
+const panes = [
+  ...
+  {
+    menuItem: "Activities",
+    render: () => <ProfileActivities />
+  },
+  ...
+

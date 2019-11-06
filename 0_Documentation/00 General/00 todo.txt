@@ -141,7 +141,18 @@ interface IProps {
 - ActivityStore
 - ActivityFilters
 - \Application\Profiles\ListActivities.cs
+- client-app\src\features\profiles\ProfileActivities.tsx
+
+5. toast messages, toast.error()
+- in all stores
 
 ++++++++++++++Filters++++++++++++++
 1. Combine Filters
 - IsGoing + startDate
+
+++++++++++++++Console Log++++++++++++++
+- Magic numbers
+- In all Stores
+
+++++++++++++++User Activity Loader++++++++++++++
+- Adjust loader in content
