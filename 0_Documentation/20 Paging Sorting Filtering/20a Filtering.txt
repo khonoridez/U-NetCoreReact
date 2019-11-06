@@ -1,0 +1,14 @@
+﻿
++++++++++++++++++Filtering GUI+++++++++++++++++
+- Activity Filter in ActivityDashboard
+1. Create new file ActivityFilters.tsx
+- type snippet s_21.4.1
+
+2. Warning
+backend.js:6 Warning: componentWillMount has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details
+Please update the following components: Uncontrolled(Calendar)
+
+3. Use ActivityFilters to ActivityDashboard
+
++++++++++++++++++Filtering Api+++++++++++++++++
+1. 
