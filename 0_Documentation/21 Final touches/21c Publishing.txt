@@ -1,0 +1,31 @@
+﻿
++++++++++++++Environment Variables in React+++++++++++++
+https://create-react-app.dev/docs/adding-custom-environment-variables/
+- Create env variables for production
+
+1. Create file in 
+/client-app/.env.development
+/client-app/.env.production
+
+2. configure 
+.env.development
+REACT_APP_API_URL=http://
+:5000/api
+REACT_APP_API_CHAT_URL=http://localhost:5000/chat
+
+.env.production
+REACT_APP_API_URL=/api
+REACT_APP_API_CHAT_URL=/chat
+
+- We will be bundling these to the Api project
+- We will be publishing as a monolithic app
+
+3. Replace localhost magic numbers
+- client-app\src\app\api\agent.ts
+axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+
+- client-app\src\app\stores\activityStore.ts
+@action createHubConnection = () => {
+    this.hubConnection = new HubConnectionBuilder()
+      .withUrl(process.env.REACT_APP_API_CHAT_URL!, {
+        ...
