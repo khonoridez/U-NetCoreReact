@@ -10,3 +10,54 @@
 7. Security tightening
 - https://securityheaders.com/
 8. Publish to Azure
+
+++++++++++++++Safari Bug++++++++++++++
+
+++++++++++++++Safari issues with date time++++++++++++++
+- does not recognize string between date and time
+1. return the date as ISOString format
+- client-app\src\app\common\util\util.ts
+export const combineDateAndTime = (date: Date, time: Date) => {
+  const dateString = date.toISOString().split("T")[0];
+  const timeString = time.toISOString().split("T")[1];
+
+  return new Date(dateString + "T" + timeString);
+};
+
+++++++++++++++Initialize Date Time in FormValues++++++++++++++
+- Going to Edit Activity and cancel, and then going to edit again produces error:
+Unhandled Rejection (Error): [mobx] Since strict-mode is enabled, changing observed observable values 
+outside actions is not allowed. Please wrap the code in an `action` if this change is intended. Tried to 
+modify: ActivityStore@3.activityRegistry.63763f6d-dd8f-4620-ad2c-9193764d8329.time
+
+- in activityStore, if we dont have the activity in cache(activityRegistry) then we get the activity
+@action loadActivity = async (id: string) => {
+    let activity = this.getActivity(id);
+    if (activity) {
+      this.activity = activity;
+      return activity;
+    } else {
+...
+  getActivity = (id: string) => {
+    return this.activityRegistry.get(id);
+  };
+
+- if we get the activity from the cache, this will be an observable
+- then this observable will get called in ActivityForm.tsx to load a new ActivityFormValue
+...
+loadActivity(match.params.id)
+	.then(activity => setActivity(new ActivityFormValues(activity)))
+...
+
+- We have to turn the observable to a plain javascript object
+- return toJS(activity);
+@action loadActivity = async (id: string) => {
+    let activity = this.getActivity(id);
+    if (activity) {
+      this.activity = activity;
+      return toJS(activity);
+    } else {
+	...
+
+
+        
