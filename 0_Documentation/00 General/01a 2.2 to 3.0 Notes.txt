@@ -75,3 +75,20 @@ services.Configure<IdentityOptions>(options =>
     options.Password.RequiredUniqueChars = 1;
 });
 
+++++++++++++++Routing and Endpoints++++++++++++++
+Configure Routing
+ex. in Tuts netcore 2.2
+.UseMvc
+.MapSpaFallbackRoute
+
+switch to:
+https://stackoverflow.com/questions/57822512/what-is-equivalent-to-mapspafallbackroute-for-asp-net-core-3-0-endpoints
+https://docs.microsoft.com/en-us/aspnet/core/migration/22-to-30?view=aspnetcore-3.0&tabs=visual-studio
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ChatHub>("/chat");
+    endpoints.MapControllers();
+
+    endpoints.MapFallbackToController("Fallback", "Home");
+});

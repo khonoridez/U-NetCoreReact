@@ -133,6 +133,9 @@ namespace API
             app.UseRouting();
             app.UseCors("CorsPolicy");
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -140,6 +143,8 @@ namespace API
             {
                 endpoints.MapHub<ChatHub>("/chat");
                 endpoints.MapControllers();
+
+                endpoints.MapFallbackToController("Index", "Fallback");
             });
         }
     }

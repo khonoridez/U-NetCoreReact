@@ -398,3 +398,15 @@ useEffect cleanup function.
     in Switch (at App.tsx:49)
     in div (created by Container)
     in Container (at App.tsx:48)
+
+
++++++++++++++'mv' is not recognized as an internal or external command,+++++++++++++
+- Happened on postBuild for npm build
+"scripts": {
+    ...
+    "postbuild": "mv build ../API/wwwroot",
+  },
+
+https://stackoverflow.com/questions/52136609/mv-is-not-recognized-as-an-internal-or-external-command-operable-program-or-b
+
+Resolution: Using Windows move command
