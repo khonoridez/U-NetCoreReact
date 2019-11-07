@@ -287,3 +287,8 @@ var activities = await queryable
 	.Skip(request.Offset ?? 0)
 	.Take(request.Limit ?? 3)
 	.ToListAsync();
+
+++++++++++++++JWT Token++++++++++++++
+- \Infrastructure\Security\JwtGenerator.cs
+- JWT token located under local storage
+- f12 > Application Tab > Storage on left panel > Local Storage

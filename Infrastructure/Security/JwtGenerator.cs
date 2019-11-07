@@ -13,10 +13,9 @@ namespace Infrastructure.Security
     public class JwtGenerator : IJwtGenerator
     {
         private readonly SymmetricSecurityKey _key;
-
         public JwtGenerator(IConfiguration config)
         {
-            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"])); ;
+            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
         }
 
         public string CreateToken(AppUser user)
@@ -31,7 +30,7 @@ namespace Infrastructure.Security
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = creds
             };
 

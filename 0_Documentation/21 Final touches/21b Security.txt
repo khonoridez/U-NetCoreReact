@@ -64,3 +64,104 @@ export default observer(PrivateRoute);
 !! Note: There is no such thing as client-side secruity
 - Hiding behind the curtains rather than a locked door
 - Server data protection is a requriement
+
+++++++++++++++Token Expiration++++++++++++++
+- JWT token located under local storage
+- f12 > Application Tab > Storage on left panel > Local Storage
+
+1. Adjust token expiration to a minute for testing purposes
+\Infrastructure\Security\JwtGenerator.cs
+
+var tokenDescriptor = new SecurityTokenDescriptor
+{
+    Subject = new ClaimsIdentity(claims),
+    Expires = DateTime.Now.AddMinutes(1),
+    SigningCredentials = creds
+};
+
+2. Adjust expiration in Startup.cs
+- Currently even if token is expired the server will still accept
+From:
+ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opt =>
+    {
+        opt.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = key,
+            ValidateAudience = false,
+            ValidateIssuer = false
+        };
+		...
+
+Add properties:
+- ValidateLifetime has a 5minute leway for token expiration so we add the ClockSkew property
+opt.TokenValidationParameters = new TokenValidationParameters
+{
+    ...
+    ValidateLifetime = true,
+    ClockSkew = TimeSpan.Zero
+};
+
+3. Add check of status in agent.ts
+- client-app\src\app\api\agent.ts
+axios.interceptors.response.use(undefined, error => {
+...
+  if (status === 401) {
+    console.log(error.response);
+  }
+
+4. Test in app
+- Verify that the token expires
+- f12 > Network tab > user > Headers tab > Response header
+- Verify WWW-Authenticate: Bearer error="invalid_token", error_description="The token is expired"
+
+5. Modify CORS properties under Strtup.cs
+- To expose the header to display the error message
+
+services.AddCors(opt =>
+{
+    opt.AddPolicy("CorsPolicy", policy =>
+    {
+        policy
+        ...
+        .WithExposedHeaders("WWW-Authenticate")
+    });
+});
+
+6. Test in app
+- Verify in console if the header is now present
+- www-authenticate: "Bearer error="invalid_token", error_description="The token is expired""
+
+7. Add additional conditions in agent.ts
+- When token gets expired we will be logging out the user and then show message
+- Challenges: we will be doing this inside agent.ts which has no access to our mobx stores
+- logout function is in userStore
+
+7.1 Destructure headers in agent.ts
+const { status, data, config, headers } = error.response;
+
+7.2 Add header text as condition
+  if (
+    status === 401 &&
+    headers["www-authenticate"] ===
+      'Bearer error="invalid_token", error_description="The token is expired"'
+  ) {
+    window.localStorage.removeItem("jwt");
+    history.push("/");
+    toast.info("Your session has expired, please login again");
+  }
+
+8. Add condition and login check in HomePage.tsx
+8.1 Declare token and get value from window.localStorage
+const HomePage = () => {
+  const token = window.localStorage.getItem("jwt");
+  ...
+
+8.2 Add in isLoggedin..
+...
+{isLoggedIn && user && token ? (
+	<Fragment>
+	...
+
+8.3 Put back token expiration to 7 days

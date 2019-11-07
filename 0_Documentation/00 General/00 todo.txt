@@ -150,11 +150,33 @@ interface IProps {
 - client-app\public\index.html
 - client-app\src\app\layout\App.tsx
 
+7. CORS setting .WithOrigins("http://localhost:3000")
+ services.AddCors(opt =>
+    {
+        opt.AddPolicy("CorsPolicy", policy =>
+        {
+            policy
+            .WithOrigins("http://localhost:3000")
+            ....
+        });
+    });
+
+8. agent.ts error 401 header condition
+  if (
+    status === 401 &&
+    headers["www-authenticate"] ===
+      'Bearer error="invalid_token", error_description="The token is expired"'
+  ) {
+    window.localStorage.removeItem("jwt");
+    history.push("/");
+    toast.info("Your session has expired, please login again");
+  }
+
 ++++++++++++++Filters++++++++++++++
 1. Combine Filters
 - IsGoing + startDate
 
-++++++++++++++Console Log++++++++++++++
+++++++++++++++Console Log usage++++++++++++++
 - Magic numbers
 - In all Stores
 

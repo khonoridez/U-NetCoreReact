@@ -20,6 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Persistence;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,8 +48,10 @@ namespace API
             {
                 opt.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.AllowAnyHeader()
+                    policy
+                    .AllowAnyHeader()
                     .AllowAnyMethod()
+                    .WithExposedHeaders("WWW-Authenticate")
                     .WithOrigins("http://localhost:3000")
                     .AllowCredentials();
                 });
@@ -73,7 +76,9 @@ namespace API
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = key,
                         ValidateAudience = false,
-                        ValidateIssuer = false
+                        ValidateIssuer = false,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
                     };
                     opt.Events = new JwtBearerEvents
                     {
