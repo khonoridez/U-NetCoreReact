@@ -47,6 +47,12 @@ Install packages (must be same as netcore version)
 -s startup project
 > dotnet ef migrations add SeedValues -p Persistence/ -s API/
 
+!Update to a migration
+dotnet ef database update <MigrationName> -p Persistence/ -s API/
+
+!Remove last migration
+dotnet ef migrations remove -p Persistence/ -s API/ --force
+
 ++++++++++++RESETTING DATABASE++++++++++++++
 1. Inside VS Code Terminal Window, inside solution folder
 
@@ -198,6 +204,12 @@ https://docs.microsoft.com/en-us/aspnet/core/security/authorization/policies?vie
 -p : specify startup project
 dotnet user-secrets set "TokenKey" "super secret key" -p API/
 
+++++++++++++++Configure user secrets for Production++++++++++++++
+- populate all user secrets in appsettings.json
+> cd api
+> dotnet user-secrets list
+
+
 ++++++++++++AutoMapper++++++++++++++
 https://automapper.org/
 - same author as MediatR
@@ -292,3 +304,30 @@ var activities = await queryable
 - \Infrastructure\Security\JwtGenerator.cs
 - JWT token located under local storage
 - f12 > Application Tab > Storage on left panel > Local Storage
+
+++++++++++++++ConnectionString samples++++++++++++++
+https://www.connectionstrings.com/
+
+sqlite
+  "ConnectionStrings": {
+    "DefaultConnection": "Data source=reactivities.db"
+  },
+
+mySql
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost; Database=reactivities; Uid=appuser; Pwd=Password@1"
+  },
+
+
+++++++++++++++Setup for Production++++++++++++++
+- Modify launchSettings in Api
+\API\Properties\launchSettings.json
+- Under Api change "Development" to "Production"
+"API": {
+    "commandName": "Project",
+    "launchBrowser": true,
+    "launchUrl": "weatherforecast",
+    "applicationUrl": "http://localhost:5000",
+    "environmentVariables": {
+    "ASPNETCORE_ENVIRONMENT": "Production"
+    }

@@ -57,6 +57,14 @@ public ICollection<AttendeeDto> UserActivities { get; set; }
 inside Microsoft.AspNetCore.App
 https://docs.microsoft.com/en-us/aspnet/core/tutorials/signalr?view=aspnetcore-3.0&tabs=visual-studio
 
+10. EF Database Providers
+https://docs.microsoft.com/en-us/ef/core/providers/?tabs=dotnet-core-cli
+Microsoft.EntityFrameworkCore.SqlServer 3.0.0
+Pomelo.EntityFrameworkCore.MySql 2.2.6
+- We will be using the rc of version 3
+- dotnet add package Pomelo.EntityFrameworkCore.MySql --version 3.0.0-rc3.final
+- Add to Persistence Project
+
 +++++++++++React Packages+++++++++++
 
 > cd client-app
