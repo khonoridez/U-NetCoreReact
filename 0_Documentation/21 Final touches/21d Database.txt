@@ -53,14 +53,13 @@ API\appsettings.Development.json
 API\appsettings.json
 
 - Copy Connection strings from appsettings to dev appsettings
-"ConnectionStrings": {
-    "DefaultConnection": "Data source=reactivities.db"
-  },
+"DefaultConnection": "Data source=reactivities.db"
 
 - Replace Connection string of appsettings for mySql
-"ConnectionStrings": {
-    "DefaultConnection": "Server=localhost; Database=reactivities; Uid=appuser; Pwd=Password@1"
-  },
+"DefaultConnection": "Server=localhost; Database=reactivities; Uid=appuser; Pwd=Password@1"
+
+- Replace Connection string of appsettings for Sql Server
+"DefaultConnection": "Server=localhost; Database=reactivities;Trusted_Connection=True;"
 
 2. Create Services for Development and Production in Startup.cs
 public void ConfigureDevelopmentServices(IServiceCollection services)
@@ -157,3 +156,25 @@ Microsoft.Data.SqlClient.SqlException (0x80131904): Column, parameter, or variab
 MySql.Data.MySqlClient.MySqlException (0x80004005): BLOB/TEXT column 'Id' used in key specification without a key length 
 
 https://stackoverflow.com/questions/58371524/asp-net-core-3-0-cant-update-database
+
+!!!
+info: Microsoft.EntityFrameworkCore.Infrastructure[10403]
+      Entity Framework Core 3.0.0 initialized 'DataContext' using provider 'Pomelo.EntityFrameworkCore.MySql' with options: using lazy-loading proxies
+
+Resolution
+1. Toggle connection string in
+\API\appsettings.json
+\API\appsettings.Development.json
+
+2. Toggle AddDbContext settings in
+\API\Startup.cs
+
+3. Delete everything in Migrations folder
+4. Create migration
+dotnet ef migrations add Test -p Persistence/ -s API/
+
+5. Rerun Api
+cd api
+dotnet run
+
+- Migration scripts are generated differently per database provider
