@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\Persistence\Persistence.csproj" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.0.0-rc3.final"/>
   </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\Persistence\Persistence.csproj"/>
+  </ItemGroup>
 </Project>
