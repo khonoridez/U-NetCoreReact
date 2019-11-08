@@ -87,6 +87,10 @@ public void ConfigureProductionServices(IServiceCollection services)
 3. Modify launchSettings in Api
 \API\Properties\launchSettings.json
 - Under Api change "Development" to "Production"
+- This will call ConfigureProductionServices in Startup.cs,  Will only call in > dotnet run
+- Migrations will call ConfigureDevelopmentServices
+- public void ConfigureProductionServices(IServiceCollection services)
+
 "API": {
     "commandName": "Project",
     "launchBrowser": true,
@@ -131,50 +135,8 @@ Add:
 !! Error in migration
 fail: API.Program[0]
       An error occured during migration
-MySql.Data.MySqlClient.MySqlException (0x80004005): BLOB/TEXT column 'Id' used in key specification without a key length
+MySql.Data.MySqlClient.MySqlException (0x80004005): BLOB/TEXT column 'Id' used in 
+key specification without a key length
 
-- Trying out SQL Server
-https://www.connectionstrings.com/sql-server/
+- Resolution: see 03 EF Multiple Providers under General Notes
 
-!! Error in migration
-fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
-      Failed executing DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
-      CREATE TABLE [Activities] (
-          [Id] TEXT(36) NOT NULL IDENTITY,
-          [Title] TEXT NULL,
-          [Description] TEXT NULL,
-          [Category] TEXT NULL,
-          [Date] TEXT(48) NOT NULL,
-          [City] TEXT NULL,
-          [Venue] TEXT NULL,
-          CONSTRAINT [PK_Activities] PRIMARY KEY ([Id])
-      );
-fail: API.Program[0]
-      An error occured during migration
-Microsoft.Data.SqlClient.SqlException (0x80131904): Column, parameter, or variable #1: Cannot specify a column width on data type text.
-
-MySql.Data.MySqlClient.MySqlException (0x80004005): BLOB/TEXT column 'Id' used in key specification without a key length 
-
-https://stackoverflow.com/questions/58371524/asp-net-core-3-0-cant-update-database
-
-!!!
-info: Microsoft.EntityFrameworkCore.Infrastructure[10403]
-      Entity Framework Core 3.0.0 initialized 'DataContext' using provider 'Pomelo.EntityFrameworkCore.MySql' with options: using lazy-loading proxies
-
-Resolution
-1. Toggle connection string in
-\API\appsettings.json
-\API\appsettings.Development.json
-
-2. Toggle AddDbContext settings in
-\API\Startup.cs
-
-3. Delete everything in Migrations folder
-4. Create migration
-dotnet ef migrations add Test -p Persistence/ -s API/
-
-5. Rerun Api
-cd api
-dotnet run
-
-- Migration scripts are generated differently per database provider

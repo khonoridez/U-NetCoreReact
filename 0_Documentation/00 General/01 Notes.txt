@@ -34,6 +34,8 @@ Install packages (must be same as netcore version)
 - Restore pop-up window
 
 ++++++++++++EF Codes ADD MIGRATION++++++++++++++
+https://docs.microsoft.com/en-us/ef/core/miscellaneous/cli/dotnet
+
 !!!IN SOLUTION LEVEL
 !specify -p is the persistence project
 !specify -s is the startup project
