@@ -36,6 +36,9 @@ Recommended VS Code Extensions
 11. Debugger for Chrome (personal, not in tutorials)
 12. MySQL
 - Management Tool
+13. Deploy (Reloaded)
+- Deploy tool
+https://marketplace.visualstudio.com/items?itemName=mkloubert.vscode-deploy-reloaded
 
 ...
 

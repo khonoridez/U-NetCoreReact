@@ -1,0 +1,170 @@
+﻿
++++++++++++++Setup Cloud+++++++++++++
+https://www.hostingadvice.com/how-to/free-vps-hosting/
+
+1. Setup account (not free)
+https://www.digitalocean.com/
+
+1.1 Create Droplet (Cloud instance)
+- Marketplace tab
+- LAMP on 18.04 (Ubuntu Server)
+	Apache 2.4.29
+	MySql Server 5.7.23
+
+
++++++Configure Linux server+++++
+2. Login to Linux server
+- May have to install Putty to make an SSH connection to server
+
+2.1 Login:
+ssh root@<ip address of server>
+
+3. Configure MySql appuser
+3.1 Get password of MySql
+cat /root/.digitalocean_password
+
+3.2 Login to MySql
+mysql -u root -p
+
+3.3 Create App User
+CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON *.* TO 'appuser'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+exit mysql server
+> quit
+
+4. Install dotnet runtime
+https://github.com/dotnet/core/blob/master/release-notes/3.0/3.0-supported-os.md
+https://dotnet.microsoft.com/download/linux-package-manager/ubuntu18-04/runtime-current
+
+5. Configure Apache
+- Install these modules:
+a2enmod proxy proxy_http proxy_html rewrite
+- restart apache
+systemctl restart apache2
+
+6. Configure the virtual host inside apache
+- add configuration to the sites folder
+sudo nano /etc/apache2/sites-available/reactivities.conf
+
+- Create a virtual host to listen to an ip address
+- when a request comes inn the virtual host, proxy the request back to kestrel server
+- then it would reverse proxy back to apache
+- also, because we are using signalR we have to connfigure the rewrite on the Websocket port
+
+<VirtualHost *:80>
+	ProxyPreserveHost On
+	ProxyPass / http://127.0.0.1:5000/
+	ProxyPassReverse / http://127.0.0.1:5000/
+
+	ErrorLog /var/log/apache2/reactivities-error.log
+	CustomLog /var/log/apache2/reactivities-access.log common
+
+	RewriteEngine on
+	RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
+	RewriteCond %{HTTP:CONNECTION} Upgrade$ [NC]
+	RewriteRule /(.*) ws://127.0.0.1:5000/$1 [P]
+</VirtualHost>
+
+7. Enable the site
+a2ensite reactivities
+
+-restart apache
+systemctl restart apache2
+
++++++Deploy the published app+++++
+
+1. Install Deploy (Reloaded) VS Code extension
+- to send SFTP (port 22) to our Linux server
+
+2. Add settings.json file to .vscode folder
+{
+	"deploy.reloaded : {
+		"packages": [{
+			"name":"Version 1.0.0",
+			"description":"Package version 1.0.0",
+			"files":[
+				"api/publish/**"
+			]
+		}],
+		"targets": [{
+			"type":"sftp",
+			"name":"Linux",
+			"description":"SFTP folder",
+			"host":"165.22.134.96",
+			"port":22,
+			"user":"root",
+			"password":"password",
+			"dir":"/var/reactivities",
+			"mappings": {
+				"api/publish/**": "/"
+			}
+		}]
+	}
+}
+
+3. Publish the dotnet app
+- self-contained
+dotnet publish -c Release -o publish --self-contained false U-NetCoreReact.sln
+
+- Add GenerateAssemblyInfo in .csproj files to supress errors
+	<PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+4. Deploy the package
+- Deploy Reloaded: Deploy
+- select Package
+
+5. Verify files inside Linux
+ls /var/reactivities
+
+6. Setup kestrel web service
+- open text editor, and create as kestrel-web.service
+- to open text editor
+sudo nano /etc/systemd/system/kestrel-web.service
+
+- copy and paste, save
+[Unit]
+Description=Kestrel service running on Ubuntu 18.04
+[Service]
+WorkingDirectory=/var/reactivities
+ExecStart=/usr/bin/dotnet /var/reactivities/API.dll
+Restart=always
+RestartSec=10
+SyslogIdentifier=reactivities
+User=www-data
+Environment=ASPNETCORE_ENVIRONNMENT=Production
+Environment=Cloudinary:CloudName=<CloudName>
+Environment=Cloudinary:ApiSecret=<ApiSecret>
+Environment=Cloudinary:ApiKey=<ApiKey>
+Environment=TokenKey:super secret key
+[Install]
+WantedBy=multi-user.target
+
+- enable and start the service
+- this is equivalent to starting our Api
+sudo systemctl enable kestrel-web.service
+sudo systemctl start kestrel-web.service
+
+7. Verify server is listening on Port 5000
+netstat -ntpl
+
+8. Verify database is populated with data
+mysql -u appuser -p
+show databases;
+use reactivities;
+show tables;
+select * from activities;
+
+9. On digitalocean, list of enabled sites are in sites-enabled
+- Verify sites-enabled
+ls /etc/apache2/sites-enabled/
+- Disable the default site (000-default.conf)
+a2dissite 000-default
+-restart apache
+systemctl restart apache2
+
+10. Verify by visiting ip address on url 
