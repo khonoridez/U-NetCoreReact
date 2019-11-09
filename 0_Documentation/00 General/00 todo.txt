@@ -189,3 +189,10 @@ interface IProps {
 
 - Bug: System.ArgumentNullException: Value cannot be null. (Parameter 'source')
 Resolved: add null coalescing operator
+
+++++++++++++++EntityFrameworkCore MySql++++++++++++++
+https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql
+- used in MySqlMigrations
+- Still on release candidate
+Pomelo.EntityFrameworkCore.MySql (3.0.0-rc3.final)
+

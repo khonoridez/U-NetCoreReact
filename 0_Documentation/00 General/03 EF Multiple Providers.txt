@@ -55,29 +55,45 @@ opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"),
 	x => x.MigrationsAssembly("SqliteMigrations"));
 
 ++++New Db Provider++++
-6. Set AddDbContext to use MySql/Sql Server db provider
-opt.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
-opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+6. Set AddDbContext to use MySql/Sql Server db provider with MigrationsAssembly configured
+- also on ConfigureDevelopmentServices!
+opt.UseMySql(Configuration.GetConnectionString("DefaultConnection"), 
+	x => x.MigrationsAssembly("MySqlMigrations"));
+or:
+opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+	x => x.MigrationsAssembly("SqlServerMigrations"));
 
 7. Change connectionstrings to match MySql/Sql Server
 appsettings.json
 appsettings.Development.json
 
 8. Create Class Library Project (MySqlMigrations/SqlServerMigrations)
+- Add Reference of Persistence prroject
 
-9. Trigger new Migration
+9. Add Reference of MySqlMigrations/SqlServerMigrations to startup project (/Api)
+
+10. Add package to Migration Project
+Pomelo.EntityFrameworkCore.MySql (3.0.0-rc3.final)
+Microsoft.EntityFrameworkCore.SqlServer 3.0.0
+
+11. Rebuild Solution
+
+12. Trigger new Migration
 dotnet ef migrations add MySqlInitialProduction -p MySqlMigrations/ -s API/
 dotnet ef migrations add SqlServerInitialProduction -p SqlServerMigrations/ -s API/
 
-10. Add Reference of MySqlMigrations/SqlServerMigrations to startup project (/Api)
+13. Reconfigure ConfigureDevelopmentServices back to dev settings
+- opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+- under \API\Properties\launchSettings.json set to environmentVariables Production
+	"environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      }
 
-11. Add MigrationsAssembly configuration
-opt.UseMySql(Configuration.GetConnectionString("DefaultConnection"), 
-	x => x.MigrationsAssembly("MySqlMigrations"));
+14. Rebuild Project
+- cd api
+- dotnet run
 
-12. Rebuild Project
-SqliteMigrations
-
+...
 Toggle Environment Variables (Development/Production) under: \API\Properties\launchSettings.json
 	"environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
