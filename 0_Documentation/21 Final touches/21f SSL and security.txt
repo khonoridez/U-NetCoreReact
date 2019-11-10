@@ -232,7 +232,7 @@ not specify a 'report-uri'; the policy will have no effect. Please either add a 
 2. Republish app (see 01 Notes)
 2.1 publish
 2.2 deploy
-2.3 restart host server (restart kestrel weeb service)
+2.3 restart host server (restart kestrel web service)
 
 3. Restest in securityheaders.com
 

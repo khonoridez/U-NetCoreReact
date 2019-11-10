@@ -275,6 +275,12 @@ if (context.Resource is AuthorizationFilterContext authContext) {
 ++++++++Web based Data Modeler++++++++
 https://www.vertabelo.com/
 
+++++++++++++++Change default in Vs code terminal++++++++++++++
+ex. from powershell to bash
+https://stackoverflow.com/questions/44435697/vscode-change-default-terminal
+
+View > Command Pallete >
+Terminal: Select Default Shell.
 
 +++++++++++++++++IQueryable+++++++++++++++++
 
@@ -414,9 +420,86 @@ dotnet publish -c Release -o publish --self-contained false U-NetCoreReact.sln
 
 5. Resfresh/Restart host server
 
-++++++++++++++Change default in Vs code terminal++++++++++++++
-ex. from powershell to bash
-https://stackoverflow.com/questions/44435697/vscode-change-default-terminal
+++++++++++++++Hosting in IIS++++++++++++++
+https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/?view=aspnetcore-3.0
+https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/index?view=aspnetcore-3.0#install-the-net-core-hosting-bundle
+https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/?view=aspnetcore-2.2#iis-configuration
 
-View > Command Pallete >
-Terminal: Select Default Shell.
+1. Install the .NET Core Hosting Bundle
+https://stackify.com/how-to-deploy-asp-net-core-to-iis/
+
+2. Configure to use IIS
+2.1 Remove .UseKestrel(x => x.AddServerHeader = false) due to errors
+https://stackoverflow.com/questions/58080353/application-is-running-inside-iis-process-but-is-not-configured-to-use-iis-serve
+
+Errors:
+System.InvalidOperationException: Application is running inside IIS process but is not configured to use IIS server.
+
+2.2 Implement x.AddServerHeader = false in the publish files web.config
+https://stackoverflow.com/questions/52452194/remove-server-header-from-asp-net-core-2-1-application
+- Add in web.config
+<system.webServer>
+	...
+    <security>
+      <requestFiltering removeServerHeader="true" />
+    </security>
+    <httpProtocol>
+      <customHeaders>
+        <remove name="X-Powered-By" />
+      </customHeaders>
+    </httpProtocol>
+	...
+
+- Verify Headers
+
+Before Server Headers (f12 > Activities > Network > Headers)
+...
+Response Headers
+HTTP/1.1 200 OK
+Last-Modified: Sun, 10 Nov 2019 06:56:39 GMT
+Server: Microsoft-IIS/10.0
+Referrer-Policy: no-referrer
+Content-Security-Policy: script-src 'self' 'sha256-zTmokOtDNMlBIULqs//ZgFtzokerG72Q30ccMjdGbSA=';style-src 'self' https://fonts.googleapis.com 'sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs=';img-src 'self' https://res.cloudinary.com blob: data:;font-src 'self' https://fonts.gstatic.com data:;form-action 'self';frame-ancestors 'self';block-all-mixed-content
+X-Powered-By: ASP.NET
+Date: Sun, 10 Nov 2019 21:37:12 GMT
+Content-Length: 2505
+Content-Type: text/HTML
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+X-Frame-Options: Deny
+...
+Request Headers
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Cache-Control: max-age=0
+Connection: keep-alive
+Host: localhost
+If-Modified-Since: Sun, 10 Nov 2019 06:56:39 GMT
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36
+
+After Server Headers
+...
+Response Headers
+HTTP/1.1 200 OK
+Content-Length: 2505
+Content-Type: text/HTML
+Last-Modified: Sun, 10 Nov 2019 06:56:39 GMT
+X-Content-Type-Options: nosniff
+Referrer-Policy: no-referrer
+X-XSS-Protection: 1; mode=block
+X-Frame-Options: Deny
+Content-Security-Policy: script-src 'self' 'sha256-zTmokOtDNMlBIULqs//ZgFtzokerG72Q30ccMjdGbSA=';style-src 'self' https://fonts.googleapis.com 'sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs=';img-src 'self' https://res.cloudinary.com blob: data:;font-src 'self' https://fonts.gstatic.com data:;form-action 'self';frame-ancestors 'self';block-all-mixed-content
+Date: Sun, 10 Nov 2019 21:42:33 GMT
+
+Removed:
+Server: Microsoft-IIS/10.0
+X-Powered-By: ASP.NET
+
+++++++++++++++Enable logging in Net Core App++++++++++++++
+- logfiles will be generated in \logs
+https://codedocu.com/Net-Framework/ASP_dot_Net-Core/Errors/IIS-AspCore-Errors/Asp-Core-Error_colon_-Could-not-create-stdoutLogFile?2308
