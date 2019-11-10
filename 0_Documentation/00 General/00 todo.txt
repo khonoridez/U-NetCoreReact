@@ -196,3 +196,13 @@ https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql
 - Still on release candidate
 Pomelo.EntityFrameworkCore.MySql (3.0.0-rc3.final)
 
+++++++++++++++Chat System Validation++++++++++++++
+- Empty and Whitespace
+
+++++++++++++++Web Security Middleware++++++++++++++
+- May not be compatible with netcore 3
+NWebsec.AspNetCore.Middleware 2.0.0
+
+- Probable alternatives
+https://github.com/andrewlock/NetEscapades.AspNetCore.SecurityHeaders
+https://www.nuget.org/packages/RWD.Toolboox.Ui.Middleware.SecurityHeaders/1.0.0
