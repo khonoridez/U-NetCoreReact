@@ -76,6 +76,7 @@ systemctl restart apache2
 +++++Deploy the published app+++++
 
 1. Install Deploy (Reloaded) VS Code extension
+https://github.com/mkloubert/vscode-deploy-reloaded/wiki/target_local
 - to send SFTP (port 22) to our Linux server
 
 2. Add settings.json file to .vscode folder
@@ -110,7 +111,7 @@ dotnet publish -c Release -o publish --self-contained false U-NetCoreReact.sln
 
 - Add GenerateAssemblyInfo in .csproj files to supress errors
 	<PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+	...
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
