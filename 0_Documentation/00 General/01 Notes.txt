@@ -333,3 +333,90 @@ mySql
     "environmentVariables": {
     "ASPNETCORE_ENVIRONMENT": "Production"
     }
+
++++++Deploy the published app+++++
+
+1. Install Deploy (Reloaded) VS Code extension
+- to send SFTP (port 22) to our Linux server
+
+2. Add settings.json file to .vscode folder
+https://github.com/mkloubert/vscode-deploy-reloaded/wiki/folder_mappings
+
+Sample in tutorial:
+{
+	"deploy.reloaded : {
+		"packages": [{
+			"name":"Version 1.0.0",
+			"description":"Package version 1.0.0",
+			"files":[
+				"api/publish/**"
+			]
+		}],
+		"targets": [{
+			"type":"sftp",
+			"name":"Linux",
+			"description":"SFTP folder",
+			"host":"165.22.134.96",
+			"port":22,
+			"user":"root",
+			"password":"password",
+			"dir":"/var/reactivities",
+			"mappings": {
+				"publish/**": "/"
+			}
+		}]
+	}
+}
+
+Working local:
+https://github.com/mkloubert/vscode-deploy-reloaded/wiki/target_local
+"deploy.reloaded": {
+    "packages": [
+      {
+        "name": "Version 1.0.0",
+        "description": "Package version 1.0.0",
+        "files": ["publish/**"]
+      }
+    ],
+    "targets": [
+      {
+        "type": "local",
+        "name": "My local folder",
+        "description": "A local folder",
+
+        "dir": "C:/test/my_package_files",
+        "mappings": {
+          "publish/**": "/"
+        }
+      }
+    ]
+  }
+
+- Directory must exist C:/test/my_package_files
+
+3. Publish the dotnet app
+- self-contained
+- terminal on root solution
+dotnet publish -c Release -o publish --self-contained false U-NetCoreReact.sln
+
+- output will be in the root solution folder/publish/
+
+- Add GenerateAssemblyInfo in .csproj files to supress errors
+	<PropertyGroup>
+	...
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+4. Deploy the package
+- View > Command Palette
+- type, Deploy Reloaded: Deploy
+- select, Package
+
+5. Resfresh/Restart host server
+
+++++++++++++++Change default in Vs code terminal++++++++++++++
+ex. from powershell to bash
+https://stackoverflow.com/questions/44435697/vscode-change-default-terminal
+
+View > Command Pallete >
+Terminal: Select Default Shell.
