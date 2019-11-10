@@ -246,3 +246,7 @@ Fixed headers:
 3. X-XSS-Protection
 4. X-Frame-Options
 5. Content-Security-Policy
+
++++++++++++++Enforce https+++++++++++++
+- uncomment in Startup.cs
+//app.UseHttpsRedirection();
