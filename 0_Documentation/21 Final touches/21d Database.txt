@@ -1,0 +1,142 @@
+﻿
++++++++++++++Setup Different Database Providers+++++++++++++
+- Using MySql Community Edition
+https://dev.mysql.com/downloads/mysql/
+
+1. Install mysql community edition
+2. mySql command line
+mysql -u root -p
+
+> show databases;
+
+3. Create appuser
+CREATE USER 'appuser'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Password@1';
+GRANT ALL PRIVILEGES ON *.* TO 'appuser'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+4. Install mySql in VS Code
+- View > Command Palette > type: MySql: Add Connection
+- localhost, port 3306
+
+5. Add Providers for EF
+- Install both in Persistence
+https://docs.microsoft.com/en-us/ef/core/providers/?tabs=dotnet-core-cli
+Microsoft.EntityFrameworkCore.SqlServer 3.0.0
+Pomelo.EntityFrameworkCore.MySql rc3
+
+6. Configure migrations
+- \Persistence\Migrations\
+- Migrations using sqlite provider
+- Check for migrations that use specific provider (sqlite) information
+- We only have the InitialCreate migration when we had the Id as int
+columns: table => new
+    {
+        Id = table.Column<int>(nullable: false)
+            .Annotation("Sqlite:Autoincrement", true),
+        ...
+    },
+- We will just manually add the migrations using ValueGenerationStrategy
+columns: table => new
+{
+    Id = table.Column<int>(nullable: false)
+    .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+    .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+    .Annotation("Sqlite:Autoincrement", true),
+    Name = table.Column<string>(nullable: true)
+},
+
+
++++++++++++++Configure Different Database Providers+++++++++++++
+1. Setup connection strings
+https://www.connectionstrings.com/
+API\appsettings.Development.json
+API\appsettings.json
+
+- Copy Connection strings from appsettings to dev appsettings
+"DefaultConnection": "Data source=reactivities.db"
+
+- Replace Connection string of appsettings for mySql
+"DefaultConnection": "Server=localhost; Database=reactivities; Uid=appuser; Pwd=Password@1"
+
+- Replace Connection string of appsettings for Sql Server
+"DefaultConnection": "Server=localhost; Database=reactivities;Trusted_Connection=True;"
+
+2. Create Services for Development and Production in Startup.cs
+public void ConfigureDevelopmentServices(IServiceCollection services)
+{
+    services.AddDbContext<DataContext>(opt =>
+    {
+        opt.UseLazyLoadingProxies();
+        opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+    });
+
+    ConfigureServices(services);
+}
+
+public void ConfigureProductionServices(IServiceCollection services)
+{
+    services.AddDbContext<DataContext>(opt =>
+    {
+        opt.UseLazyLoadingProxies();
+        opt.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
+    });
+
+    ConfigureServices(services);
+}
+
+3. Modify launchSettings in Api
+\API\Properties\launchSettings.json
+- Under Api change "Development" to "Production"
+- This will call ConfigureProductionServices in Startup.cs,  Will only call in > dotnet run
+- Migrations will call ConfigureDevelopmentServices
+- public void ConfigureProductionServices(IServiceCollection services)
+
+"API": {
+    "commandName": "Project",
+    "launchBrowser": true,
+    "launchUrl": "weatherforecast",
+    "applicationUrl": "http://localhost:5000",
+    "environmentVariables": {
+    "ASPNETCORE_ENVIRONMENT": "Production"
+    }
+
+4. Start application
+> cd api
+> dotnet run
+
+!! Error
+Unhandled exception. System.ArgumentNullException: String reference not set to an instance of a String. (Parameter 's')
+   at System.Text.Encoding.GetBytes(String s)
+- var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TokenKey"]));
+- Trying to get TokenKey from Configuration (Stored in .net user secrets)
+
+5. Configure user secrets for Production
+- populate all user secrets in appsettings.json
+> cd api
+> dotnet user-secrets list
+TokenKey = super secret key
+Cloudinary:CloudName = oznyakis
+Cloudinary:ApiSecret = _g-7x7ff__q_Wyfc2Z6OWTeM3vU
+Cloudinary:ApiKey = 487455548437237
+...
+Add:
+"Cloudinary": {
+"CloudName": "oznyakis",
+"ApiSecret": "_g-7x7ff__q_Wyfc2Z6OWTeM3vU",
+"ApiKey": "487455548437237"
+},
+"TokenKey": "super secret key",
+
+6. Start application
+> cd api
+> dotnet run
+- Verify if database is populated
+
+!! Error in migration
+fail: API.Program[0]
+      An error occured during migration
+MySql.Data.MySqlClient.MySqlException (0x80004005): BLOB/TEXT column 'Id' used in 
+key specification without a key length
+
+- Resolution: see 03 EF Multiple Providers under General Notes
+

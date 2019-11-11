@@ -1,0 +1,92 @@
+﻿
++++++++++++++Publishing+++++++++++++
+- We will be creatinng a monolithic app and tie up the client-app build to our Api project
+
++++++++++++++Environment Variables in React+++++++++++++
+https://create-react-app.dev/docs/adding-custom-environment-variables/
+- Create env variables for production
+
+1. Create file in 
+/client-app/.env.development
+/client-app/.env.production
+
+2. configure 
+.env.development
+REACT_APP_API_URL=http://
+:5000/api
+REACT_APP_API_CHAT_URL=http://localhost:5000/chat
+
+.env.production
+REACT_APP_API_URL=/api
+REACT_APP_API_CHAT_URL=/chat
+
+- We will be bundling these to the Api project
+- We will be publishing as a monolithic app
+
+3. Replace localhost magic numbers
+- client-app\src\app\api\agent.ts
+axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+
+- client-app\src\app\stores\activityStore.ts
+@action createHubConnection = () => {
+    this.hubConnection = new HubConnectionBuilder()
+      .withUrl(process.env.REACT_APP_API_CHAT_URL!, {
+        ...
+
++++++++++++++Build and Attach to Api as View+++++++++++++
+1. build client-app project
+- npm run build
+-  this will create a build folder
+
+2. Modify scripts under package.json 
+- client-app\package.json
+- to create the build folder in our Api project
+- add a postBuild parameter
+
+"scripts": {
+    ...
+    "build": "react-scripts build",
+    "postBuild": "move build ../API/wwwroot",
+  },
+
+!! note: wwwroot must not exist else the move build command will create wwwroot/build/
+
+3. Add wwwroot to .gitignore
+
+4. Configure in Startup.cs
+ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    ...
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+
+5. Configure Routing
+ex. in Tuts netcore 2.2
+.UseMvc
+.MapSpaFallbackRoute
+
+https://stackoverflow.com/questions/57822512/what-is-equivalent-to-mapspafallbackroute-for-asp-net-core-3-0-endpoints
+https://docs.microsoft.com/en-us/aspnet/core/migration/22-to-30?view=aspnetcore-3.0&tabs=visual-studio
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ChatHub>("/chat");
+    endpoints.MapControllers();
+
+    endpoints.MapFallbackToController("Index", "Fallback");
+});
+
+6. Create Controller FallbackController
+- Set AllowAnonymous
+[AllowAnonymous]
+public IActionResult Index()
+{
+    return PhysicalFile(
+        Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "wwwroot",
+            "index.html"),
+        "text/HTML");
+}
+
+7. Restart Api server

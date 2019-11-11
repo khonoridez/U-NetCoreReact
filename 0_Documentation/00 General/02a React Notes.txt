@@ -594,6 +594,11 @@ https://mobx.js.org/refguide/modifiers.html
 observable.shallow: Can only used in combination with collections. Turns any assigned collection into an observable, 
 but the values of that collection will be treated as-is.
 
++++++++++++Mobx Decorators+++++++++++
+https://mobx.js.org/refguide/tojson.html
+- turning observables to plain javascript object
+- used in loadActivity > client-app\src\app\stores\activityStore.ts
+
 +++++++++++Semantic UI+++++++++++
 
 - Statistic

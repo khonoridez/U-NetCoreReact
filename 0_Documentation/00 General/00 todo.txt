@@ -146,13 +146,77 @@ interface IProps {
 5. toast messages, toast.error()
 - in all stores
 
+6. Loading App...
+- client-app\public\index.html
+- client-app\src\app\layout\App.tsx
+
+7. CORS setting .WithOrigins("http://localhost:3000")
+ services.AddCors(opt =>
+    {
+        opt.AddPolicy("CorsPolicy", policy =>
+        {
+            policy
+            .WithOrigins("http://localhost:3000")
+            ....
+        });
+    });
+
+8. agent.ts error 401 header condition
+  if (
+    status === 401 &&
+    headers["www-authenticate"] ===
+      'Bearer error="invalid_token", error_description="The token is expired"'
+  ) {
+    window.localStorage.removeItem("jwt");
+    history.push("/");
+    toast.info("Your session has expired, please login again");
+  }
+
 ++++++++++++++Filters++++++++++++++
 1. Combine Filters
 - IsGoing + startDate
 
-++++++++++++++Console Log++++++++++++++
+++++++++++++++Console Log usage++++++++++++++
 - Magic numbers
 - In all Stores
 
 ++++++++++++++User Activity Loader++++++++++++++
 - Adjust loader in content
+
+++++++++++++++Register Modal Errors++++++++++++++
+- Server messages gets rendered in bullet list
+- Bug: Register should log me in
+
+- Bug: System.ArgumentNullException: Value cannot be null. (Parameter 'source')
+Resolved: add null coalescing operator
+
+++++++++++++++EntityFrameworkCore MySql++++++++++++++
+https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql
+- used in MySqlMigrations
+- Still on release candidate
+Pomelo.EntityFrameworkCore.MySql (3.0.0-rc3.final)
+
+++++++++++++++Chat System Validation++++++++++++++
+- Empty and Whitespace
+
+++++++++++++++Web Security Middleware++++++++++++++
+- May not be compatible with netcore 3
+NWebsec.AspNetCore.Middleware 2.0.0
+
+- Probable alternatives
+https://github.com/andrewlock/NetEscapades.AspNetCore.SecurityHeaders
+https://www.nuget.org/packages/RWD.Toolboox.Ui.Middleware.SecurityHeaders/1.0.0
+
+
+++++++++++++++Conclusion++++++++++++++
+1. Improving the App
+- Messaging system
+- Mapping Functionality (google maps)
+- Additionnal filtering
+- Paging in other areas
+
+2. Identity Cookbook
+- Using external providers, facebook login
+- Refresh token, get new token when it expires
+
+3. Build your ownn app

@@ -1,0 +1,255 @@
+﻿+++++++++++++SSL Certificate+++++++++++++
+Requirements: 
+- Domain name
+- SSL Certificate
+
+1. Verify sites in apache
+apache2ctl -S
+
+2. Enable ssl
+sudo a2enmod ssl
+
+3. Verify VirtualHost *:80
+cat /etc/apache2/sites-enabled/reactivities.conf
+
+<VirtualHost *:80>
+	ServerName <domainname>
+	RedirectMatch permanent ^(.*)$ https://<domainname>$1
+</VirtualHost>
+
+3. Verify VirtualHost *:443
+cat /etc/apache2/sites-enabled/reactivities-ssl.conf
+
+<VirtualHost *:443>
+	ServerName <domainname>
+
+	SSLEngine on
+	SSLCertificateFile ...
+	SSLCertificateKeyFile ...
+	SSLCertificateChainFile ...
+
+	ProxyPreserveHost On
+	ProxyPass / http://127.0.0.1:5000/
+	ProxyPassReverse / http://127.0.0.1:5000/
+
+	ErrorLog /var/log/apache2/reactivities-error.log
+	CustomLog /var/log/apache2/reactivities-access.log common
+
+	RewriteEngine on
+	RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
+	RewriteCond %{HTTP:CONNECTION} Upgrade$ [NC]
+	RewriteRule /(.*) ws://127.0.0.1:5000/$1 [P]
+</VirtualHost>
+
+- Generate certificate sign in request
+openssl req -new -newkey rsa:2048 -nodes -keyout sitename.key -out sitename.csr
+
+4. Verify in Security headers website
+https://securityheaders.com/
+- Current status will be F
+Strict-Transport-Security
+Content-Security-Policy
+X-Frame-Options
+X-Content-Type-Options
+Referrer-Policy
+Feature-Policy
+
++++++++++++++Security Headers+++++++++++++
+- The HTTP Strict-Transport-Security response header (often abbreviated as HSTS) lets a web site tell browsers 
+that it should only be accessed using HTTPS, instead of using HTTP.
+
+- Content Security Policy is an effective measure to protect your site from XSS attacks. 
+By whitelisting sources of approved content, you can prevent the browser from loading malicious assets.
+
+- X-Frame-Options tells the browser whether you want to allow your site to be framed or not. By preventing a 
+browser from framing your site you can defend against attacks like clickjacking. Recommended value 
+"X-Frame-Options: SAMEORIGIN". 
+
+- X-Content-Type-Options stops a browser from trying to MIME-sniff the content type and forces it to stick with 
+the declared content-type. The only valid value for this header is "X-Content-Type-Options: nosniff".
+
+- Referrer Policy is a new header that allows a site to control how much information the browser includes with 
+navigations away from a document and should be set by all sites.
+
+- Feature Policy is a new header that allows a site to control which features and APIs can be used in the browser.
+
+Implement headers
+1. Add UseKestrel configuration in Startup.cs
+public static IHostBuilder CreateHostBuilder(string[] args) =>
+    Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(
+        webBuilder => webBuilder
+        .UseKestrel(x => x.AddServerHeader = false)
+        .UseStartup<Startup>());
+
+2. Add package NWebSec
+NWebsec.AspNetCore.Middleware 2.0.0
+
+3. Add Headers under Startup.cs Configure
+- 
+...
+app.UseXContentTypeOptions();
+app.UseReferrerPolicy(opt => opt.NoReferrer());
+app.UseXXssProtection(opt => opt.EnabledWithBlockMode());
+app.UseXfo(opt => opt.Deny());
+
+...
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+4. Configure UseCspReportOnly to verify what to fix to implement UseCsp
+app.UseCspReportOnly(
+    opt => opt
+		.BlockAllMixedContent()
+		.StyleSources(s => s.Self())
+		.FontSources(s => s.Self())
+		.FormActions(s => s.Self())
+		.FrameAncestors(s => s.Self())
+		.ImageSources(s => s.Self())
+		.ScriptSources(s => s.Self())
+		);
+
+5. Verify errors(f12 Console)
+all errors coming from UseCsp
+
++++++++++++++Fix Errors+++++++++++++
+1. Content Security Policy directive: "style-src 'self'".
+- Styles and content coming from outer links
+
+1.1 Get Semantic UI css instead of getting from cdn
+https://github.com/Semantic-Org/Semantic-UI-CSS
+- npm install semantic-ui-css
+- in client-app\src\index.tsx
+import "semantic-ui-css/semantic.min.css";
+
++++++++++++++Content Security Policy app.UseCsp(...+++++++++++++
+- 3rd party sites being accessed by our app
+- Add these links as whitelist
+1.2 google font
+- add to whitelist https://fonts.googleapis.com
+[Report Only] Refused to load the stylesheet 'https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic&subset=latin' 
+because it violates the following Content Security Policy directive: "style-src 'self'". Note that 'style-src-elem' was not explicitly set, so 'style-src' is used as a fallback.
+ app.UseCspReportOnly(opt => opt
+    .BlockAllMixedContent()
+    .StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com")
+    ...
+    );
+
+1.3 fonts.gstatic.com
+(index):1 [Report Only] Refused to load the font 'https://fonts.gstatic.com/s/lato/v16/S6u8w4BMUTPHjxsAUi-qJCY.woff2' because it violates the following Content Security Policy directive: "font-src 'self'".
+app.UseCsp(opt => opt
+	...
+    .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com"))
+	...
+);
+
+1.4 data:application/x-font...
+[Report Only] Refused to load the font 'data:application/x-font-ttf;charset=utf-8;;base64,AAEAAAAOAIAAAwBgT1MvMj3hSQEAAADsAAAAVmNtYXDQEhm3AAABRAAAAUpjdnQgBkn/lAAABuwAAAAcZnBnbYoKeDsAAAcIAAAJkWdhc3AAAAAQAAAG5AAAAAhnbHlm32cEdgAAApAAAAC2aGVhZAErPHsAAANIAAAANmhoZWEHUwNNAAADgAAAACRobXR4CykAAAAAA6QAAAAMbG9jYQA4AFsAAAOwAAAACG1heHAApgm8AAADuAAAACBuYW1lzJ0aHAAAA9gAAALNcG9zdK69QJgAAAaoAAAAO3ByZXCSoZr/AAAQnAAAAFYAAQO4AZAABQAIAnoCvAAAAIwCegK8AAAB4AAxAQIAAAIABQMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUGZFZABA6ADoAQNS/2oAWgMLAE8AAAABAAAAAAAAAAAAAwAAAAMAAAAcAAEAAAAAAEQAA...BSLLIAATsrLbBTLLIBADsrLbBULLIBATsrLbBVLLIAAD4rLbBWLLIAAT4rLbBXLLIBAD4rLbBYLLIBAT4rLbBZLLIAADorLbBaLLIAATorLbBbLLIBADorLbBcLLIBATorLbBdLLAyKy6xJgEUKy2wXiywMiuwNistsF8ssDIrsDcrLbBgLLAAFrAyK7A4Ky2wYSywMysusSYBFCstsGIssDMrsDYrLbBjLLAzK7A3Ky2wZCywMyuwOCstsGUssDQrLrEmARQrLbBmLLA0K7A2Ky2wZyywNCuwNystsGgssDQrsDgrLbBpLLA1Ky6xJgEUKy2waiywNSuwNistsGsssDUrsDcrLbBsLLA1K7A4Ky2wbSwrsAhlsAMkUHiwARUwLQAAAEu4AMhSWLEBAY5ZuQgACABjILABI0SwAyNwsgQoCUVSRLIKAgcqsQYBRLEkAYhRWLBAiFixBgNEsSYBiFFYuAQAiFixBgFEWVlZWbgB/4WwBI2xBQBEAAA=' because it violates the following Content Security Policy directive: "font-src 'self' https://fonts.gstatic.com".
+app.UseCsp(opt => opt
+	...
+    .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
+	...
+);
+
+1.5 cloudinary images
+:5000/activities:1 [Report Only] Refused to load the image 'https://res.cloudinary.com/oznyakis/image/upload/v1573329137/xpce2c7etncivbayogav.jpg' because it violates the following Content Security Policy directive: "img-src 'self'".
+app.UseCsp(opt => opt
+    ...
+    .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com"))
+    ...
+);
+
+1.6 Inline script
+- Verify under Elements, verify the webpack script 
+!function(i){function e(e){for(var t,r,n=e[0],o=e[1],u=e[2],l=0,p=[];l<n.length;l++)r=n[l],Object.prototype.hasOwnProperty.call(f,r)&&f[r]&&p.push(f[r][0]),f[r]=0;for(t in o)Object.prototype.hasOwnProperty.call(o,t)&&(i[t]=o[t]);for(s&&s(e);p.length;)p.shift()();return c.push.apply(c,u||[]),a()}function a(){for(var e,t=0;t<c.length;t++){for(var r=c[t],n=!0,o=1;o<r.length;o++){var u=r[o];0!==f[u]&&(n=!1)}n&&(c.splice(t--,1),e=l(l.s=r[0]))}return e}var r={},f={1:0},c=[];function l(e){if(r[e])return r[e].exports;var t=r[e]={i:e,l:!1,exports:{}};return i[e].call(t.exports,t,t.exports,l),t.l=!0,t.exports}l.m=i,l.c=r,l.d=function(e,t,r){l.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:r})},l.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},l.t=function(t,e){if(1&e&&(t=l(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var r=Object.create(null);if(l.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var n in t)l.d(r,n,function(e){return t[e]}.bind(null,n));return r},l.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return l.d(t,"a",t),t},l.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},l.p="/";var t=this["webpackJsonpclient-app"]=this["webpackJsonpclient-app"]||[],n=t.push.bind(t);t.push=e,t=t.slice();for(var o=0;o<t.length;o++)e(t[o]);var s=n;a()}([])
+
+- To allow this script, the Content Security Policy allows for a hash version of this
+[Report Only] Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'self'". Either the 'unsafe-inline' keyword, a hash ('sha256-zTmokOtDNMlBIULqs//ZgFtzokerG72Q30ccMjdGbSA='), or a nonce ('nonce-...') is required to enable inline execution.
+
+1.7 Inline style
+[Report Only] Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' https://fonts.googleapis.com". 
+Either the 'unsafe-inline' keyword, a hash ('sha256-4JqrX7rrNLxYOU9KFPHnQGL6TQuE9qWtUPge+ZpwA9o='), or a nonce ('nonce-...') is required to enable inline execution.
+- Verify in client-app\public\index.html, we have a single inline style
+
+<div id="root">
+    <div
+    ...
+    style="display: flex !important;">
+	...
+    </div>
+</div>
+
+- However if we just copy the hash and add to CustomSource
+app.UseCspReportOnly(
+	...
+	.StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com", "sha256-4JqrX7rrNLxYOU9KFPHnQGL6TQuE9qWtUPge+ZpwA9o="))
+	...
+
+- Verify under Network > Activities
+- Under Response Headers
+Content-Security-Policy-Report-Only: 
+	script-src 'self' 'sha256-zTmokOtDNMlBIULqs//ZgFtzokerG72Q30ccMjdGbSA=';style-src 'self' https://fonts.googleapis.com 'sha256-4JqrX7rrNLxYOU9KFPHnQGL6TQuE9qWtUPge+ZpwA9o=';
+	img-src 'self' https://res.cloudinary.com;font-src 'self' https://fonts.gstatic.com data:;form-action 'self';frame-ancestors 'self';block-all-mixed-content
+
+- This will not work however, we have to create a class and replace the inline style
+<style>
+    .active-spinner {
+		display: flex !important;
+    }
+</style>
+<div id="root">
+    <div
+    class="ui active transition visible inverted dimmer flex active-spinner"
+    >
+	...
+
+!! We have to delete wwwroot folder and rebuild the react app
+cd client-app
+npm run build
+
+- We will be getting a new error message and new hash (the 2nd hash)
+[Report Only] Refused to apply inline style because it violates the following Content Security Policy directive: "style-src 'self' https://fonts.googleapis.com 
+'sha256-4JqrX7rrNLxYOU9KFPHnQGL6TQuE9qWtUPge+ZpwA9o='". Either the 'unsafe-inline' keyword, a hash ('sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs='), or a nonce ('nonce-...') 
+is required to enable inline execution.
+
+- Replace the hash with the new generated hash
+.StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com", "sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs="))
+
+1.8 Adding a photo (Profile > Add Photo) renders an error
+- blob: and data:
+cropper.js:1294 [Report Only] Refused to load the image 'blob:http://localhost:5000/8558a9a5-5867-4690-bc3d-4a4b0b1eb920' because it violates the following Content Security Policy directive: "img-src 'self' https://res.cloudinary.com".
+cropper.js:859 [Report Only] Refused to load the image 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA3NCSVQICAjb4U/gAAAABlBMVEXMzMz////TjRV2AAAACXBIWXMAAArrAAAK6wGCiw1aAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABFJREFUCJlj+M/AgBVhF/0PAH6/D/HkDxOGAAAAAElFTkSuQmCC' because it violates the following Content Security Policy directive: "img-src 'self' https://res.cloudinary.com".
+
+- Add these in ImageSource
+.ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com", "blob:", "data:"))
+
+1.9 Last error is indicating that we are in UseCspReportOnly mode
+The Content Security Policy 'script-src 'self' 'sha256-zTmokOtDNMlBIULqs//ZgFtzokerG72Q30ccMjdGbSA=';style-src 'self' https://fonts.googleapis.com 'sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs=';
+img-src 'self' https://res.cloudinary.com;font-src 'self' https://fonts.gstatic.com data:;form-action 'self';frame-ancestors 'self';block-all-mixed-content' was delivered in report-only mode, but does 
+not specify a 'report-uri'; the policy will have no effect. Please either add a 'report-uri' directive, or deliver the policy via the 'Content-Security-Policy' header.
+
+- Replace app.UseCspReportOnly(.. with app.UseCsp(..
+
+2. Republish app (see 01 Notes)
+2.1 publish
+2.2 deploy
+2.3 restart host server (restart kestrel web service)
+
+3. Restest in securityheaders.com
+
+!! Still missing issues regarding:
+1. Feature-Policy (fairly new)
+2. Https warning
+
+Fixed headers:
+1. X-Content-Type-Options
+2. Referrer-Policy
+3. X-XSS-Protection
+4. X-Frame-Options
+5. Content-Security-Policy
+
++++++++++++++Enforce https+++++++++++++
+- uncomment in Startup.cs
+//app.UseHttpsRedirection();
+- set in server 
+Header always set Strict-Transport-SEcurity "max-age=31536000"; includeSubDomains
+

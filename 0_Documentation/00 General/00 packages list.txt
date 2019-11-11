@@ -30,7 +30,7 @@ https://fluentvalidation.net/start
 
 5. JWT Token
 System.IdentityModel.Tokens.Jwt 5.6.0
-Microsoft.AspNetCore.Authentication.JwtBearer
+Microsoft.AspNetCore.Authentication.JwtBearer - updated to 3.0.0
 
 6. Automapper
 https://automapper.org/
@@ -56,6 +56,17 @@ public ICollection<AttendeeDto> UserActivities { get; set; }
 9. SignalR
 inside Microsoft.AspNetCore.App
 https://docs.microsoft.com/en-us/aspnet/core/tutorials/signalr?view=aspnetcore-3.0&tabs=visual-studio
+
+10. EF Database Providers
+https://docs.microsoft.com/en-us/ef/core/providers/?tabs=dotnet-core-cli
+Microsoft.EntityFrameworkCore.SqlServer 3.0.0
+Pomelo.EntityFrameworkCore.MySql 2.2.6
+- We will be using the rc of version 3
+- dotnet add package Pomelo.EntityFrameworkCore.MySql --version 3.0.0-rc3.final
+- Add to Persistence Project
+
+11. Web Security Middleware
+NWebsec.AspNetCore.Middleware 2.0.0
 
 +++++++++++React Packages+++++++++++
 

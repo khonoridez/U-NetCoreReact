@@ -1,4 +1,25 @@
 {
   "auto-close-tag.fullMode": true,
-  "auto-close-tag.SublimeText3Mode": true
+  "auto-close-tag.SublimeText3Mode": true,
+  "deploy.reloaded": {
+    "packages": [
+      {
+        "name": "Version 1.0.0",
+        "description": "Package version 1.0.0",
+        "files": ["publish/**"]
+      }
+    ],
+    "targets": [
+      {
+        "type": "local",
+        "name": "My local folder",
+        "description": "A local folder",
+
+        "dir": "C:/test",
+        "mappings": {
+          "publish/**": "/"
+        }
+      }
+    ]
+  }
 }

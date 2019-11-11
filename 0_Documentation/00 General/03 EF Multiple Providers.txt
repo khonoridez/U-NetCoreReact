@@ -1,0 +1,100 @@
+﻿
++++++++++++++Outline+++++++++++++
+- When migrating from Sqlite to MySql encountered error message:
+!! Error in migration
+fail: API.Program[0]
+      An error occured during migration
+MySql.Data.MySqlClient.MySqlException (0x80004005): BLOB/TEXT column 'Id' used in key specification without a key length
+
+- Resolution was to have multiple annotations coesxist as per link:
+https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/providers?tabs=dotnet-core-cli
+...
+	Id = table.Column<int>(nullable: false)
+		.Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+		.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+		.Annotation("Sqlite:Autoincrement", true),
+...
+
+!! This is not feasbile as generated DataContextModelSnapshot.cs also have different values per database provider
+ex. values in .HasColumnType(...);
+https://stackoverflow.com/questions/56280659/net-core-migration-fluent-api-hascolumntype
+https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli#create-a-migration
+https://stackoverflow.com/questions/49791087/ef-core-migration-with-multiple-provider-always-runs-sql-server-scripts
+
++++++++++++++Move Migration Sets in Different Assemblies+++++++++++++
+https://github.com/bricelam/Sample-SplitMigrations
+https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/projects?tabs=dotnet-core-cli
+- Due to project structure migrations will be separated by assemblies and be called via MigrationsAssembly property
+opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"), 
+	x => x.MigrationsAssembly("SqliteMigrations"));
+
++++++++++++++Connection Strings+++++++++++++
+https://www.connectionstrings.com/sql-server/
+"DefaultConnection": "Data source=reactivities.db"
+"DefaultConnection": "Server=localhost; Database=reactivities; Uid=appuser; Pwd=Password@1"
+"DefaultConnection": "Server=localhost; Database=reactivities;Trusted_Connection=True;"
+
++++++++++++++Use Db Provider Functions+++++++++++++
+opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+opt.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
+opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+
+opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"), 
+	x => x.MigrationsAssembly("SqliteMigrations"));
+
++++++++++++++EF Add Migration+++++++++++++
+dotnet ef migrations add InitialForProduction -p Persistence/ -s API/
+
++++++++++++++Split Migrations+++++++++++++
+1. Create Class Library Project (SqliteMigrations)
+2. Move all contents from /Persistence/Migrations to SqliteMigrations
+3. Rename all namespace Persistence.Migrations to namespace SqliteMigrations
+4. Add Reference of SqliteMigrations to startup project (/Api)
+5. Add MigrationsAssembly configuration
+opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"), 
+	x => x.MigrationsAssembly("SqliteMigrations"));
+
+++++New Db Provider++++
+6. Set AddDbContext to use MySql/Sql Server db provider with MigrationsAssembly configured
+- also on ConfigureDevelopmentServices!
+opt.UseMySql(Configuration.GetConnectionString("DefaultConnection"), 
+	x => x.MigrationsAssembly("MySqlMigrations"));
+or:
+opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+	x => x.MigrationsAssembly("SqlServerMigrations"));
+
+7. Change connectionstrings to match MySql/Sql Server
+appsettings.json
+appsettings.Development.json
+
+8. Create Class Library Project (MySqlMigrations/SqlServerMigrations)
+- Add Reference of Persistence prroject
+
+9. Add Reference of MySqlMigrations/SqlServerMigrations to startup project (/Api)
+
+10. Add package to Migration Project
+Pomelo.EntityFrameworkCore.MySql (3.0.0-rc3.final)
+Microsoft.EntityFrameworkCore.SqlServer 3.0.0
+
+11. Rebuild Solution
+
+12. Trigger new Migration
+dotnet ef migrations add MySqlInitialProduction -p MySqlMigrations/ -s API/
+dotnet ef migrations add SqlServerInitialProduction -p SqlServerMigrations/ -s API/
+
+13. Reconfigure ConfigureDevelopmentServices back to dev settings
+- opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+- under \API\Properties\launchSettings.json set to environmentVariables Production
+	"environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      }
+
+14. Rebuild Project
+- cd api
+- dotnet run
+
+...
+Toggle Environment Variables (Development/Production) under: \API\Properties\launchSettings.json
+	"environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }

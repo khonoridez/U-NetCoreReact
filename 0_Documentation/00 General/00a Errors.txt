@@ -348,3 +348,72 @@ npm install react-cropper@1.2.0
 
 Bug: Both Delete Button of target and Set Main Button of new main photo is loading
 Resolution: Not reusing @observable loadding and created new @observable boolean
+
++++++++++++++Error when adjusted Jwt token expiration to minutes+++++++++++++
+https://stackoverflow.com/questions/55851303/idx10501-signature-validation-failed-kid-pii-is-hidden-token-pii-is-h
+https://stackoverflow.com/questions/50590432/jwt-securitytokeninvalidsignatureexception-using-rs256-pii-is-hidden
+https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/issues/884
+
+"IDX12401: Expires: '[PII is hidden. For more details, see https://aka.ms/IdentityModel/PII.]' must be after 
+NotBefore: '[PII is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'."
+
+Resolution:
+1. Set ShowPII = true in Program/Main
+
+public class Program
+    {
+        public static void Main(string[] args)
+        {
+            IdentityModelEventSource.ShowPII = true;
+			...
+
+New error:
+System.ArgumentException: IDX12401: Expires: '11/06/2019 14:11:29' must be after NotBefore: '11/06/2019 19:01:30'.
+
+https://github.com/IdentityServer/IdentityServer4/issues/2186
+https://stackoverflow.com/questions/39728519/jwtsecuritytoken-doesnt-expire-when-it-should
+https://github.com/IdentityServer/IdentityServer3/issues/1251
+https://stackoverflow.com/questions/29445863/correct-use-of-jwttokens-in-c-sharp/29456969#29456969
+https://stackoverflow.com/questions/29445863/correct-use-of-jwttokens-in-c-sharp
+
+Resolution:
+\Infrastructure\Security\JwtGenerator.cs
+- Use UtcNow instead of Now
+- Expires = DateTime.UtcNow.AddMinutes(1),
+var tokenDescriptor = new SecurityTokenDescriptor
+{
+    Subject = new ClaimsIdentity(claims),
+    Expires = DateTime.UtcNow.AddMinutes(1),
+    SigningCredentials = creds
+};
+
++++++++++++++Probable Memory Leak+++++++++++++
+- Happened when waiting for the token to expire
+index.js:1375 Warning: Can't perform a React state update on an unmounted component. This is a no-op, 
+but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in a 
+useEffect cleanup function.
+    in ActivityDashboard (at PrivateRoute.tsx:22)
+    in Route (at PrivateRoute.tsx:19)
+    in PrivateRoute (at App.tsx:50)
+    in Switch (at App.tsx:49)
+    in div (created by Container)
+    in Container (at App.tsx:48)
+
+
++++++++++++++'mv' is not recognized as an internal or external command+++++++++++++
+- Happened on postBuild for npm build
+"scripts": {
+    ...
+    "postbuild": "mv build ../API/wwwroot",
+  },
+
+https://stackoverflow.com/questions/52136609/mv-is-not-recognized-as-an-internal-or-external-command-operable-program-or-b
+
+Resolution: Using Windows move command
+
++++++++++++++Newtonsoft.Json Error upon publish+++++++++++++
+
+ ---> System.IO.FileNotFoundException: Could not load file or assembly 'Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed'. The system cannot find the file specified.
+ https://stackoverflow.com/questions/38671641/could-not-load-file-or-assembly-newtonsoft-json-version-9-0-0-0-culture-neutr
+
+Resolution: add Newtonsoft.Json to startup project

@@ -1,0 +1,112 @@
+﻿
++++++++++++++Create Azure Account+++++++++++++
+1. Add Resource Groups
+https://docs.microsoft.com/en-us/azure/azure-resource-manager/manage-resource-groups-portal
+
+2. Add Resources
+- Select Web App + SQL
+
+2.1 App name (Unique)
+appname.azurewebsite.net
+- reactivities
+
+2.2 Subscription
+https://docs.microsoft.com/en-us/azure/azure-subscription-service-limits
+Shared Infrastructure
+
+2.3 Sql Database settings
+- Db Name
+- Target Server (Unique)
+servername.database.windows.net
+
+- Server admin login
+- Password
+
+- Location
+
+2.4 Pricing Tier
+- Select Free
+
+2.5 Enable Application Insights
+
+3. Configure App 
+3.1 Allow database in firewall
+- Resource Group > Sql Server > Show Firewall Settings
+- Get Client Ip Address > Add to Firewall rules
+- To allow to access db directly for troubleshooting
+
+3.2  Verify url
+- Resource Group > Server > Select the App Service
+- click on Url to verify
+https://appname.azurewebsites.net
+
+3.3 Connection String
+- Resource Group > Sql Database > Show database connection strings
+
+4. Deploy database
+4.1 Update Connection String in \API\appsettings.json
+- Provide User Id annd Password when we setup Sql Database settings in azure
+
+4.2 Replace db provider in ConfigureProductionServices
+opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+                    x => x.MigrationsAssembly("SqlServerMigrations"));
+
+4.3 run api, for the azure db to trigger
+- Database is now connected to azure
+dotnet run -p API/
+
+4.4 Verify inside Azure portal if database is populated
+- Resource Group > Sql Database > Query editor
+- Login using db user/pw
+- Verify db tables if exist
+
+5. Deploy app
+5.1 Install Azure App Service in VS Code 
+5.2 Sign in to Azure left hand icon
+- Verify Account > Site
+
+5.3 Rebuild Application to verify
+- delete publish folder
+- republish
+dotnet publish -c Release -o publish --self-contained false U-NetCoreReact.sln\
+
+5.4 deploy via Azure App Service extension Vs Code
+- Select files, Deploy to Web App icon upper part
+- Select folder to deploy: Api/publish
+- Select Web App to deploy to: reactivities
+
+-- Verify site
+https://appname.azurewebsites.net
+
+
+6. Move settings outside of appsettings.json
+- Move to Azure appsettings
+
+-- Verify score in securityheaders.com
+warning in Strict-Transport-Security
+// enable htts
+
+6.1 In Azure, Resource Group > select App Service > left sidebar Settings > Configuration
+- Application Settings tab
+
+6.2 Configure app settings
+- Azure App Service extension Vs Code > Application Settings
+- Right click > Add new settings
+- Copy keys one at a time
+Key: Cloudinary:CloudName
+Value: <CloudName>
+Key: Cloudinary:ApiSecret
+Value: <ApiSecret>
+Key: Cloudinary:ApiKey
+Value: <ApiKey>
+Key: TokenKey
+Value: super secret key
+
+6.3 Modify Startup.cs
+- uncomment app.UseHsts();
+
+6.4 Republish
+- Delete publish folder
+- rebuild
+- dotnet publish -c Release -o publish --self-contained false U-NetCoreReact.sln\
+- deploy to Azure

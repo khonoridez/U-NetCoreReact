@@ -1,0 +1,38 @@
+﻿
+++++++++++++++Placeholder Loader++++++++++++++
+- using Semantic UI Placeholder
+- https://react.semantic-ui.com/elements/placeholder/
+1. Create file ActivityListItemPlaceholder.tsx
+client-app\src\features\activities\dashboard\ActivityListItemPlaceholder.tsx
+- type snippet s_22.1.0
+- structure of the Placeholder mimics a blank ActivityListItem
+<Segment...
+
+2. In ActivityDashboard.tsx
+- swap LoadingComponent with ActivityListItemPlaceholder
+- 
+<GridColumn width="10">
+{loadingInitial && page === 0 ? (
+    <ActivityListItemPlaceholder />
+) : (
+    <InfiniteScroll
+    pageStart={0}
+    loadMore={handleGetNext}
+    hasMore={!loadingNext && page + 1 < totalPages}
+    initialLoad={false}
+    >
+    <ActivityList />
+    </InfiniteScroll>
+)}
+</GridColumn>
+
+++++++++++++++loader on index.html++++++++++++++
+- there is a brief text "Reactivities" when page gets refreshed on browser
+- this comes from <div id="root">Reactivities</div> in client-app\public\index.html
+1. In client-app\src\app\layout\App.tsx set LoadingComponent to true, return flag back after copy
+if (true) return <LoadingComponent content="Loading app..." />;
+
+2. In browser, copy the html equivalent of the LoadingComponent redenred in <div id="root">
+<div class="ui active transition visible inverted dimmer" style="display: flex !important;"><div class="content"><div class="ui text loader">Loading app...</div></div></div>
+
+3. Paste inside the <div id="root"> in client-app\public\index.html

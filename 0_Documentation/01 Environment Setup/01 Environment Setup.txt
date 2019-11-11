@@ -34,6 +34,11 @@ Recommended VS Code Extensions
 9. Prettier Formatter for Visual Studio Code
 10. sqlite
 11. Debugger for Chrome (personal, not in tutorials)
+12. MySQL
+- Management Tool
+13. Deploy (Reloaded)
+- Deploy tool
+https://marketplace.visualstudio.com/items?itemName=mkloubert.vscode-deploy-reloaded
 
 ...
 
