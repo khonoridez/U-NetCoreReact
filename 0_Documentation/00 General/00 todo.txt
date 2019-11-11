@@ -206,3 +206,17 @@ NWebsec.AspNetCore.Middleware 2.0.0
 - Probable alternatives
 https://github.com/andrewlock/NetEscapades.AspNetCore.SecurityHeaders
 https://www.nuget.org/packages/RWD.Toolboox.Ui.Middleware.SecurityHeaders/1.0.0
+
+
+++++++++++++++Conclusion++++++++++++++
+1. Improving the App
+- Messaging system
+- Mapping Functionality (google maps)
+- Additionnal filtering
+- Paging in other areas
+
+2. Identity Cookbook
+- Using external providers, facebook login
+- Refresh token, get new token when it expires
+
+3. Build your ownn app

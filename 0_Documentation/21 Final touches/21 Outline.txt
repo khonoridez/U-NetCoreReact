@@ -58,6 +58,3 @@ loadActivity(match.params.id)
       return toJS(activity);
     } else {
 	...
-
-
-        
