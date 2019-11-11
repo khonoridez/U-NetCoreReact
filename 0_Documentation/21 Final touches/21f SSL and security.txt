@@ -250,3 +250,6 @@ Fixed headers:
 +++++++++++++Enforce https+++++++++++++
 - uncomment in Startup.cs
 //app.UseHttpsRedirection();
+- set in server 
+Header always set Strict-Transport-SEcurity "max-age=31536000"; includeSubDomains
+
