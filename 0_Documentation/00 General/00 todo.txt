@@ -74,7 +74,7 @@ public async Task<User> Handle(Command request, CancellationToken cancellationTo
 - What are other options to pass correct assemblies?
 
 services.AddMediatR(typeof(List.Handler).Assembly);
-services.AddAutoMapper(typeof(List.Handler).Assembly);
+services.AddAutoMapper(typeof(List.Handler));
 
 ++++++++++++++AuthorizationFilterContext is no longer available in HandleRequirementAsync()++++++++++++++
 !!Error - in /Infrastructure/Security/IsHostRequirement.cs code not triggering this conditional statement
@@ -195,6 +195,8 @@ https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql
 - used in MySqlMigrations
 - Still on release candidate
 Pomelo.EntityFrameworkCore.MySql (3.0.0-rc3.final)
+
+Resolution: Updated to 3.0.0 11/24/2019
 
 ++++++++++++++Chat System Validation++++++++++++++
 - Empty and Whitespace
