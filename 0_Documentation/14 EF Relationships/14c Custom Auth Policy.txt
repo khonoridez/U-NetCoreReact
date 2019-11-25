@@ -77,3 +77,6 @@ var activityId = Guid.Parse(_httpContextAccessor.HttpContext.Request?.RouteValue
 2. Test in Postman
 - Edit/Delete Activity Bob as host
 - Edit/Delete Activity Tom not host
+
+3. Resolution: Refactored 
+https://github.com/TryCatchLearn/Reactivities30/blob/master/Infrastructure/Security/IsHostRequirement.cs

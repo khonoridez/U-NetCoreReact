@@ -92,3 +92,41 @@ app.UseEndpoints(endpoints =>
 
     endpoints.MapFallbackToController("Fallback", "Home");
 });
+
+++++++++++++++Course Update Nov 2019++++++++++++++
+
+1. Replace Newtonsoft with System.Text.Json
+Newtonsoft.Json.JsonPropertyAttribute
+From:
+[JsonProperty("attendees")]
+To:
+using System.Text.Json.Serialization;
+...
+[JsonPropertyName("attendees")]
+
+https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-how-to?view=netcore-3.0#serialize-to-formatted-json
+https://www.c-sharpcorner.com/article/the-new-json-serializer-in-net-core-3/
+https://devblogs.microsoft.com/dotnet/try-the-new-system-text-json-apis/
+https://michaelscodingspot.com/the-battle-of-c-to-json-serializers-in-net-core-3/
+https://riptutorial.com/json-net/example/6594/how-to-serialize-an-object-to-json-using-json-net-in-csharp
+
+2. Saving edit activity returns 403 Forbidden
+- 403 forbidden
+- Issue in custom authorization filter
+\Infrastructure\Security\IsHostRequirement.cs
+
+Resolution: Refactored 
+https://github.com/TryCatchLearn/Reactivities30/blob/master/Infrastructure/Security/IsHostRequirement.cs
+
+3. Update client side SignalR
+https://docs.microsoft.com/en-us/aspnet/core/signalr/javascript-client?view=aspnetcore-3.0
+- modify client-app\package.json from "@aspnet/signalr": "^1.1.4",
+"dependencies": {
+    "@microsoft/signalr": "^3.0.0",
+
+- modify client-app\src\app\stores\activityStore.ts "@aspnet/signalr"; to: 
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  LogLevel
+} from "@microsoft/signalr";

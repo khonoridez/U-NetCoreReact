@@ -307,6 +307,9 @@ https://github.com/aspnet/AspNetCore.Docs/issues/12564
 1. Implement workaround by getting the RouteValues in id in HttpContext until further notice
 var activityId = Guid.Parse(_httpContextAccessor.HttpContext.Request?.RouteValues?["id"].ToString());
 
+2. Resolution: Refactored 
+https://github.com/TryCatchLearn/Reactivities30/blob/master/Infrastructure/Security/IsHostRequirement.cs
+
 ++++++++++++++ textAlign: string;...... }' is not assignable to type 'CSSProperties'.++++++++++++++
 !!! Error Type '{ textAlign: string;...... }' is not assignable to type 'CSSProperties'.
   Types of property 'textAlign' are incompatible.
@@ -417,3 +420,16 @@ Resolution: Using Windows move command
  https://stackoverflow.com/questions/38671641/could-not-load-file-or-assembly-newtonsoft-json-version-9-0-0-0-culture-neutr
 
 Resolution: add Newtonsoft.Json to startup project
+
++++++++++++++Edit Activity drop down not populating+++++++++++++
+- Migration created drop down value in capitalized first letter
+Resolution: Modified Category value in Seed to all small letters
+
++++++++++++++3 vulnerabilities+++++++++++++
+# Run  npm update handlebars --depth 7  to resolve 3 vulnerabilities
+Package         handlebars
+Dependency of   react-scripts
+
+found 3 high severity vulnerabilities in 905278 scanned packages
+
+Resolution: update handlebars to 4.5.3
