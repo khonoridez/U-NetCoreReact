@@ -424,3 +424,12 @@ Resolution: add Newtonsoft.Json to startup project
 +++++++++++++Edit Activity drop down not populating+++++++++++++
 - Migration created drop down value in capitalized first letter
 Resolution: Modified Category value in Seed to all small letters
+
++++++++++++++3 vulnerabilities+++++++++++++
+# Run  npm update handlebars --depth 7  to resolve 3 vulnerabilities
+Package         handlebars
+Dependency of   react-scripts
+
+found 3 high severity vulnerabilities in 905278 scanned packages
+
+Resolution: update handlebars to 4.5.3

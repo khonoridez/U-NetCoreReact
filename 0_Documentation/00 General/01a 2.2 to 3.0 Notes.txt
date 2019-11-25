@@ -117,3 +117,16 @@ https://riptutorial.com/json-net/example/6594/how-to-serialize-an-object-to-json
 
 Resolution: Refactored 
 https://github.com/TryCatchLearn/Reactivities30/blob/master/Infrastructure/Security/IsHostRequirement.cs
+
+3. Update client side SignalR
+https://docs.microsoft.com/en-us/aspnet/core/signalr/javascript-client?view=aspnetcore-3.0
+- modify client-app\package.json from "@aspnet/signalr": "^1.1.4",
+"dependencies": {
+    "@microsoft/signalr": "^3.0.0",
+
+- modify client-app\src\app\stores\activityStore.ts "@aspnet/signalr"; to: 
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  LogLevel
+} from "@microsoft/signalr";
