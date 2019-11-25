@@ -64,7 +64,7 @@ https://github.com/mkloubert/vscode-deploy-reloaded/wiki/target_local
 dotnet publish -c Release -o publish --self-contained false U-NetCoreReact.sln
 
 - output will be in the root solution folder/publish/
-- publish folder may exist
+- publish folder can exist, will not overwrite
 
 - Add GenerateAssemblyInfo in .csproj files to supress errors
 	<PropertyGroup>
@@ -77,7 +77,7 @@ dotnet publish -c Release -o publish --self-contained false U-NetCoreReact.sln
 - type, Deploy Reloaded: Deploy
 - select, Package
 
-5. Resfresh/Restart host server
+5. Refresh/Restart host server
 
 ++++++++++++++Hosting in IIS++++++++++++++
 https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/?view=aspnetcore-3.0

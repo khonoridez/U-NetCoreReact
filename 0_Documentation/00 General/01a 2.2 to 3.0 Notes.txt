@@ -92,3 +92,20 @@ app.UseEndpoints(endpoints =>
 
     endpoints.MapFallbackToController("Fallback", "Home");
 });
+
+++++++++++++++Course Update Nov 2019++++++++++++++
+
+1. Replace Newtonsoft with System.Text.Json
+Newtonsoft.Json.JsonPropertyAttribute
+From:
+[JsonProperty("attendees")]
+To:
+using System.Text.Json.Serialization;
+...
+[JsonPropertyName("attendees")]
+
+https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-how-to?view=netcore-3.0#serialize-to-formatted-json
+https://www.c-sharpcorner.com/article/the-new-json-serializer-in-net-core-3/
+https://devblogs.microsoft.com/dotnet/try-the-new-system-text-json-apis/
+https://michaelscodingspot.com/the-battle-of-c-to-json-serializers-in-net-core-3/
+https://riptutorial.com/json-net/example/6594/how-to-serialize-an-object-to-json-using-json-net-in-csharp
