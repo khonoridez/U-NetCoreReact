@@ -81,6 +81,9 @@ services.AddAutoMapper(typeof(List.Handler));
 if (context.Resource is AuthorizationFilterContext mvcContext) // in 3.0 results in null
 https://github.com/aspnet/AspNetCore.Docs/issues/12564
 
+Resolution: Refactored 
+https://github.com/TryCatchLearn/Reactivities30/blob/master/Infrastructure/Security/IsHostRequirement.cs
+
 ++++++++++++++SetMain Photo API++++++++++++++
 - Getting 500 Internal Server Error when setting main photo to a main photo
 

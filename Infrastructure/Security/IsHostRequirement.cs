@@ -23,24 +23,18 @@ namespace Infrastructure.Security
             _httpContextAccessor = httpContextAccessor;
         }
 
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
-            IsHostRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, IsHostRequirement requirement)
         {
-            if (context.Resource is Endpoint endpoint)
-            {
-                var currentUserName = _httpContextAccessor.HttpContext.User?.Claims?
-                    .SingleOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var currentUserName = _httpContextAccessor.HttpContext.User?.Claims?.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 
-                var activityId = Guid.Parse(_httpContextAccessor.HttpContext.Request?.RouteValues?["id"].ToString());
-                var activity = _context.Activities.FindAsync(activityId).Result;
+            var activityId = Guid.Parse(_httpContextAccessor.HttpContext.Request.RouteValues.SingleOrDefault(x => x.Key == "id").Value.ToString());
 
-                var host = activity.UserActivities.FirstOrDefault(ua => ua.IsHost);
+            var activity = _context.Activities.FindAsync(activityId).Result;
 
-                if (host?.AppUser.UserName == currentUserName)
-                    context.Succeed(requirement);
-            }
-            else
-                context.Fail();
+            var host = activity.UserActivities.FirstOrDefault(x => x.IsHost);
+
+            if (host?.AppUser?.UserName == currentUserName)
+                context.Succeed(requirement);
 
             return Task.CompletedTask;
         }
