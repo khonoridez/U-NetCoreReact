@@ -417,3 +417,7 @@ Resolution: Using Windows move command
  https://stackoverflow.com/questions/38671641/could-not-load-file-or-assembly-newtonsoft-json-version-9-0-0-0-culture-neutr
 
 Resolution: add Newtonsoft.Json to startup project
+
++++++++++++++Edit Activity drop down not populating+++++++++++++
+- Migration created drop down value in capitalized first letter
+Resolution: Modified Category value in Seed to all small letters
