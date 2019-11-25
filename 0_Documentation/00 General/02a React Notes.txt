@@ -2,6 +2,11 @@
 React CheatSheets
 https://github.com/typescript-cheatsheets/react-typescript-cheatsheet
 
+++++++++++++NEW REPO++++++++++++++
+
+> cd client-app
+> npm install
+
 ++++++++++++RUN COMMANDS CLIENT++++++++++++++
 
 Start client
