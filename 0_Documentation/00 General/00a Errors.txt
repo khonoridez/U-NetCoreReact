@@ -433,3 +433,54 @@ Dependency of   react-scripts
 found 3 high severity vulnerabilities in 905278 scanned packages
 
 Resolution: update handlebars to 4.5.3
+
++++++++++++++Error upon Login with database service off+++++++++++++
+- Format wrong bulleted list
+Internal Server Error
+U
+n
+a
+b
+l
+e
+t
+o
+c
+o
+n
+n
+e
+c
+t
+t
+o
+a
+n
+y
+o
+f
+t
+h
+e
+s
+p
+e
+c
+i
+f
+i
+e
+d
+M
+y
+S
+Q
+L
+h
+o
+s
+t
+s
+.
+Invalid email or password
+
